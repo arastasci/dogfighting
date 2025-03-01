@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>AT_CORE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)src\at;$(ProjectDir)vendor\spdlog\include; $(ProjectDir)vendor\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)src\;$(ProjectDir)vendor\spdlog\include; $(ProjectDir)vendor\;</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)src\at;$(ProjectDir)vendor\spdlog\include; $(ProjectDir)vendor\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)src\;$(ProjectDir)vendor\spdlog\include; $(ProjectDir)vendor\;</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -146,18 +146,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\atpch.cpp" />
+    <ClCompile Include="src\at\core\Input.cpp" />
     <ClCompile Include="vendor\glad.c" />
     <ClCompile Include="src\at\Logger.cpp" />
     <ClCompile Include="src\at\Application.cpp" />
     <ClCompile Include="src\at\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\at\Core.h" />
+    <ClInclude Include="src\at\core\Core.h" />
+    <ClInclude Include="src\at\core\Input.h" />
+    <ClInclude Include="src\at\core\KeyCodes.h" />
     <ClInclude Include="src\at\Logger.h" />
     <ClInclude Include="src\at.h" />
     <ClInclude Include="src\at\Application.h" />
     <ClInclude Include="src\at\Window.h" />
-    <ClInclude Include="src\at\atpch.h" />
+    <ClInclude Include="src\atpch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

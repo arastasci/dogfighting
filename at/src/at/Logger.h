@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
+#include <atpch.h>
 
-#include "Core.h"
+#include "at/core/Core.h"
 
 #include <spdlog/spdlog.h>
 

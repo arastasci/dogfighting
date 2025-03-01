@@ -11,13 +11,14 @@ namespace at
 	public:
 		Window();
 		~Window();
+		GLFWwindow* GetGLFWWindow();
 	private:
 		void Init();
 
-		GLFWwindow* m_window;
+		GLFWwindow* m_GLFWwindow;
 		// TODO: callbacks
 		friend class Application;
-
+		void SwapBuffers();
 		bool ShouldClose();
 
 	};

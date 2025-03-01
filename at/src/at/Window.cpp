@@ -9,16 +9,22 @@ namespace at
 	Window::~Window()
 	{
 	}
+
+	GLFWwindow* Window::GetGLFWWindow()
+	{
+		return m_GLFWwindow;
+	}
+
 	void Window::Init()
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		m_window = glfwCreateWindow(1280, 720, "at", nullptr, nullptr);
-		glfwMakeContextCurrent(m_window);
+		m_GLFWwindow = glfwCreateWindow(1280, 720, "at", nullptr, nullptr);
+		glfwMakeContextCurrent(m_GLFWwindow);
 
-		if (m_window == NULL)
+		if (m_GLFWwindow == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
@@ -33,9 +39,13 @@ namespace at
 
 		glViewport(0, 0, 1280, 720);
 	}
+	void Window::SwapBuffers()
+	{
+		glfwSwapBuffers(m_GLFWwindow);
+	}
 	bool Window::ShouldClose()
 	{
-		return glfwWindowShouldClose(m_window);
+		return glfwWindowShouldClose(m_GLFWwindow);
 	}
 }
 

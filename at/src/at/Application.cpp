@@ -1,6 +1,13 @@
 #include "Application.h"
 #include <GLFW/glfw3.h>
+#include "Logger.h"
 namespace at {
+	 Application* Application::m_instance;
+
+	Application* Application::Instance()
+	{
+		return m_instance;
+	}
 	Application::Application()
 	{
 		
@@ -13,6 +20,16 @@ namespace at {
 
 	void Application::Init()
 	{
+		if (m_instance == nullptr)
+		{
+			m_instance = this;
+		}
+		else
+		{
+			AT_CORE_CRITICAL("Application has multiple instances!");
+			assert(m_instance == nullptr);
+		}
+
 		m_currentWindow = new Window();
 		m_currentWindow->Init();
 	}
@@ -21,9 +38,19 @@ namespace at {
 	{
 		while (!m_currentWindow->ShouldClose())
 		{
-			glfwSwapBuffers(m_currentWindow->m_window);
+
+
+			m_currentWindow->SwapBuffers();
 			glfwPollEvents();
 		}
+
+
+		glfwTerminate();
+	}
+
+	Window* Application::GetWindow()
+	{
+		return m_currentWindow;
 	}
 
 }

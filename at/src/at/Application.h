@@ -1,17 +1,20 @@
 #pragma once
 
-#include "Core.h"
+#include "at/core/Core.h"
 #include "Window.h"
 namespace at
 {
 	class AT_API Application
 	{
 	public:
+		static Application* Instance();
 		Application();
 		virtual ~Application();
 		void Init();
 		void Run();
+		Window* GetWindow();
 	private:
+		static Application* m_instance;
 		Window* m_currentWindow;
 	};
 }
