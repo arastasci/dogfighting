@@ -21,18 +21,30 @@
     <ClCompile Include="src\at\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\at\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\at\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\at\Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\at.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\at\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\atpch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
