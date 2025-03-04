@@ -74,5 +74,11 @@
     <ClInclude Include="src\at\ecs\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreComponents\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

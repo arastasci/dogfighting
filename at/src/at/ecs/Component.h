@@ -1,6 +1,8 @@
 #pragma once
 
-class Component 
+namespace at
 {
-
-};
+	struct Component
+	{
+	};
+}

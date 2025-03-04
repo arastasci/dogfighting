@@ -1,5 +1,6 @@
 #pragma once
 #include <entt/entity/registry.hpp>
+#include <at/ecs/CoreComponents/CoreComponents.h>
 
 namespace at
 {
@@ -13,7 +14,8 @@ namespace at
 		Scene();
 		~Scene();
 		void Init();
-		Entity* CreateEntity();
+		Entity CreateEntity();
+		Entity CreateEntity(const Transform& t);
 
 	private:
 		static Scene* m_activeScene;

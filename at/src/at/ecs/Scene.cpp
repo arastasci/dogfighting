@@ -30,10 +30,20 @@ namespace at
 	}
 
 
-	Entity* Scene::CreateEntity()
+	Entity Scene::CreateEntity()
+	{
+		Transform t;
+		return CreateEntity(t);
+	}
+
+	Entity Scene::CreateEntity(const Transform& t)
 	{
 		auto handle = m_registry.create();
 
-		return new Entity(handle, this);
+		Entity e = { handle, this };
+
+		e.AddComponent<Transform>(t);
+
+		return e;
 	}
 }

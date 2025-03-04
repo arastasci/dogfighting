@@ -158,6 +158,8 @@
     <ClCompile Include="src\at\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />
+    <ClInclude Include="src\at\ecs\CoreComponents\Transform.h" />
     <ClInclude Include="src\at\ecs\Scene.h" />
     <ClInclude Include="src\at\ecs\Component.h" />
     <ClInclude Include="src\at\ecs\Entity.h" />
