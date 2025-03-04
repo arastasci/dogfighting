@@ -1,18 +1,36 @@
 #include "Input.h"
 #include "at/Application.h"
-namespace at
+namespace Input
 {
-	bool Input::IsKeyPressed(int keyCode)
+	bool GetKeyPress(int keyCode)
 	{
-		GLFWwindow* window = Application::Instance()->GetWindow()->GetGLFWWindow();
+		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
 		auto state = glfwGetKey(window, keyCode);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
+		return state == GLFW_PRESS;
 	}
-	std::pair<float, float> Input::GetMousePos()
+	bool GetKeyRelease(int keyCode)
 	{
-		GLFWwindow* window = Application::Instance()->GetWindow()->GetGLFWWindow();
+		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
+		auto state = glfwGetKey(window, keyCode);
+		return state == GLFW_RELEASE;
+	}
+	std::pair<float, float> GetMousePos()
+	{
+		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
 		double x, y;
 		glfwGetCursorPos(window, &x, &y);
 		return std::pair<float, float>(x, y);
+	}
+	bool GetMouseButtonPress(int button)
+	{
+		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
+		auto state = glfwGetMouseButton(window, button);
+		return state == GLFW_PRESS;
+	}
+	bool GetMouseButtonRelease(int button)
+	{
+		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
+		auto state = glfwGetMouseButton(window, button);
+		return state == GLFW_RELEASE;
 	}
 }

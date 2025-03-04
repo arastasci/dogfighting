@@ -12,6 +12,16 @@ public:
 	{
 
 	}
+	virtual void Test() override
+	{
+		/*auto p = at::Input::GetMousePos();
+		AT_INFO("Mouse pos: {0}, {1}",p.first, p.second);*/
+
+		if (Input::GetMouseButtonPress(AT_MOUSE_BUTTON_1))
+		{
+			AT_INFO("GELMEZSEN GELME");
+		}
+	}
 };
 
 

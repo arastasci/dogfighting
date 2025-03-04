@@ -13,6 +13,7 @@ namespace at
 		void Init();
 		void Run();
 		Window* GetWindow();
+		virtual void Test() = 0;
 	private:
 		static Application* m_instance;
 		Window* m_currentWindow;

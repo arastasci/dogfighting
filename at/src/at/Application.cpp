@@ -39,7 +39,7 @@ namespace at {
 		while (!m_currentWindow->ShouldClose())
 		{
 
-
+			Test();
 			m_currentWindow->SwapBuffers();
 			glfwPollEvents();
 		}
