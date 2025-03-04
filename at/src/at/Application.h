@@ -2,6 +2,7 @@
 
 #include "at/core/Core.h"
 #include "Window.h"
+#include "at/ecs/Scene.h"
 namespace at
 {
 	class AT_API Application
@@ -17,5 +18,7 @@ namespace at
 	private:
 		static Application* m_instance;
 		Window* m_currentWindow;
+
+		Scene* m_activeScene;
 	};
 }

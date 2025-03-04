@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <GLFW/glfw3.h>
 #include "Logger.h"
+
 namespace at {
 	 Application* Application::m_instance;
 
