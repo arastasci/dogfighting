@@ -153,6 +153,8 @@
     <ClCompile Include="src\atpch.cpp" />
     <ClCompile Include="src\at\core\Input.cpp" />
     <ClCompile Include="src\at\renderer\Buffers.cpp" />
+    <ClCompile Include="src\at\renderer\Camera.cpp" />
+    <ClCompile Include="src\at\renderer\Mesh.cpp" />
     <ClCompile Include="src\at\renderer\Renderer.cpp" />
     <ClCompile Include="src\at\renderer\Texture2D.cpp" />
     <ClCompile Include="src\at\renderer\VertexArray.cpp" />
@@ -178,6 +180,7 @@
     <ClInclude Include="src\at\core\Window.h" />
     <ClInclude Include="src\atpch.h" />
     <ClInclude Include="src\at\renderer\Buffers.h" />
+    <ClInclude Include="src\at\renderer\Camera.h" />
     <ClInclude Include="src\at\renderer\Material.h" />
     <ClInclude Include="src\at\renderer\Mesh.h" />
     <ClInclude Include="src\at\renderer\Renderer.h" />

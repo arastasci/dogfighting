@@ -2,12 +2,12 @@
 
 #include <at/ecs/Component.h>
 #include <at/renderer/Material.h>
-#include "at/renderer/VertexArray.h"
+#include <at/renderer/Mesh.h>
 namespace at
 {
 	struct MeshRenderer : public Component
 	{
-		VertexArray VertexArray;
-
+		Mesh Mesh;
+		Material Material;
 	};
 }
