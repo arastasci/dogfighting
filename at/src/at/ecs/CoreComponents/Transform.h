@@ -1,10 +1,11 @@
 #pragma once
 
+#include "at/core/Core.h"
 #include <at/ecs/Component.h>
-#include <glm/vec3.hpp>
+#include "at/math/Math.h"
 namespace at
 {
-    struct Transform : public Component
+    struct AT_API Transform : public Component
     {
         Transform(const Transform& other) = default;
 

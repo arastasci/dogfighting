@@ -19,6 +19,7 @@ namespace at
 
 	private:
 		static Scene* m_activeScene;
+		static CameraComponent* m_MainCamera;
 
 		entt::registry m_registry;
 

@@ -165,6 +165,7 @@
     <ClCompile Include="vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\MeshRenderer.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\Transform.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="src\at\core\Application.h" />
     <ClInclude Include="src\at\core\Window.h" />
     <ClInclude Include="src\atpch.h" />
+    <ClInclude Include="src\at\math\Math.h" />
     <ClInclude Include="src\at\renderer\Buffers.h" />
     <ClInclude Include="src\at\renderer\Camera.h" />
     <ClInclude Include="src\at\renderer\Material.h" />

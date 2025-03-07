@@ -27,6 +27,7 @@ namespace at
 		{
 			AT_CORE_WARN("A passive scene has been initialized");
 		}
+
 	}
 
 
