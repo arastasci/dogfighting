@@ -1,0 +1,14 @@
+#pragma once
+
+#include "VertexArray.h"
+
+namespace at
+{
+	class Renderer
+	{
+	public:
+		static void Init();
+		static void SetViewport(int x, int y, int width, int height);
+		static void DrawElements(std::shared_ptr<VertexArray>& vertexArray);
+	};
+}

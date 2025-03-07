@@ -11,21 +11,14 @@ namespace at
         glm::vec3 position;
         glm::vec3 rotation; // Euler angles
         glm::vec3 scale;
-        Transform* parent;
 
         Transform()
             : position(0.0f),
             rotation(0.0f),
-            scale(1.0f),
-            parent(nullptr)
+            scale(1.0f)
         {
         }
 
-        Transform(Transform* parent)
-            : Transform()
-        {
-
-        }
     };
 
 }

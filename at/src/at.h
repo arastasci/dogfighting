@@ -1,5 +1,9 @@
 #pragma once
-#include "at/Application.h"
+#include "at/core/Application.h"
 #include "at/core/Input.h"
 #include "at/core/KeyCodes.h"
-#include "at/Logger.h"
+#include "at/core/Logger.h"
+
+#include "at/ecs/Component.h"
+#include "at/ecs/Entity.h"
+#include "at/ecs/Scene.h"
