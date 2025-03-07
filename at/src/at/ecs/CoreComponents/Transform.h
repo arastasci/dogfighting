@@ -2,7 +2,8 @@
 
 #include "at/core/Core.h"
 #include <at/ecs/Component.h>
-#include "at/math/Math.h"
+#include "at/utils/Math.h"
+
 namespace at
 {
     struct AT_API Transform : public Component

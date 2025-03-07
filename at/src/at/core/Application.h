@@ -15,10 +15,13 @@ namespace at
 		void Run();
 		Window* GetWindow();
 		virtual void Test() = 0;
+		void Update();
 	private:
 		static Application* m_instance;
 		Window* m_currentWindow;
 
+		double m_DeltaTime;
+		double m_FrameTime;
 		Scene* m_activeScene;
 	};
 }

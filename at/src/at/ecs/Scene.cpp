@@ -47,4 +47,9 @@ namespace at
 
 		return e;
 	}
+	void Scene::Update(double deltaTime)
+	{
+		// update all systems
+		// render
+	}
 }

@@ -131,10 +131,13 @@
     <ClInclude Include="src\at\renderer\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\at\math\Math.h">
+    <ClInclude Include="src\at\utils\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreSystems\System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

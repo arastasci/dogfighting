@@ -28,7 +28,7 @@ public:
 int  main()
 { 
 	at::Logger::Init();
-	AT_INFO("Well, we lent some code from {0}...", "Cherno");
+	//AT_INFO("Well, we lent some code from {0}...", "Cherno");
 	Sandbox* a = new Sandbox();
 	a->Init();
 

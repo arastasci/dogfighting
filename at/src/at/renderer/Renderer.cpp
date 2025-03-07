@@ -1,7 +1,10 @@
 #include "Renderer.h"
 
+
 namespace at
 {
+	
+
 	void Renderer::Init()
 	{
 	#ifdef AT_DEBUG
@@ -15,6 +18,8 @@ namespace at
 
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_LINE_SMOOTH);
+
+
 	}
 
 
@@ -23,10 +28,14 @@ namespace at
 		glViewport(x, y, width, height);
 	}
 
-	void Renderer::DrawElements(std::shared_ptr<VertexArray>& vertexArray)
+	void Renderer::DrawElements(std::shared_ptr<VertexArray>& vertexArray, Shader& shader)
 	{
+		
+		shader.use();
 		vertexArray->Bind();
 		uint32_t count = vertexArray->GetIndexBuffer()->GetCount();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+
+
 	}
 }

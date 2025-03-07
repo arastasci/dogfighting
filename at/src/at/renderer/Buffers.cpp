@@ -85,14 +85,15 @@ namespace at
 
 	VertexBuffer::VertexBuffer(float* vertices, uint32_t size) : m_Size(size)
 	{
-		glGenBuffers(GL_ARRAY_BUFFER, &m_GLID);
+		glCreateBuffers(1, &m_GLID);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_GLID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 	VertexBuffer::VertexBuffer(uint32_t size) : m_Size(size)
 	{
-		glGenBuffers(GL_ARRAY_BUFFER, &m_GLID);
+	
+ 		glCreateBuffers(1, &m_GLID);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_GLID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);

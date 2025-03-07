@@ -1,5 +1,5 @@
 #pragma once
-
+#include "at/core/Core.h"
 #include "at/ecs/Component.h"
 #include "at/renderer/Camera.h"
 namespace at

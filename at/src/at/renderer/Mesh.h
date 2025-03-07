@@ -4,7 +4,7 @@
 
 namespace at
 {
-	class Mesh
+	class  Mesh
 	{
 	public:
 		Mesh();

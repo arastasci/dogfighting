@@ -1,5 +1,5 @@
 #pragma once
-#include "at/math/Math.h"
+#include "at/utils/Math.h"
 
 namespace at
 {

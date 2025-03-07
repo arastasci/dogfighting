@@ -16,7 +16,7 @@ namespace at
 		void Init();
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
-
+		void Update(double deltaTime);
 	private:
 		static Scene* m_activeScene;
 		static CameraComponent* m_MainCamera;
