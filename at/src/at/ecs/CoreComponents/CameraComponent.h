@@ -6,7 +6,8 @@ namespace at
 {
 	struct AT_API CameraComponent : public Component
 	{
+		CameraComponent(vec3 position, vec3 front, vec3 up, float FOV, float aspectRatio) 
+			: Camera(position, front, up, FOV, aspectRatio){}
 		Camera Camera;
-		bool IsMainCamera = false;
 	};
 }

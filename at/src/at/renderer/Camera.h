@@ -7,9 +7,12 @@ namespace at
 	{
 	public:
 		Camera(glm::vec3 position, quat rotation, float FOV, float aspectRatio, float nearPlane, float farPlane);
+		Camera(vec3 position, vec3 front, vec3 up, float FOV, float aspectRatio);
+		Camera() = default;
 		~Camera() = default;
 		mat4 GetProjectionMatrix();
 		mat4 GetViewMatrix();
+
 		void Update(glm::vec3 position, quat rotation);
 	private:
 		mat4 m_ProjectionMatrix;

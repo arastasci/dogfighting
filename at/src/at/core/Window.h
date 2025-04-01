@@ -1,7 +1,6 @@
 #pragma once
-#include <glad/glad.h> 
-#include "GLFW/glfw3.h"
 
+#include "atpch.h"
 
 namespace at
 {
@@ -9,12 +8,17 @@ namespace at
 	class  Window
 	{
 	public:
+		Window(int width, int height, std::string name);
 		Window();
 		~Window();
 		GLFWwindow* GetGLFWWindow();
-	private:
-		void Init();
+		std::pair<int, int> GetWindowWidth();
 
+		float GetAspectRatio();
+	private:
+		
+		int m_Width, m_Height;
+		
 		GLFWwindow* m_GLFWwindow;
 		// TODO: callbacks
 		friend class Application;

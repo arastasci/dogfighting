@@ -6,7 +6,7 @@ namespace Input
 	{
 		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();
 		auto state = glfwGetKey(window, keyCode);
-		return state == GLFW_PRESS;
+		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 	bool GetKeyRelease(int keyCode)
 	{

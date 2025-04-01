@@ -2,11 +2,18 @@
 namespace at
 {
 	Camera::Camera(glm::vec3 position, glm::quat rotation,float FOV, float aspectRatio, float nearPlane, float farPlane)
-		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(m_NearPlane), m_FarPlane(farPlane)
+		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(nearPlane), m_FarPlane(farPlane)
 	{
 		vec3 pos = position;
-		vec3 lookAt = glm::rotate(rotation, Vector3::forward);
-		m_ViewMatrix = glm::lookAt(pos, pos + lookAt, Vector3::up);
+		m_ViewMatrix = glm::lookAt(pos, pos + Vector3::forward, Vector3::up);
+		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
+	}
+
+	Camera::Camera(vec3 position, vec3 front, vec3 up, float FOV, float aspectRatio) 
+		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(0.1f), m_FarPlane(800.f)
+	{
+		vec3 pos = position;
+		m_ViewMatrix = glm::lookAt(pos, pos + front, up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 
@@ -23,8 +30,8 @@ namespace at
 	void Camera::Update(glm::vec3 position, glm::quat rotation)
 	{
 		vec3 pos = position;
-		vec3 lookAt = glm::rotate(rotation, Vector3::forward);
-		m_ViewMatrix = glm::lookAt(pos, pos + lookAt, Vector3::up);
+		
+		m_ViewMatrix = glm::lookAt(pos, pos + Vector3::forward, Vector3::up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 }

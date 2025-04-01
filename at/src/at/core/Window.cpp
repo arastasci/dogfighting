@@ -3,19 +3,9 @@
 
 namespace at
 {
-	Window::Window()
-	{
-	}
-	Window::~Window()
-	{
-	}
 
-	GLFWwindow* Window::GetGLFWWindow()
-	{
-		return m_GLFWwindow;
-	}
-
-	void Window::Init()
+	Window::Window(int width, int height, std::string name) 
+		: m_Width(width), m_Height(height)
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -39,6 +29,32 @@ namespace at
 
 		glViewport(0, 0, 1280, 720);
 	}
+
+
+	Window::Window() : Window(1280, 720, "at")
+	{
+		
+	}
+	Window::~Window()
+	{
+	}
+
+	GLFWwindow* Window::GetGLFWWindow()
+	{
+		return m_GLFWwindow;
+	}
+
+	std::pair<int, int> Window::GetWindowWidth()
+	{
+		return std::pair<int, int>(m_Width, m_Height);
+	}
+
+	float Window::GetAspectRatio()
+	{
+		return m_Width / (float) m_Height;
+	}
+
+	
 	void Window::SwapBuffers()
 	{
 		glfwSwapBuffers(m_GLFWwindow);

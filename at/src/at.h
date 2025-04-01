@@ -4,6 +4,7 @@
 #include "at/core/KeyCodes.h"
 #include "at/core/Logger.h"
 
+#include "at/renderer/Mesh.h"
 #include "at/ecs/Component.h"
 #include "at/ecs/Entity.h"
 #include "at/ecs/Scene.h"

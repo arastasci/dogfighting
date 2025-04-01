@@ -137,7 +137,22 @@
     <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\at\ecs\CoreSystems\System.h">
+    <ClInclude Include="src\at\ecs\System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreSystems\MeshRendererSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreSystems\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreSystems\SetupSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\SystemScheduler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\ISystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

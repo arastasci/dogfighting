@@ -10,9 +10,19 @@ namespace at
     {
         Transform(const Transform& other) = default;
 
+
+
         glm::vec3 position;
         glm::vec3 rotation; // Euler angles
         glm::vec3 scale;
+
+
+        Transform(vec3 pos)
+            : position(pos),
+            rotation(0.0f),
+            scale(1.0f)
+        {
+        }
 
         Transform()
             : position(0.0f),

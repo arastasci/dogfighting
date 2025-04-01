@@ -8,6 +8,7 @@ namespace at
 {
 	struct AT_API MeshRenderer : public Component
 	{
+		MeshRenderer(Mesh&& m, Material&& mat) : Mesh(m), Material(mat){}
 		Mesh Mesh;
 		Material Material;
 	};

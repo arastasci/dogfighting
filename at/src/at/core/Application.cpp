@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include "Logger.h"
 #include "at/renderer/Renderer.h"
+#include "at/ecs/CoreSystems/CameraSystem.h"
+#include "at/ecs/CoreSystems/MeshRendererSystem.h"
+#include "Input.h"
 namespace at {
 	 Application* Application::m_instance;
 
@@ -11,7 +14,7 @@ namespace at {
 	}
 	Application::Application()
 	{
-		
+		m_activeScene = std::make_shared<Scene>();
 	}
 
 	Application::~Application()
@@ -31,51 +34,45 @@ namespace at {
 			assert(m_instance == nullptr);
 		}
 
-		m_currentWindow = new Window();
-		m_currentWindow->Init();
 
+
+		m_currentWindow = new Window();
+		Renderer::Init();
+		m_activeScene->Init();
+
+		std::shared_ptr<CameraSystem> cameraSystem = std::make_shared<CameraSystem>();
+		std::shared_ptr<MeshRendererSystem> mrSystem= std::make_shared<MeshRendererSystem>();
+
+		m_activeScene->m_SystemScheduler->Register(cameraSystem);
+		m_activeScene->m_SystemScheduler->Register(mrSystem);
+
+		AppInit(); // application initialization code
 	}
 
-	const float vertices[]
-		=
-	{
-		-0.5f, -0.5f, 0.f,
-		0.5f, -0.5f, 0.f,
-		0.f, 0.5f, 0.f,
-	};
 
-	 uint32_t indices[] =
-	{
-		0, 1, 2
-	};
-	
 	void Application::Run()
 	{
 		m_FrameTime = glfwGetTime();
 		
-		VertexBuffer b(sizeof(vertices));
-		b.SetData(vertices, sizeof(vertices));
+		
 
-		BufferLayout l({ BufferElement(ShaderDataType::Float3, "aPos")});
-		b.SetLayout(l);
 
-		VertexArray a;
-
-		auto e = std::make_shared<IndexBuffer>(indices, 3);
-
-		auto bPtr = std::make_shared<VertexBuffer>(std::move(b));
-		a.AddVertexBuffer(bPtr);
-
-		auto aPtr = std::make_shared<VertexArray>(std::move(a));
-		aPtr->SetIndexBuffer(e);
-
-		Shader shader("res/shaders/vertex.glsl", "res/shaders/frag.glsl");
+		
 
 		while (!m_currentWindow->ShouldClose())
 		{
-			m_DeltaTime = glfwGetTime() - m_FrameTime;
+
+			auto timeNow = glfwGetTime();
+			m_DeltaTime = timeNow - m_FrameTime;
+			m_FrameTime = timeNow;
+
 			//Update();
-			Renderer::DrawElements(aPtr, shader);
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			m_activeScene->m_SystemScheduler->Update(m_DeltaTime);
+
+
 			m_currentWindow->SwapBuffers();
 			glfwPollEvents();
 		}

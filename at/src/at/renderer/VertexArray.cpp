@@ -5,6 +5,7 @@ namespace at
 {
 	VertexArray::VertexArray()
 	{
+		m_VertexBufferIndex = 0;
 		glCreateVertexArrays(1, &m_GLID);
 	}
 	void VertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer>& b)

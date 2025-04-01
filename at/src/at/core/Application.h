@@ -11,17 +11,17 @@ namespace at
 		static Application* Instance();
 		Application();
 		virtual ~Application();
+		virtual void AppInit() = 0;
 		void Init();
 		void Run();
 		Window* GetWindow();
-		virtual void Test() = 0;
 		void Update();
-	private:
+	protected:
 		static Application* m_instance;
 		Window* m_currentWindow;
 
 		double m_DeltaTime;
 		double m_FrameTime;
-		Scene* m_activeScene;
+		std::shared_ptr<Scene> m_activeScene;
 	};
 }

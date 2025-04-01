@@ -1,15 +1,16 @@
 #pragma once
 #include <entt/entity/registry.hpp>
 #include <at/ecs/CoreComponents/CoreComponents.h>
+#include "SystemScheduler.h"
 
 namespace at
 {
 	class Entity;
 
-	class Scene
+	class AT_API Scene : public std::enable_shared_from_this<Scene>
 	{
 	public:
-		static Scene* ActiveScene();
+		static std::shared_ptr<Scene> ActiveScene();
 
 		Scene();
 		~Scene();
@@ -17,13 +18,30 @@ namespace at
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
 		void Update(double deltaTime);
+
+		template<typename... Components>
+		auto GetAllEntitiesWith()
+		{
+			return m_registry.view<Components...>();
+		}
+
+		template<typename... Components>
+		auto GetAllComponents()
+		{
+			return m_registry.group<Components...>();
+		}
+
+		// TOOO: change ltr
+		std::unique_ptr<SystemScheduler> m_SystemScheduler;
+
 	private:
-		static Scene* m_activeScene;
+		static std::shared_ptr<Scene> m_activeScene;
 		static CameraComponent* m_MainCamera;
 
 		entt::registry m_registry;
 
 		friend class Entity;
+
 	};
 
 }

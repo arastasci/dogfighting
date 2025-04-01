@@ -170,7 +170,11 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\MeshRenderer.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\Transform.h" />
-    <ClInclude Include="src\at\ecs\CoreSystems\System.h" />
+    <ClInclude Include="src\at\ecs\CoreSystems\CameraSystem.h" />
+    <ClInclude Include="src\at\ecs\CoreSystems\MeshRendererSystem.h" />
+    <ClInclude Include="src\at\ecs\CoreSystems\SetupSystem.h" />
+    <ClInclude Include="src\at\ecs\ISystem.h" />
+    <ClInclude Include="src\at\ecs\System.h" />
     <ClInclude Include="src\at\ecs\Scene.h" />
     <ClInclude Include="src\at\ecs\Component.h" />
     <ClInclude Include="src\at\ecs\Entity.h" />
@@ -182,6 +186,7 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     <ClInclude Include="src\at\core\Application.h" />
     <ClInclude Include="src\at\core\Window.h" />
     <ClInclude Include="src\atpch.h" />
+    <ClInclude Include="src\at\ecs\SystemScheduler.h" />
     <ClInclude Include="src\at\utils\Math.h" />
     <ClInclude Include="src\at\renderer\Buffers.h" />
     <ClInclude Include="src\at\renderer\Camera.h" />

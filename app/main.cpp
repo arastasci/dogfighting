@@ -1,5 +1,5 @@
  #include <at.h>
-
+using namespace at;
 class Sandbox : public at::Application
 {
 public:
@@ -12,15 +12,18 @@ public:
 	{
 
 	}
-	virtual void Test() override
+	virtual void AppInit() override
 	{
-		/*auto p = at::Input::GetMousePos();
-		AT_INFO("Mouse pos: {0}, {1}",p.first, p.second);*/
+		auto shader = std::make_shared<Shader>("res/shaders/vertex.glsl", "res/shaders/frag.glsl");
 
-		if (Input::GetMouseButtonPress(AT_MOUSE_BUTTON_1))
-		{
-			AT_INFO("GELMEZSEN GELME");
-		}
+		auto e = m_activeScene->CreateEntity();
+
+		e.AddComponent<MeshRenderer>(Mesh(), Material(shader));
+
+		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
+
+		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
+
 	}
 };
 
@@ -28,7 +31,7 @@ public:
 int  main()
 { 
 	at::Logger::Init();
-	//AT_INFO("Well, we lent some code from {0}...", "Cherno");
+	AT_INFO("Well, we lent some code from {0}...", "Cherno");
 	Sandbox* a = new Sandbox();
 	a->Init();
 

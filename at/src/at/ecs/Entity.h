@@ -9,8 +9,10 @@ namespace at
 	class AT_API Entity
 	{
 	public:
-		Entity(entt::entity handle, Scene* scene);
+		Entity(entt::entity handle, std::shared_ptr<Scene> scene);
 
+		Entity(entt::entity handle, Scene* scene);
+		Entity() = default;
 		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Entity, T>>>
 		static T* Instantiate()
 		{
@@ -57,6 +59,26 @@ namespace at
 		{
 			return m_scene->m_registry.remove<T>(m_handle) != 0; 
 		};
+
+		bool operator==(const Entity& other)
+		{
+			return other.m_handle == m_handle;
+		}
+
+		bool operator!= (const Entity& other)
+		{
+			return other.m_handle != m_handle;
+		}
+
+		operator bool()
+		{
+			return m_scene != nullptr;
+		}
+
+		operator entt::entity()
+		{
+			return m_handle;
+		}
 
 	private:
 		entt::entity m_handle;
