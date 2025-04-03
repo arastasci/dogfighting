@@ -166,13 +166,13 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     <ClCompile Include="vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\at\ecs\CoreComponents\BehaviourComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\MeshRenderer.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\Transform.h" />
     <ClInclude Include="src\at\ecs\CoreSystems\CameraSystem.h" />
     <ClInclude Include="src\at\ecs\CoreSystems\MeshRendererSystem.h" />
-    <ClInclude Include="src\at\ecs\CoreSystems\SetupSystem.h" />
     <ClInclude Include="src\at\ecs\ISystem.h" />
     <ClInclude Include="src\at\ecs\System.h" />
     <ClInclude Include="src\at\ecs\Scene.h" />

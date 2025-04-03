@@ -1,11 +1,12 @@
 #pragma once
 #include <at/core/Core.h>
 #include <entt/entity/registry.hpp>
-#include "Component.h"
 #include "Scene.h"
-#include <at/ecs/CoreComponents/CoreComponents.h>
+
+
 namespace at
 {
+	class Transform;
 	class AT_API Entity
 	{
 	public:
@@ -43,7 +44,9 @@ namespace at
 		T& AddComponent(Args&&... args)
 		{
 			assert(!HasComponent<T>(), "Entity already has component!");
-			return m_scene->m_registry.emplace<T>(m_handle, std::forward<Args>(args)...);
+			auto& ref =  m_scene->m_registry.emplace<T>(m_handle, std::forward<Args>(args)...);
+			ref.SetEntity(*this);
+			return ref;
 		};
 
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>, typename... Args>
@@ -84,5 +87,6 @@ namespace at
 		entt::entity m_handle;
 		std::shared_ptr<Scene> m_scene;
 	};
+	
 }
 

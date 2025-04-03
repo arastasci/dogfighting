@@ -146,13 +146,13 @@
     <ClInclude Include="src\at\ecs\CoreSystems\CameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\at\ecs\CoreSystems\SetupSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\at\ecs\SystemScheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\at\ecs\ISystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\at\ecs\CoreComponents\BehaviourComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

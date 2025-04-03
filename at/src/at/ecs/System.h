@@ -6,7 +6,6 @@
 #include "ISystem.h"
 namespace at
 {
-	template<typename... Components>
 	class AT_API System : public ISystem
 	{
 	public:
@@ -22,14 +21,10 @@ namespace at
 			return Scene::ActiveScene()->GetAllEntitiesWith<T...>();
 		}
 
-		auto  GetView()
-		{
-			return Scene::ActiveScene()->GetAllEntitiesWith<Components...>();
-		}
-
+		template<typename... T>
 		auto  GetGroup()
 		{
-			return Scene::ActiveScene()->GetAllComponents<Components...>();
+			return Scene::ActiveScene()->GetAllComponents<T...>();
 		}
 
 	};

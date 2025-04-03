@@ -6,13 +6,13 @@
 #include "at/ecs/CoreComponents/MeshRenderer.h"
 namespace at
 {
-	class MeshRendererSystem : public System<MeshRenderer, Transform>
+	class MeshRendererSystem : public System
 	{
 	public:
 		virtual void Update(float dt) override
 		{
 			
-			GetView().each([](auto& meshRenderer, auto& transform)
+			GetView<MeshRenderer, Transform>().each([](auto& meshRenderer, auto& transform)
 			{
 				auto shader = meshRenderer.Material.Shader;
 				shader->use();

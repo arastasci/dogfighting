@@ -1,12 +1,13 @@
 #pragma once
+#include "at/core/Core.h"
 #include <entt/entity/registry.hpp>
-#include <at/ecs/CoreComponents/CoreComponents.h>
 #include "SystemScheduler.h"
 
 namespace at
 {
 	class Entity;
-
+	class Transform;
+	class CameraComponent;
 	class AT_API Scene : public std::enable_shared_from_this<Scene>
 	{
 	public:

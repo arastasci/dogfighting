@@ -42,7 +42,6 @@ namespace at {
 
 		std::shared_ptr<CameraSystem> cameraSystem = std::make_shared<CameraSystem>();
 		std::shared_ptr<MeshRendererSystem> mrSystem= std::make_shared<MeshRendererSystem>();
-
 		m_activeScene->m_SystemScheduler->Register(cameraSystem);
 		m_activeScene->m_SystemScheduler->Register(mrSystem);
 
