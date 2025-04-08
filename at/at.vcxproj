@@ -149,6 +149,7 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\at\core\LayerStack.cpp" />
     <ClCompile Include="src\at\ecs\Scene.cpp" />
     <ClCompile Include="src\at\ecs\Entity.cpp" />
     <ClCompile Include="src\atpch.cpp" />
@@ -166,6 +167,9 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     <ClCompile Include="vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\at\core\GameLayer.h" />
+    <ClInclude Include="src\at\core\Layer.h" />
+    <ClInclude Include="src\at\core\LayerStack.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\BehaviourComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />

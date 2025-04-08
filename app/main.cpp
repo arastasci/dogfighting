@@ -36,21 +36,10 @@ class MoveSystem : public System
 	}
 };
 
-
-class Sandbox : public at::Application
+class SandboxGame : public at::GameLayer
 {
 public:
-	template<typename... BehaviourTs>
-	Sandbox() : Application()
-	{
-
-	}
-	
-	~Sandbox()
-	{
-
-	}
-	virtual void AppInit() override
+	void GameInit() override
 	{
 		m_activeScene->m_SystemScheduler->Register(std::make_shared<MoveSystem>());
 		auto shader = std::make_shared<Shader>("res/shaders/vertex.glsl", "res/shaders/frag.glsl");
@@ -63,18 +52,20 @@ public:
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
 		camera.AddComponent<MoveBehaviour>();
-	}
+	} 
 };
 
 
-
-
-int  main()
+int main()
 { 
 	at::Logger::Init();
 	AT_INFO("Well, we lent some code from {0}...", "Cherno");
 
-	Sandbox* s = new Sandbox();
+	Application* s = new Application();
 	s->Init();
+
+	SandboxGame* game = new SandboxGame();
+
+	s->PushLayer(game);
 	s->Run();
 }
