@@ -16,12 +16,11 @@ namespace at
 
 		float GetAspectRatio();
 	private:
-		
-		int m_Width, m_Height;
-		
+		int m_Width, m_Height;		
 		GLFWwindow* m_GLFWwindow;
-		// TODO: callbacks
+
 		friend class Application;
+		void Init();
 		void SwapBuffers();
 		bool ShouldClose();
 

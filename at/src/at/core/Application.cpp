@@ -34,8 +34,6 @@ namespace at {
 			assert(m_instance == nullptr);
 		}
 
-
-
 		m_currentWindow = new Window();
 		Renderer::Init();
 		m_activeScene->Init();
@@ -53,11 +51,6 @@ namespace at {
 	{
 		m_FrameTime = glfwGetTime();
 		
-		
-
-
-		
-
 		while (!m_currentWindow->ShouldClose())
 		{
 

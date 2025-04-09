@@ -28,7 +28,11 @@ namespace at
 		}
 
 		glViewport(0, 0, 1280, 720);
+
+		Init();
 	}
+
+	
 
 
 	Window::Window() : Window(1280, 720, "at")
@@ -37,6 +41,11 @@ namespace at
 	}
 	Window::~Window()
 	{
+	}
+
+	void Window::Init()
+	{
+		// TODO: set event callbacks
 	}
 
 	GLFWwindow* Window::GetGLFWWindow()

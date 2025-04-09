@@ -15,19 +15,19 @@ class MoveSystem : public System
 		auto view = GetView<Transform, MoveBehaviour>();
 		for (auto [e, t, m] : view.each())
 		{
-			if (Input::GetKeyPress(AT_KEY_W))
+			if (Input::GetKeyPress(Key::W))
 			{
 				t.position += vec3(0, 0, 1) * dt;
 			}
-			if (Input::GetKeyPress(AT_KEY_S))
+			if (Input::GetKeyPress(Key::S))
 			{
 				t.position += vec3(0, 0, -1) * dt;
 			}
-			if (Input::GetKeyPress(AT_KEY_A))
+			if (Input::GetKeyPress(Key::A))
 			{
 				t.position += vec3(1, 0, 0) * dt;
 			}
-			if (Input::GetKeyPress(AT_KEY_D))
+			if (Input::GetKeyPress(Key::D))
 			{
 				t.position += vec3(-1, 0, 0) * dt;
 			}
@@ -40,7 +40,6 @@ class MoveSystem : public System
 class Sandbox : public at::Application
 {
 public:
-	template<typename... BehaviourTs>
 	Sandbox() : Application()
 	{
 
