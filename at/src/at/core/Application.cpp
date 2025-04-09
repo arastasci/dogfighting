@@ -40,12 +40,22 @@ namespace at {
 		Renderer::Init();
 		m_activeScene->Init();
 
+		std::shared_ptr<CameraSystem> cameraSystem = std::make_shared<CameraSystem>();
+		std::shared_ptr<MeshRendererSystem> mrSystem= std::make_shared<MeshRendererSystem>();
+		m_activeScene->m_SystemScheduler->Register(cameraSystem);
+		m_activeScene->m_SystemScheduler->Register(mrSystem);
+
+		AppInit(); // application initialization code
 	}
 
 
 	void Application::Run()
 	{
 		m_FrameTime = glfwGetTime();
+		
+		
+
+
 		
 
 		while (!m_currentWindow->ShouldClose())
@@ -59,10 +69,7 @@ namespace at {
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			for (auto layer : m_layerStack)
-			{
-				layer->OnUpdate(m_DeltaTime);
-			}
+			m_activeScene->m_SystemScheduler->Update(m_DeltaTime);
 
 
 			m_currentWindow->SwapBuffers();
@@ -82,32 +89,6 @@ namespace at {
 	{
 
 		//Scene::ActiveScene()->Update(m_DeltaTime);
-	}
-
-	void Application::PushLayer(Layer* layer)
-	{
-		m_layerStack.PushLayer(layer);
-		layer->SetActiveScene(m_activeScene);
-		layer->OnPushed();
-	}
-
-	void Application::PopLayer(Layer* layer)
-	{
-		m_layerStack.PopLayer(layer);
-		layer->OnPopped();
-	}
-
-	void Application::PushOverlay(Layer* layer)
-	{
-		m_layerStack.PushOverlay(layer);
-		layer->SetActiveScene(m_activeScene);
-		layer->OnPushed();
-	}
-
-	void Application::PopOverlay(Layer* layer)
-	{
-		m_layerStack.PopOverlay(layer);
-		layer->OnPopped();
 	}
 
 }
