@@ -18,7 +18,7 @@ add_compile_definitions(AT_DEBUG)
 add_compile_definitions(AT_CORE)
 
 # Set up precompiled header (requires CMake 3.16+)
-# target_precompile_headers(AtEngine PRIVATE ${PCH_FILE})
+target_precompile_headers(AtEngine PRIVATE ${PCH_FILE})
 
 # Add vendor subdirectories for those that need to be built.
 add_subdirectory(vendor/glad)
@@ -40,5 +40,5 @@ add_custom_command(TARGET AtEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/res"
         "$<TARGET_FILE_DIR:AtEngine>/res"
-    COMMENT "Copying 'rest' folder (including shaders) to output directory"
+    COMMENT "Copying res folder to output directory."
 )
