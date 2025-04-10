@@ -12,3 +12,5 @@ target_include_directories(App PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../at/src")
 
 # Link against the engine.
 target_link_libraries(App PRIVATE AtEngine)
+
+set_target_properties(App PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:App>")
