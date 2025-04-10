@@ -38,10 +38,10 @@ namespace at {
 		Renderer::Init();
 		m_activeScene->Init();
 
-		std::shared_ptr<CameraSystem> cameraSystem = std::make_shared<CameraSystem>();
-		std::shared_ptr<MeshRendererSystem> mrSystem= std::make_shared<MeshRendererSystem>();
-		m_activeScene->m_SystemScheduler->Register(cameraSystem);
-		m_activeScene->m_SystemScheduler->Register(mrSystem);
+
+		m_activeScene->AddSystem<CameraSystem>();
+		m_activeScene->AddSystem<MeshRendererSystem>();
+
 
 		AppInit(); // application initialization code
 	}
@@ -58,11 +58,10 @@ namespace at {
 			m_DeltaTime = timeNow - m_FrameTime;
 			m_FrameTime = timeNow;
 
-			//Update();
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			m_activeScene->m_SystemScheduler->Update(m_DeltaTime);
+			m_activeScene->Update(m_DeltaTime);
 
 
 			m_currentWindow->SwapBuffers();
@@ -78,10 +77,6 @@ namespace at {
 		return m_currentWindow;
 	}
 
-	void Application::Update()
-	{
 
-		//Scene::ActiveScene()->Update(m_DeltaTime);
-	}
 
 }

@@ -14,6 +14,7 @@ namespace at
 			m_Systems.push_back(system);
 			system->SetScene(m_Scene);
 		}
+
 		void Update(float dt)
 		{
 			for (auto& s : m_Systems)

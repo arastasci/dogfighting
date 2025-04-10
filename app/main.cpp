@@ -51,7 +51,7 @@ public:
 	}
 	virtual void AppInit() override
 	{
-		m_activeScene->m_SystemScheduler->Register(std::make_shared<MoveSystem>());
+		m_activeScene->AddSystem<MoveSystem>();
 		auto shader = std::make_shared<Shader>("res/shaders/vertex.glsl", "res/shaders/frag.glsl");
 
 		auto e = m_activeScene->CreateEntity();

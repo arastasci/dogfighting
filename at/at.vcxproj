@@ -166,6 +166,10 @@ xcopy /E /I /Y "$(ProjectDir)\res" "$(TargetDir)..\app\res"</Command>
     <ClCompile Include="vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\at\core\event\Event.h" />
+    <ClInclude Include="src\at\core\event\KeyEvent.h" />
+    <ClInclude Include="src\at\core\event\MouseEvent.h" />
+    <ClInclude Include="src\at\core\MouseCodes.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\BehaviourComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CameraComponent.h" />
     <ClInclude Include="src\at\ecs\CoreComponents\CoreComponents.h" />
