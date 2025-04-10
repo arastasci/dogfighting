@@ -14,6 +14,9 @@ namespace at
 
 		Entity(entt::entity handle, Scene* scene);
 		Entity() = default;
+
+
+
 		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Entity, T>>>
 		static T* Instantiate()
 		{

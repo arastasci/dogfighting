@@ -46,6 +46,8 @@ namespace at
 	void Window::Init()
 	{
 		// TODO: set event callbacks
+
+
 	}
 
 	GLFWwindow* Window::GetGLFWWindow()
