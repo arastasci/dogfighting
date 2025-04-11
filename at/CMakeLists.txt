@@ -24,6 +24,7 @@ target_precompile_headers(AtEngine PRIVATE ${PCH_FILE})
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/spdlog)
+add_subdirectory(vendor/assimp)
 
 # Include directories for header-only libraries.
 target_include_directories(AtEngine PUBLIC
