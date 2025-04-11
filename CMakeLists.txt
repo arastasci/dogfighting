@@ -16,5 +16,8 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 # Add subdirectories for your engine and app.
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 add_subdirectory(at)
 add_subdirectory(app)

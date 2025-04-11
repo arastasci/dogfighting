@@ -17,6 +17,8 @@ target_include_directories(AtEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 add_compile_definitions(AT_DEBUG)
 add_compile_definitions(AT_CORE)
 
+
+
 # Set up precompiled header (requires CMake 3.16+)
 target_precompile_headers(AtEngine PRIVATE ${PCH_FILE})
 
@@ -24,14 +26,30 @@ target_precompile_headers(AtEngine PRIVATE ${PCH_FILE})
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/spdlog)
+
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "Do not build tests" FORCE)
 add_subdirectory(vendor/assimp)
+
+set_target_properties(glad    PROPERTIES FOLDER "Dependencies/glad")
+set_target_properties(spdlog  PROPERTIES FOLDER "Dependencies/spdlog")
+set_target_properties(assimp  PROPERTIES FOLDER "Dependencies/assimp")
+
+# Organize the engine sources and headers using the folder structure from your file system.
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" 
+                FILES ${ENGINE_SOURCES} ${ENGINE_HEADERS})
+
+# Organize the stb_image files if needed.
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image" 
+                FILES ${STB_SOURCES} ${STB_HEADERS})
 
 # Include directories for header-only libraries.
 target_include_directories(AtEngine PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image"
 )
+
 
 # Link the vendor libraries that should be built as static libraries.
 target_link_libraries(AtEngine PUBLIC glad glfw)
