@@ -37,6 +37,7 @@ namespace at {
 		m_currentWindow = new Window();
 		Renderer::Init();
 		m_activeScene->Init();
+		stbi_set_flip_vertically_on_load(true);
 
 
 		m_activeScene->AddSystem<CameraSystem>();

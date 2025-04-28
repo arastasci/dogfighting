@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VertexArray.h"
+#include "Mesh.h"
 #include "Shader.h"
 namespace at
 {
@@ -9,6 +10,6 @@ namespace at
 	public:
 		static void Init();
 		static void SetViewport(int x, int y, int width, int height);
-		static void DrawElements(std::shared_ptr<VertexArray>& vertexArray, std::shared_ptr<Shader> shader);
+		static void Renderer::DrawElements(std::shared_ptr<VertexArray>& vertexArray, std::vector<Texture>& textures, std::shared_ptr<Shader> shader);
 	};
 }

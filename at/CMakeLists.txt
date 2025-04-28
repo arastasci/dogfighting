@@ -52,7 +52,7 @@ target_include_directories(AtEngine PUBLIC
 
 
 # Link the vendor libraries that should be built as static libraries.
-target_link_libraries(AtEngine PUBLIC glad glfw)
+target_link_libraries(AtEngine PUBLIC glad glfw assimp) 
 
 
 add_custom_command(TARGET AtEngine POST_BUILD
