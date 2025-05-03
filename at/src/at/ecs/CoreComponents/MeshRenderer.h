@@ -8,13 +8,13 @@ namespace at
 {
 	struct AT_API MeshRenderer : public Component
 	{
-		MeshRenderer(Model&& m, Material&& mat) : Model(m), Material(mat){}
-		Model Model;
-		Material Material;
+		MeshRenderer(std::shared_ptr<Model> m, std::shared_ptr<Material> mat) : Model(m), Material(mat){}
+		std::shared_ptr<Model> Model;
+		std::shared_ptr<Material> Material;
 
-		std::vector<Mesh> GetMeshes()
+		const std::vector<Mesh>& GetMeshes()
 		{
-			return Model.m_Meshes;
+			return Model->m_Meshes;
 		}
 	};
 }

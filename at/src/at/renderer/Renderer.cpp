@@ -27,6 +27,21 @@ namespace at
 		glViewport(x, y, width, height);
 	}
 
+	void Renderer::SetPointLight(short id, const PointLight& light, std::shared_ptr<Shader> shader)
+	{
+		shader->use();
+		std::string name = "pointLights[" + std::to_string(id) + "].";
+		shader->setVec3(name + "position", light.position);
+
+		shader->setVec3(name + "ambient", light.ambient);
+		shader->setVec3(name + "specular", light.specular);
+		shader->setVec3(name + "diffuse", light.diffuse);
+
+		shader->setFloat(name + "constant", light.constant);
+		shader->setFloat(name + "linear", light.linear);
+		shader->setFloat(name + "quadratic", light.quadratic);
+	}
+
 	void Renderer::DrawElements(std::shared_ptr<VertexArray>& vertexArray, std::vector<Texture>& textures, std::shared_ptr<Shader> shader)
 	{
 		

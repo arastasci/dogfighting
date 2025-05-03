@@ -2,12 +2,12 @@
 #include "at/core/Logger.h"
 
 
-at::Model::Model(const char* path)
+at::Model::Model(const std::string& path)
 {
 	LoadModel(path);
 }
 
-void at::Model::LoadModel(std::string path)
+void at::Model::LoadModel(const std::string& path)
 {
 	auto importer = Assimp::Importer();
 	const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);

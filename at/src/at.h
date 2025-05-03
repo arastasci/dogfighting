@@ -9,4 +9,7 @@
 #include "at/ecs/Entity.h"
 #include "at/ecs/Scene.h"
 
+#include "at/renderer/ModelLibrary.h"
+#include "at/renderer/MaterialLibrary.h"
+
 #include "at/ecs/System.h"

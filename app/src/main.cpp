@@ -52,11 +52,10 @@ public:
 	virtual void AppInit() override
 	{
 		m_activeScene->AddSystem<MoveSystem>();
-		auto shader = std::make_shared<Shader>("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl");
 
 		auto e = m_activeScene->CreateEntity();
 
-		e.AddComponent<MeshRenderer>(Model::CreateModel("res/models/backpack/backpack.obj"), Material(shader));
+		e.AddComponent<MeshRenderer>(ModelLibrary::Get().LoadModel("res/models/backpack/backpack.obj", "backpack"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
 
 		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 

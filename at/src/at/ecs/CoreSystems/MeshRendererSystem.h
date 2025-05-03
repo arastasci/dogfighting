@@ -14,7 +14,7 @@ namespace at
 			
 			GetView<MeshRenderer, Transform>().each([](MeshRenderer& meshRenderer, auto& transform)
 				{
-					auto shader = meshRenderer.Material.Shader;
+					auto shader = meshRenderer.Material->Shader;
 					shader->use();
 					shader->setMat4("projection", CameraSystem::ProjectionMatrix);
 					shader->setMat4("view", CameraSystem::ViewMatrix);
@@ -26,7 +26,7 @@ namespace at
 					auto meshes = meshRenderer.GetMeshes();
 					for (auto& mesh : meshes)
 					{
-						Renderer::DrawElements(mesh.GetVertexArray(), mesh.GetTextures(), meshRenderer.Material.Shader);
+						Renderer::DrawElements(mesh.GetVertexArray(), mesh.GetTextures(), meshRenderer.Material->Shader);
 					}
 				});
 

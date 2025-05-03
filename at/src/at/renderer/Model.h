@@ -13,17 +13,20 @@ namespace at {
 
 	class AT_API Model
 	{
-	private:
-		friend class MeshRenderer;
 	public:
-		static Model CreateModel(const char* path)
-		{
-			return Model(path);
-		}
+		Model(const std::string& path);
 	private:
-		Model(const char* path);
+		friend class ModelLibrary;
+		friend class MeshRenderer;
 
-		void LoadModel(std::string path);
+		static auto CreateModel(const std::string& path)
+		{
+			return std::make_shared<Model>(path);
+		}
+
+
+
+		void LoadModel(const std::string& path);
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
