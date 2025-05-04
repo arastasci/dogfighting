@@ -2,6 +2,7 @@
 #include <at.h>
 #include "Entity.h"
 #include "entt/entt.hpp"
+#include "at/renderer/RenderWorld.h"
 namespace at
 {
 	std::shared_ptr<Scene> Scene::m_activeScene;

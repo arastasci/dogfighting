@@ -11,7 +11,7 @@ namespace at
 		{
 			if (m_Shaders.find(name) != m_Shaders.end())
 			{
-				AT_CORE_INFO("Shader {} already created.", name);
+				AT_CORE_INFO("MatShader {} already created.", name);
 				return m_Shaders[name];
 			}
 

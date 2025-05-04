@@ -6,7 +6,6 @@ namespace at
 {
 	struct PointLight
 	{
-		vec3 position;
 		float constant;
 		float linear;
 		float quadratic;
@@ -16,15 +15,18 @@ namespace at
 		vec3 specular;
 	};
 
-	// global
+	struct PointLightRenderInfo
+	{
+		vec3 position;
+		PointLight pointLight;
+	};
+
 	struct DirectionalLight 
 	{
-		uint32_t id;
+		vec3 direction{};
 
-		vec3 direction;
-
-		vec3 ambient;
-		vec3 diffuse;
-		vec3 specular;
+		vec3 ambient{};
+		vec3 diffuse{};
+		vec3 specular{};
 	};
 }

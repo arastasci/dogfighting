@@ -14,20 +14,24 @@ namespace at
 			
 			GetView<MeshRenderer, Transform>().each([](MeshRenderer& meshRenderer, auto& transform)
 				{
-					auto shader = meshRenderer.Material->Shader;
+					auto shader = meshRenderer.Material.MatShader;
 					shader->use();
+					meshRenderer.Material.UploadUniforms();
 					shader->setMat4("projection", CameraSystem::ProjectionMatrix);
 					shader->setMat4("view", CameraSystem::ViewMatrix);
+					shader->setVec3("viewPos", CameraSystem::ViewPosition);
 
 					auto model = glm::mat4(1.0f);
 					model = glm::translate(model, transform.position);
 					shader->setMat4("model", model);
-
 					auto meshes = meshRenderer.GetMeshes();
+					
 					for (auto& mesh : meshes)
 					{
-						Renderer::DrawElements(mesh.GetVertexArray(), mesh.GetTextures(), meshRenderer.Material->Shader);
+						Renderer::DrawElements(mesh.GetVertexArray(), mesh.GetTextures(), meshRenderer.Material.MatShader);
 					}
+
+					RenderWorld::Get().Flush();
 				});
 
 		}

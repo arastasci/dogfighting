@@ -4,6 +4,8 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Light.h"
+#include "at/utils/Constants.h"
+
 namespace at
 {
 	class Renderer
@@ -12,7 +14,11 @@ namespace at
 		static void Init();
 		static void SetViewport(int x, int y, int width, int height);
 
-		static void SetPointLight(short id, const PointLight& light, std::shared_ptr<Shader> shader);
+		static void SetPointLight(const PointLight& light);
 		static void DrawElements(std::shared_ptr<VertexArray>& vertexArray, std::vector<Texture>& textures, std::shared_ptr<Shader> shader);
+
+	private:
+		PointLight pointLights[Constants::PointLightCount];
+		short pointLightIndex{ 0 };
 	};
 }

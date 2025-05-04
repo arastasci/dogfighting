@@ -30,6 +30,7 @@ namespace at
 			c.Update(t.position, quat(0, 1, 0, 0));
 			ProjectionMatrix = c.GetProjectionMatrix();
 			ViewMatrix= c.GetViewMatrix();
+			ViewPosition = t.position;
 		}
 
 		
@@ -39,6 +40,7 @@ namespace at
 		friend class MeshRendererSystem;
 		inline static mat4 ProjectionMatrix;
 		inline static mat4 ViewMatrix;
+		inline static vec3 ViewPosition;
 
 		Entity m_MainCamera;
 

@@ -1,10 +1,13 @@
 #pragma once
 #include "atpch.h"
 #include "at/utils/Math.h"
-#include "System.h"
-#include "at/ecs/CoreComponents/PointLightComponent.h>
-#include "at/renderer/Renderer.h"
-#include MAX_POINTLIGHT 8
+#include "at/ecs/System.h"
+#include "at/ecs/CoreComponents/PointLightComponent.h"
+#include "at/ecs/CoreComponents/DirectionalLightComponent.h"
+#include "at/ecs/CoreComponents/Transform.h"
+#include "at/renderer/RenderWorld.h"
+#include "at/utils/Constants.h"
+
 
 namespace at
 {
@@ -13,14 +16,19 @@ namespace at
 	public:
 		virtual void Update(float dt) override
 		{
-			auto view = GetView<PointLightComponent>();
+			auto view = GetView<PointLightComponent, Transform>();
 			short i = 0;
-			for ([e, p] : view.each())
+			for (auto [e, p, t] : view.each())
 			{
-				if (i == MAX_POINTLIGHT)
+				if (i == Constants::PointLightCount)
 					break;
-				Renderer::SetPointLight(i, p.PointLight, )
+				RenderWorld::Get().SetPointLight(p.PointLight, t.position);
 			}
+
+			auto dView = GetView<DirectionalLightComponent>();
+			auto e = dView.front();
+			auto [d] = dView.get(e);
+			RenderWorld::Get().SetDirectionalLight(d.light);
 		}
 	private:
 	};

@@ -1,5 +1,6 @@
 #pragma once
 #include "atpch.h"
+#include "at/core/Core.h"
 #include "glm/glm.hpp"
 /// FROM LEARNOPENGL.COM ////////////
 namespace at

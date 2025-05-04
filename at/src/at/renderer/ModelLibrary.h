@@ -8,7 +8,7 @@ namespace at
 	class ModelLibrary : public EngineSubsystem<ModelLibrary>
 	{
 	public:
-		std::shared_ptr<Model> LoadModel(const std::string& path, const std::string& name )
+		std::shared_ptr<Model> CreateOrGetModel(const std::string& path, const std::string& name )
 		{
 
 			if (m_Models.find(name) != m_Models.end())

@@ -4,6 +4,8 @@
 #include "at/renderer/Renderer.h"
 #include "at/ecs/CoreSystems/CameraSystem.h"
 #include "at/ecs/CoreSystems/MeshRendererSystem.h"
+#include "at/ecs/CoreSystems/PointLightSystem.h"
+
 #include "Input.h"
 namespace at {
 	 Application* Application::m_instance;
@@ -41,6 +43,7 @@ namespace at {
 
 
 		m_activeScene->AddSystem<CameraSystem>();
+		m_activeScene->AddSystem<PointLightSystem>();
 		m_activeScene->AddSystem<MeshRendererSystem>();
 
 
