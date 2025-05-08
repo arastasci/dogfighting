@@ -3,6 +3,9 @@
 #include <entt/entity/registry.hpp>
 #include "SystemScheduler.h"
 
+#include "at/utils/Helpers.h"
+#include "at/physics/PhysicsWorld.h"
+
 namespace at
 {
 	class Entity;
@@ -41,6 +44,10 @@ namespace at
 			return system;
 		}
 
+		const SharedPtr<PhysicsWorld> GetPhysicsWorld()
+		{
+			return m_PhysicsWorld;
+		}
 
 	private:
 
@@ -48,7 +55,7 @@ namespace at
 		std::unique_ptr<SystemScheduler> m_SystemScheduler;
 		static std::shared_ptr<Scene> m_activeScene;
 		static CameraComponent* m_MainCamera;
-
+		SharedPtr<PhysicsWorld> m_PhysicsWorld;
 		entt::registry m_registry;
 
 		friend class Entity;

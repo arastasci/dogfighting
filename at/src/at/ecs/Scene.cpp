@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "entt/entt.hpp"
 #include "at/renderer/RenderWorld.h"
+
 namespace at
 {
 	std::shared_ptr<Scene> Scene::m_activeScene;
@@ -27,6 +28,8 @@ namespace at
 			m_activeScene = shared_from_this();
 			m_SystemScheduler = std::make_unique<SystemScheduler>();
 			m_SystemScheduler->m_Scene = shared_from_this();
+			m_PhysicsWorld = std::make_shared<PhysicsWorld>();
+			m_PhysicsWorld->Init();
 		}
 		else
 		{
@@ -54,6 +57,7 @@ namespace at
 
 	void Scene::Update(double deltaTime)
 	{
+		m_PhysicsWorld->Update(deltaTime);
 		m_SystemScheduler->Update(deltaTime);
 	}
 }

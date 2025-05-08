@@ -6,6 +6,7 @@
 
 #include "at/renderer/Mesh.h"
 #include "at/ecs/CoreComponents/CoreComponents.h"
+#include "at/physics/Rigidbody.h"
 #include "at/ecs/Entity.h"
 #include "at/ecs/Scene.h"
 

@@ -13,20 +13,24 @@ namespace at
 
 
         glm::vec3 position;
-        glm::vec3 rotation; // Euler angles
+        glm::quat rotation; // Euler angles
         glm::vec3 scale;
 
-
+        Transform(vec3 pos, quat rot, vec3 scale)
+            :
+            position(pos), rotation(rot), scale(scale)
+        {
+        }
         Transform(vec3 pos)
             : position(pos),
-            rotation(0.0f),
+            rotation(),
             scale(1.0f)
         {
         }
 
         Transform()
             : position(0.0f),
-            rotation(0.0f),
+            rotation(),
             scale(1.0f)
         {
         }

@@ -2,11 +2,12 @@
 #include <at/core/Core.h>
 #include <entt/entity/registry.hpp>
 #include "Scene.h"
-
+#include "at/utils/Helpers.h"
 
 namespace at
 {
 	class Transform;
+	class Component;
 	class AT_API Entity
 	{
 	public:
@@ -16,6 +17,10 @@ namespace at
 		Entity() = default;
 
 
+		SharedPtr<Scene> GetScene()
+		{
+			return m_scene;
+		}
 
 		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Entity, T>>>
 		static T* Instantiate()
@@ -29,6 +34,8 @@ namespace at
 		{
 			return Scene::ActiveScene->CreateEntity(t);
 		}
+
+	
 
 
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
@@ -49,6 +56,7 @@ namespace at
 			assert(!HasComponent<T>(), "Entity already has component!");
 			auto& ref =  m_scene->m_registry.emplace<T>(m_handle, std::forward<Args>(args)...);
 			ref.SetEntity(*this);
+			ref.SetScene(m_scene);
 			return ref;
 		};
 

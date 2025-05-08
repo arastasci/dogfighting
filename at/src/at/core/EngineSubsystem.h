@@ -20,12 +20,12 @@ namespace at
 
     protected:
         EngineSubsystem() {}
+        static inline T* instance = nullptr;
 
     private:
         struct T_Instance : public T {
             T_Instance() : T() {}
         };
 
-        static inline T* instance = nullptr;
     };
 }

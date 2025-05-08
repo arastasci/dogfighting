@@ -9,6 +9,7 @@ file(GLOB_RECURSE ENGINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE ENGINE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
 file(GLOB_RECURSE STB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image/*.cpp")
 file(GLOB_RECURSE STB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image/*.h")
+
 # Create the shared library target (DLL on Windows).
 add_library(AtEngine SHARED ${ENGINE_SOURCES}  ${ENGINE_HEADERS} ${STB_SOURCES} ${STB_HEADERS})
 target_include_directories(AtEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -51,13 +52,21 @@ target_include_directories(AtEngine PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image"
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/bullet"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/bullet/src"
 )
 
 
 # Link the vendor libraries that should be built as static libraries.
 target_link_libraries(AtEngine PUBLIC glad glfw assimp) 
 
+target_link_libraries(AtEngine PUBLIC
+    BulletDynamics
+    BulletCollision
+    LinearMath
+    BulletSoftBody
+    Bullet3Common
+    BulletInverseDynamics
+)
 
 add_custom_command(TARGET AtEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

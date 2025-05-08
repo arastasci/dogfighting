@@ -62,6 +62,7 @@ public:
 			1, 0.09f, 0.032f,
 			vec3(0.05f), vec3(0.8f), vec3(1.0f)
 			);
+		e.AddComponent<Rigidbody>();
 		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);

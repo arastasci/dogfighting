@@ -4,6 +4,7 @@ cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
+
 PROJECT(BULLET_PHYSICS)
 FILE (STRINGS "VERSION" BULLET_VERSION)
 
@@ -222,7 +223,7 @@ ENDIF(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
 ENDIF (WIN32)
 
 
-OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples" ON)
+OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples" OFF)
 
 
 
@@ -409,10 +410,10 @@ IF(BUILD_BULLET3)
 
 			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
 		ELSE()
-			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" ON)
+			OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
 		ENDIF()
 	ELSE()
-		OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build Bullet 3 OpenGL3+ demos" ON)
+		OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build Bullet 3 OpenGL3+ demos" OFF)
 	ENDIF()
 ELSE(BUILD_BULLET3)
 	unset(BUILD_OPENGL3_DEMOS CACHE)
@@ -426,12 +427,9 @@ ELSE()
 	ADD_DEFINITIONS(-DNO_OPENGL3)
 ENDIF(BUILD_OPENGL3_DEMOS)
 
-OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
+OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" OFF)
 IF(BUILD_BULLET2_DEMOS)
 
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
-		SUBDIRS(examples)
-	ENDIF()
 
 ENDIF(BUILD_BULLET2_DEMOS)
 
@@ -441,7 +439,7 @@ ENDIF(BUILD_BULLET2_DEMOS)
 
 
 
-SUBDIRS(bullet)
+SUBDIRS(src)
 
 IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
 	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
