@@ -10,7 +10,7 @@ at::Model::Model(const std::string& path)
 void at::Model::LoadModel(const std::string& path)
 {
 	auto importer = Assimp::Importer();
-	const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_PreTransformVertices);
 
 	if (!scene->HasMeshes())
 	{
@@ -44,6 +44,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
+
 
 	int width, height, nrComponents;
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
