@@ -3,8 +3,6 @@
 
 namespace at
 {
-	
-
 	void Renderer::Init()
 	{
 	#ifdef AT_DEBUG

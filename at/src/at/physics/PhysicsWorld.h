@@ -4,11 +4,11 @@
 #include "at/core/EngineSubsystem.h"
 #include "btBulletDynamicsCommon.h"
 #include "at/utils/Helpers.h"
-
+#include "at/utils/Constants.h"
 
 namespace at
 {
-	static const float PHYSICS_TIMESTEP = 0.02f;
+	
 
 	class Rigidbody;
 

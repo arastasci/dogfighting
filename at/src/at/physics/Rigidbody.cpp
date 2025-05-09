@@ -2,19 +2,37 @@
 
 #include "Rigidbody.h"
 #include "PhysicsWorld.h"
+#include "at/ecs/CoreComponents/MeshRenderer.h"
 namespace at
 {
 	Rigidbody::Rigidbody() 		
 	{
-		m_CompoundShape = std::make_shared<btCompoundShape>();
+		m_CollisionShape = std::make_shared<CollisionShape>();
 		m_MotionState = new btDefaultMotionState();
 	}
 
 	void Rigidbody::AddBodyToWorld(const SharedPtr<PhysicsWorld>& world)
 	{
 		m_World = std::weak_ptr(world);
-		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_CompoundShape.get());
+
+		if (m_Entity.HasComponent<MeshRenderer>())
+		{
+			auto& mr = m_Entity.GetComponent<MeshRenderer>();
+			auto& meshes = mr.GetMeshes();
+			for (auto& m : meshes)
+			{
+				m_CollisionShape->AddMesh(m);
+			}
+		}
+
+		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_CollisionShape->GetShape());
+		
 		world->AddRigidbody(m_Rigidbody.get());
+
+		btTransform transform = m_Rigidbody->getCenterOfMassTransform();
+		transform.setOrigin(toBt(m_Entity.GetComponent<Transform>().position));               //set position
+		transform.setBasis(toBt(glm::mat3(m_Entity.GetComponent<Transform>().rotation)));   //set orientation
+		m_Rigidbody->setCenterOfMassTransform(transform);
 		m_Rigidbody->setUserPointer(this);
 	}
 
@@ -35,7 +53,8 @@ namespace at
 
 	Transform Rigidbody::getWorldTransform() const
 	{
-		auto btT = m_Rigidbody->getWorldTransform();
+		btTransform btT;
+		m_Rigidbody->getMotionState()->getWorldTransform(btT);
 		auto btQ = btT.getRotation();
 		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
 		return Transform(toGlm(btT.getOrigin()), q, vec3(1.0f));
@@ -49,6 +68,22 @@ namespace at
 	void Rigidbody::SetIsActive(bool b)
 	{
 		m_isActive = b;
+	}
+
+	void Rigidbody::DrawShape()
+	{
+		
+	}
+
+	void Rigidbody::ApplyForce(vec3 direction, float force)
+	{
+		//m_Rigidbody->applyCentralForce(toBt(force * direction));
+		m_Rigidbody->applyCentralImpulse(toBt(force * direction));	
+	}
+
+	void Rigidbody::SetGravity(vec3 acceleration)
+	{
+		m_Rigidbody->setGravity(toBt(acceleration));
 	}
 
 }

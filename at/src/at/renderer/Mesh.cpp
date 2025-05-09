@@ -34,5 +34,9 @@ namespace at
 	{
 		return m_VertexArray;
 	}
+	const std::vector<Vertex>& Mesh::GetVertices() const
+	{
+		return m_vertices;
+	}
 }
 

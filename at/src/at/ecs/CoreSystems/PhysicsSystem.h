@@ -2,7 +2,7 @@
 
 #include "atpch.h"
 
-#include "at/ecs/CoreComponents/RigidbodyComponent.h"
+#include "at/physics/Rigidbody.h"
 #include "at/ecs/CoreComponents/Transform.h"
 #include "at/ecs/System.h"
 
@@ -11,13 +11,22 @@ namespace at
 	class PhysicsSystem : public System
 	{
 	public:
-		virtual void Update(float dt) override
+		virtual void FixedUpdate() override
 		{
-			auto view = GetView<RigidbodyComponent, Transform>();
+			auto view = GetView<Rigidbody, Transform>();
 
 			for (auto [e, rb, t] : view.each())
 			{
-				rb
+
+				if (rb.IsActive())
+				{
+					t = rb.getWorldTransform();
+				}
+				else
+				{
+					rb.SetIsActive(true);
+					rb.AddBodyToWorld(m_Scene->GetPhysicsWorld());
+				}
 			}
 		}
 	private:

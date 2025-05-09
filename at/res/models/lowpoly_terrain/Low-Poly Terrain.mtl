@@ -1,0 +1,27 @@
+newmtl Rock_41a0d7ed-9d8c-48ab-94a4-5b7ad59f6dd7
+Kd 0.569 0.569 0.569
+d 1.000
+newmtl Rock 1_7194b830-300f-4002-9d61-daa8df00c404
+Kd 0.569 0.569 0.569
+d 1.000
+newmtl Cone material 2_83a19308-abb3-4578-a1e5-3bc5d866874c
+Kd 1.000 0.914 0.831
+d 1.000
+newmtl Cone material 3_200654bb-6a29-4eb3-9897-a5a48ac64fcc
+Kd 0.659 0.443 0.239
+d 1.000
+newmtl Cone material 1_6d337f12-0671-4ad6-8b40-321c6589cc87
+Kd 1.000 0.914 0.831
+d 1.000
+newmtl Cone material_daf49c98-b4e7-4641-9fdb-24f7d82c2af2
+Kd 0.659 0.443 0.239
+d 1.000
+newmtl Cone material 4_b06bcdcd-e490-4133-9c07-e7a1c07a824d
+Kd 1.000 0.914 0.831
+d 1.000
+newmtl Cone material 5_1c30d789-7004-4581-8cea-23668dfdca1c
+Kd 0.659 0.443 0.239
+d 1.000
+newmtl Polyhedron material_9510ee93-6f98-459e-b37d-c355cae92a8a
+Kd 0.196 0.502 0.110
+d 1.000

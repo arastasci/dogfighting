@@ -4,12 +4,13 @@
 #include "at/core/Core.h"
 #include "at/utils/Helpers.h"
 #include "at/utils/Math.h"
-
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include "at/ecs/CoreComponents/Transform.h"
 #include "at/ecs/Component.h"
+
+#include "CollisionShape.h"
 namespace at
 {
 	class RigidbodyComponent;
@@ -26,12 +27,15 @@ namespace at
 		Transform getWorldTransform() const;
 		bool IsActive();
 		void SetIsActive(bool b);
+		void DrawShape();
 
+		void ApplyForce(vec3 direction, float force);
+		void SetGravity(vec3 acceleration);
 	private:
 		bool m_isActive = false;
 		SharedPtr<btRigidBody> m_Rigidbody;
 		WeakPtr<PhysicsWorld> m_World;
-		SharedPtr<btCompoundShape> m_CompoundShape;
+		SharedPtr<CollisionShape> m_CollisionShape;
 		btMotionState* m_MotionState{};
 
 		std::unordered_set<Rigidbody*> m_CurrentCollidedObjects{};

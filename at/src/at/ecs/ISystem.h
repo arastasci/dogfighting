@@ -12,7 +12,7 @@ namespace at
 	public:
 		//virtual void Init() = 0;
 		virtual void Update(float deltaTime) = 0;
-
+		virtual void FixedUpdate() = 0;
 		void SetScene(std::shared_ptr<Scene> scene) { m_Scene = scene; }
 		
 	protected:

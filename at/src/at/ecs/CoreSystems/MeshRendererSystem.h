@@ -23,6 +23,8 @@ namespace at
 
 					auto model = glm::mat4(1.0f);
 					model = glm::translate(model, transform.position);
+					model = glm::mat4_cast(transform.rotation) * model;
+					model = glm::scale(model, transform.scale);
 					shader->setMat4("model", model);
 					auto meshes = meshRenderer.GetMeshes();
 					

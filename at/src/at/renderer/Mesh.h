@@ -26,7 +26,7 @@ namespace at
 		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
 		std::vector<Texture>& GetTextures() { return m_textures; }
 		std::shared_ptr<VertexArray>& GetVertexArray();
-	
+		const std::vector<Vertex>& GetVertices() const;
 	private:
 		std::shared_ptr<VertexArray> m_VertexArray;
 		std::vector<Vertex> m_vertices;

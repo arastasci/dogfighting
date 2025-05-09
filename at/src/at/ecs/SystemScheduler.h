@@ -23,6 +23,14 @@ namespace at
 			}
 		}
 
+		void FixedUpdate()
+		{
+			for (auto& s : m_Systems)
+			{
+				s->FixedUpdate();
+			}
+		}
+
 	private:
 		std::shared_ptr<Scene> m_Scene;
 		std::vector<std::shared_ptr<ISystem>> m_Systems;

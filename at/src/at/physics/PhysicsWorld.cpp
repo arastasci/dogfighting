@@ -7,18 +7,18 @@ namespace at
 	void PhysicsWorld::Update(float dt)
 	{
 		m_AccTimestep += dt;
-		while (m_AccTimestep >= PHYSICS_TIMESTEP)
+		while (m_AccTimestep >= Constants::FIXED_TIMESTEP)
 		{
-			m_World->stepSimulation(m_AccTimestep, 0, m_AccTimestep);
-			m_AccTimestep -= PHYSICS_TIMESTEP;
+			m_World->stepSimulation(Constants::FIXED_TIMESTEP, 0, Constants::FIXED_TIMESTEP);
+			m_AccTimestep -= Constants::FIXED_TIMESTEP;
 		}
 
-		UpdateCollisions();
+		// UpdateCollisions();
 	}
 
 	void PhysicsWorld::Init()
 	{
-		m_World->setGravity(btVector3(0, -1.0f, 0));
+		m_World->setGravity(btVector3(0, -3.8f, 0));
 	}
 
 	void PhysicsWorld::Shutdown()

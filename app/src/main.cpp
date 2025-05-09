@@ -7,7 +7,28 @@ class MoveBehaviour : public BehaviourComponent
 
 };
 
-struct FreeCamera : public at::Component
+class FlightControls : public BehaviourComponent
+{
+    const float ForwardThrust = 100.f;
+};
+
+class FlightSystem : public System
+{
+public:
+    void FixedUpdate() override
+    {
+        auto view = GetView<Rigidbody, FlightControls>();
+
+        for (auto [e, rb, f] : view.each())
+        {
+            //rb.ApplyForce(vec3(0, -1.f, 0), Constants::FIXED_TIMESTEP);
+            rb.SetGravity({ 0,0,0 });
+
+        }
+    }
+};
+
+struct FreeCamera : public BehaviourComponent
 {
     float yaw = 0.0f;   // degrees, 0 = look +Z
     float pitch = 0.0f;   // degrees, 0 = level, + up
@@ -100,20 +121,29 @@ public:
 	}
 	virtual void AppInit() override
 	{
-		m_activeScene->AddSystem<FreeCameraSystem>();
+        m_activeScene->AddSystem<FreeCameraSystem>();
+        m_activeScene->AddSystem<FlightSystem>();
 
-		auto e = m_activeScene->CreateEntity();
+		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
-		e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
 
-		//e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/backpack/backpack.obj", "backpack"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
 		e.AddComponent<DirectionalLightComponent>(DirectionalLight{ vec3(0, -1, -1), vec3(0.05f), vec3(0.4f), vec3(0.5f) });
 		auto e2 = m_activeScene->CreateEntity(Transform(vec3(1, 0, -1)));
 		e2.AddComponent<PointLightComponent>(
 			1, 0.09f, 0.032f,
 			vec3(0.05f), vec3(0.8f), vec3(1.0f)
 			);
-		//e.AddComponent<Rigidbody>();
+
+        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -50, 0), quat(), vec3(0.1f)));
+        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/lowpoly_terrain/lowpoly_terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        terrainEntity.AddComponent<Rigidbody>();
+		auto rb = e.AddComponent<Rigidbody>();
+
+        e.AddComponent<FlightControls>();
+        auto backpack = m_activeScene->CreateEntity(Transform(vec3(0, 50, 0)));
+        backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        backpack.AddComponent<Rigidbody>();
 		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);

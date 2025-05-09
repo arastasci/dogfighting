@@ -4,6 +4,8 @@
 #include "entt/entt.hpp"
 #include <at/ecs/Scene.h>
 #include "ISystem.h"
+#include "at/utils/Constants.h"
+
 namespace at
 {
 	class AT_API System : public ISystem
@@ -11,8 +13,8 @@ namespace at
 	public:
 
 
-		virtual void Update(float dt){	}
-
+		virtual void Update(float dt){}
+		virtual void FixedUpdate(){}
 	protected:
 
 		template<typename... T>

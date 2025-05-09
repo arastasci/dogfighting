@@ -10,7 +10,7 @@ namespace at
 	class PhysicsSystem : public System
 	{
 	public:
-		virtual void Update(float dt) override
+		virtual void FixedUpdate() override
 		{
 			auto view = GetView<Rigidbody, Transform>();
 			for (auto [e, rb, t] : view.each())

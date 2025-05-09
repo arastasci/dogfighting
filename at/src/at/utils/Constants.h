@@ -3,5 +3,6 @@
 
 namespace Constants
 {
-	constexpr short PointLightCount = 8;
+	static constexpr float FIXED_TIMESTEP = 0.02f;
+	static constexpr short PointLightCount = 8;
 }

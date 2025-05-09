@@ -20,6 +20,8 @@ namespace at
 		Window* m_currentWindow;
 
 		double m_DeltaTime;
+		double m_FixedDeltaTime;
+		double m_LastFixedTime;
 		double m_FrameTime;
 		std::shared_ptr<Scene> m_activeScene;
 	};

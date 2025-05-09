@@ -7,6 +7,8 @@
 #include "at/ecs/CoreSystems/PointLightSystem.h"
 #include "at/physics/PhysicsSystem.h"
 
+#include "at/utils/Constants.h"
+
 #include "Input.h"
 namespace at {
 	 Application* Application::m_instance;
@@ -46,6 +48,7 @@ namespace at {
 		m_activeScene->AddSystem<CameraSystem>();
 		m_activeScene->AddSystem<PointLightSystem>();
 		m_activeScene->AddSystem<PhysicsSystem>();
+
 		m_activeScene->AddSystem<MeshRendererSystem>();
 
 
@@ -56,11 +59,12 @@ namespace at {
 	void Application::Run()
 	{
 		m_FrameTime = glfwGetTime();
-		
+		m_LastFixedTime = m_FrameTime;
 		while (!m_currentWindow->ShouldClose())
 		{
-
 			auto timeNow = glfwGetTime();
+			m_FixedDeltaTime = timeNow - m_LastFixedTime;
+
 			m_DeltaTime = timeNow - m_FrameTime;
 			m_FrameTime = timeNow;
 
@@ -69,6 +73,11 @@ namespace at {
 
 			m_activeScene->Update(m_DeltaTime);
 
+			if (m_FixedDeltaTime >= Constants::FIXED_TIMESTEP)
+			{
+				m_LastFixedTime = timeNow;
+				m_activeScene->FixedUpdate(m_FixedDeltaTime);
+			}
 
 			m_currentWindow->SwapBuffers();
 			glfwPollEvents();

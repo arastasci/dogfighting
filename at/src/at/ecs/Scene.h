@@ -22,6 +22,7 @@ namespace at
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
 		void Update(double deltaTime);
+		void FixedUpdate(double dT);
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
