@@ -1,7 +1,39 @@
 #include "Input.h"
 #include "at/core/Application.h"
+#include "at/core/Window.h"
 namespace Input
 {
+
+	static CursorMode g_cursorMode = CursorMode::Normal;
+
+
+	void SetCursorMode(CursorMode mode)
+	{
+
+		auto* glfwWindow = at::Application::Instance()->GetWindow()->GetGLFWWindow();
+		switch (mode)
+		{
+			case CursorMode::Locked:
+			{
+				glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				break;
+			}
+			case CursorMode::Hidden:
+			{
+				glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				break;
+			}
+			case CursorMode::Normal:
+			{
+				glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				break;
+			}
+		}
+	}
+	CursorMode GetCursorMode()
+	{
+		return g_cursorMode;
+	}
 	bool GetKeyPress(int keyCode)
 	{
 		GLFWwindow* window = at::Application::Instance()->GetWindow()->GetGLFWWindow();

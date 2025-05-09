@@ -31,7 +31,7 @@ namespace at
 	{
 		vec3 pos = position;
 		
-		m_ViewMatrix = glm::lookAt(pos, pos + Vector3::forward, Vector3::up);
+		m_ViewMatrix = glm::lookAt(pos, pos + rotation * Vector3::forward, Vector3::up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 }
