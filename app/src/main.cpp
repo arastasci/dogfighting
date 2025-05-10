@@ -97,12 +97,26 @@ public:
             if (Input::GetKeyPress(Key::S)) tr.position += forward * v;
             if (Input::GetKeyPress(Key::A)) tr.position += right * v;
             if (Input::GetKeyPress(Key::D)) tr.position -= right * v;
+            if (Input::GetKeyPress(Key::P))
+            {
+                m_WillPause = true;
+            }
+            else if (m_WillPause && Input::GetKeyRelease(Key::P))
+            {
+                m_WillPause = false;
+                
+                auto pW = m_Scene->GetPhysicsWorld();
+                pW->SetIsSimulated(!pW->GetIsSimulated());
+            }
 
             /* ── 4. Write rotation quaternion to the Transform ─────────── */
             tr.rotation = glm::quatLookAt(forward, up);
         }
     }
+private:
+    bool m_WillPause = false;
 };
+
 
 
 
@@ -141,9 +155,9 @@ public:
 		auto rb = e.AddComponent<Rigidbody>();
 
         e.AddComponent<FlightControls>();
-        auto backpack = m_activeScene->CreateEntity(Transform(vec3(0, 50, 0)));
+       /* auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
         backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        backpack.AddComponent<Rigidbody>();
+        backpack.AddComponent<Rigidbody>();*/
 		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);

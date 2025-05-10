@@ -1,8 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include "glm/glm.hpp"
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btMatrix3x3.h>   
+#include <LinearMath/btTransform.h>
+#include <assimp/matrix4x4.h>   // aiMatrix4x4
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp"
@@ -39,6 +41,43 @@ inline btMatrix3x3 toBt(const glm::mat<3, 3, T, glm::defaultp>& m)
         static_cast<btScalar>(m[0][1]), static_cast<btScalar>(m[1][1]), static_cast<btScalar>(m[2][1]),
         // third row
         static_cast<btScalar>(m[0][2]), static_cast<btScalar>(m[1][2]), static_cast<btScalar>(m[2][2])
+    );
+}
+
+template<typename T>
+inline btTransform toBt(const glm::mat<4, 4, T, glm::defaultp>& m)
+{
+   
+    return btTransform(
+        // first row
+        toBt(glm::mat3(m)),
+        btVector3(static_cast<btScalar>(m[0][3]), static_cast<btScalar>(m[1][3]), static_cast<btScalar>(m[2][3]))
+    );
+}
+
+
+/**
+ * Convert Assimp's aiMatrix4x4 to a glm::mat4, preserving the same transform.
+ *
+ * Assimp stores its matrix as:
+ *   | a1  a2  a3  a4 |
+ *   | b1  b2  b3  b4 |
+ *   | c1  c2  c3  c4 |
+ *   | d1  d2  d3  d4 |
+ *
+ * GLM uses column‑major order, so we supply the values column‑by‑column.
+ */
+inline glm::mat4 toGlm(const aiMatrix4x4& m)
+{
+    return glm::mat4(
+        // Column 0
+        m.a1, m.b1, m.c1, m.d1,
+        // Column 1
+        m.a2, m.b2, m.c2, m.d2,
+        // Column 2
+        m.a3, m.b3, m.c3, m.d3,
+        // Column 3
+        m.a4, m.b4, m.c4, m.d4
     );
 }
 
