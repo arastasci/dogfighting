@@ -3,6 +3,7 @@
 #include "Rigidbody.h"
 #include "PhysicsWorld.h"
 #include "at/ecs/CoreComponents/MeshRenderer.h"
+
 namespace at
 {
 	Rigidbody::Rigidbody() 		
@@ -16,14 +17,21 @@ namespace at
 	{
 		m_World = std::weak_ptr(world);
 
+
 		if (m_Entity.HasComponent<MeshRenderer>())
 		{
 			auto& mr = m_Entity.GetComponent<MeshRenderer>();
-			auto& meshes = mr.GetMeshes();
+			const auto& meshes = mr.GetMeshes();
+
 			for (auto& m : meshes)
 			{
 				m_CollisionShape->AddMesh(m);
 			}
+							
+		}
+		else
+		{
+			assert(false);
 		}
 
 		btVector3 inertia;
@@ -101,6 +109,8 @@ namespace at
 
 	void Rigidbody::ApplyForce(vec3 direction, float force)
 	{
+		if (!m_World.lock()->GetIsSimulated())
+			return;
 		//m_Rigidbody->applyCentralForce(toBt(force * direction));
 		m_Rigidbody->applyCentralImpulse(toBt(force * direction));	
 	}

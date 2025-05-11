@@ -1,27 +1,32 @@
 #pragma once
 
+#include "at/core/Core.h"
 #include "at/physics/PhysicsWorld.h"
-
 #include "at/ecs/System.h"
 #include "Rigidbody.h"
 #include "at/ecs/CoreComponents/Transform.h"
 namespace at
 {
-	class PhysicsSystem : public System
+	class AT_API PhysicsSystem : public System
 	{
 	public:
+		virtual void Start() override
+		{
+			auto view = GetStartedView<Rigidbody>();
+			for (auto [e, _, rb] : view.each())
+			{
+				rb.SetIsActive(true);
+				rb.AddBodyToWorld(m_Scene->GetPhysicsWorld());
+			}
+		}
 		virtual void FixedUpdate() override
 		{
 			auto view = GetView<Rigidbody, Transform>();
-			for (auto [e, rb, t] : view.each())
+			for (auto [e, _, rb, t] : view.each())
 			{
 				if (rb.IsActive())
 					t = rb.getWorldTransform();
-				else
-				{
-					rb.SetIsActive(true);
-					rb.AddBodyToWorld(m_Scene->GetPhysicsWorld());
-				}
+
 			}
 		}
 	};

@@ -6,3 +6,5 @@
 #include "BehaviourComponent.h"
 #include "PointLightComponent.h"
 #include "DirectionalLightComponent.h"
+#include "ActiveTag.h"
+#include "CreatedTag.h"

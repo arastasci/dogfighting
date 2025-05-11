@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include "entt/entt.hpp"
 #include "at/renderer/RenderWorld.h"
+#include "at/ecs/CoreComponents/CreatedTag.h"
+#include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
 
 namespace at
 {
@@ -49,10 +51,15 @@ namespace at
 		auto handle = m_registry.create();
 
 		Entity e = { handle, shared_from_this()};
-
+		e.AddComponent<CreatedTag>();
 		e.AddComponent<Transform>(t);
 
 		return e;
+	}
+
+	void Scene::Start()
+	{
+		m_SystemScheduler->Start();
 	}
 
 	void Scene::Update(double deltaTime)
@@ -64,5 +71,17 @@ namespace at
 	{
 		m_PhysicsWorld->Update(deltaTime);
 		m_SystemScheduler->FixedUpdate(deltaTime);
+	}
+	void Scene::OnDestroy()
+	{
+		m_SystemScheduler->OnDestroy();
+	}
+	void Scene::EndFrame()
+	{
+		auto view = GetAllEntitiesWith<ToBeDestroyedTag>();
+		for (auto [e, _] : view.each())
+		{
+			m_registry.destroy(e);
+		}
 	}
 }

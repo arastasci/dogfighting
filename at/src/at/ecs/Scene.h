@@ -21,8 +21,13 @@ namespace at
 		void Init();
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
+
+		void Start();
 		void Update(double deltaTime);
 		void FixedUpdate(double dT);
+		void OnDestroy();
+
+		void EndFrame();
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
@@ -49,6 +54,12 @@ namespace at
 		{
 			return m_PhysicsWorld;
 		}
+
+		entt::registry& GetRegistry()
+		{
+			return m_registry;
+		}
+
 
 	private:
 

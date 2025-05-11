@@ -16,6 +16,14 @@ namespace at
 			system->SetScene(m_Scene);
 		}
 
+		void Start()
+		{
+			for (auto& s : m_Systems)
+			{
+				s->Start();
+			}
+		}
+
 		void Update(float dt)
 		{
 			for (auto& s : m_Systems)
@@ -33,6 +41,14 @@ namespace at
 					s->FixedUpdate();
 				}
 				dt -= Constants::FIXED_TIMESTEP;
+			}
+		}
+
+		void OnDestroy()
+		{
+			for (auto& s : m_Systems)
+			{
+				s->OnDestroy();
 			}
 		}
 

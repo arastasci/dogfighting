@@ -1,5 +1,5 @@
 #include "Entity.h"
-
+#include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
 namespace at
 {
 
@@ -9,6 +9,11 @@ namespace at
 
 	Entity::Entity(entt::entity handle, Scene* scene) : m_handle(handle), m_scene(scene)
 	{
+	}
+
+	void Entity::DestroyEntity()
+	{
+		AddComponent<ToBeDestroyedTag>();
 	}
 
 }

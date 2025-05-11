@@ -18,7 +18,7 @@ namespace at
 		{
 			auto view = GetView<PointLightComponent, Transform>();
 			short i = 0;
-			for (auto [e, p, t] : view.each())
+			for (auto [e, _,  p, t] : view.each())
 			{
 				if (i == Constants::PointLightCount)
 					break;
@@ -27,7 +27,7 @@ namespace at
 
 			auto dView = GetView<DirectionalLightComponent>();
 			auto e = dView.front();
-			auto [d] = dView.get(e);
+			auto [_, d] = dView.get(e);
 			RenderWorld::Get().SetDirectionalLight(d.light);
 		}
 	private:

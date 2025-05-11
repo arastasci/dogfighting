@@ -8,6 +8,7 @@ namespace at
 {
 	class Transform;
 	class Component;
+	class ToBeDestroyedTag;
 	class AT_API Entity
 	{
 	public:
@@ -36,9 +37,9 @@ namespace at
 		}
 
 	
+		void DestroyEntity();
 
-
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+		template<typename T>
 		T& GetComponent()
 		{
 			return m_scene->m_registry.get<T>(m_handle);

@@ -1,10 +1,57 @@
 ﻿ #include <at.h>
+
+#include <chrono>
+#include <random>
 using namespace at;
 
 
-class MoveBehaviour : public BehaviourComponent
+class GoofyBehaviour : public BehaviourComponent
 {
+};
 
+class GoofySystem : public System
+{
+public:
+    GoofySystem()
+       
+    {
+        seed = std::chrono::system_clock::now().time_since_epoch().count();
+        generator = std::mt19937(seed);
+    }
+
+    void Start() override
+    {
+        auto view = GetStartedView<GoofyBehaviour, Rigidbody>();
+        for (auto& [e, _, g, rb] : view.each())
+        {
+            vec3 forceDirection(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+            forceDirection = glm::normalize(forceDirection);
+            float force = 1000 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            rb.ApplyForce(forceDirection, force);
+        }
+    }
+
+    void Update(float dt) override
+    {
+        if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            CreatePlane();
+        }
+    }
+private:
+    void CreatePlane()
+    {
+        auto backpack = m_Scene->CreateEntity(Transform(vec3(3, 50, 0)));
+        backpack.AddComponent<GoofyBehaviour>();
+        backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        backpack.AddComponent<Rigidbody>();
+    }
+
+
+    unsigned seed;
+
+    // mt19937 is a standard mersenne_twister_engine
+    std::mt19937 generator;
 };
 
 class FlightControls : public BehaviourComponent
@@ -15,11 +62,17 @@ class FlightControls : public BehaviourComponent
 class FlightSystem : public System
 {
 public:
+    void Start() override
+    {
+        auto view = GetStartedView<FlightControls>();
+        for(auto [e, _, fc] : view.each())
+            Logger::GetClientLogger()->info("Houston... we got a problem?");
+    }
     void FixedUpdate() override
     {
         auto view = GetView<Rigidbody, FlightControls>();
 
-        for (auto [e, rb, f] : view.each())
+        for (auto [e, _,  rb, f] : view.each())
         {
             rb.ApplyForce(vec3(0, 9.8f, 0), Constants::FIXED_TIMESTEP);
             // PlaneAerodynamics(rb.GetRigidbody().get());
@@ -87,7 +140,7 @@ public:
         // read current mouse position once per frame
         auto [mx, my] = Input::GetMousePos();
 
-        for (auto [e, tr, cam] : view.each())
+        for (auto [e, _, tr, cam] : view.each())
         {
             /* first run ‑ enable pointer lock */
             if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT))
@@ -175,6 +228,7 @@ public:
 	{
         m_activeScene->AddSystem<FreeCameraSystem>();
         m_activeScene->AddSystem<FlightSystem>();
+        m_activeScene->AddSystem<GoofySystem>();
 
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
@@ -200,6 +254,7 @@ public:
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
 		camera.AddComponent<FreeCamera>();
+
 	}
 };
 
