@@ -3,6 +3,7 @@
 #include "Rigidbody.h"
 #include "PhysicsWorld.h"
 #include "at/ecs/CoreComponents/MeshRenderer.h"
+#include "CollisionShapeLibrary.h"
 
 namespace at
 {
@@ -21,12 +22,8 @@ namespace at
 		if (m_Entity.HasComponent<MeshRenderer>())
 		{
 			auto& mr = m_Entity.GetComponent<MeshRenderer>();
-			const auto& meshes = mr.GetMeshes();
-
-			for (auto& m : meshes)
-			{
-				m_CollisionShape->AddMesh(m);
-			}
+			const auto& name = mr.Model->GetName();
+			m_CollisionShape =  CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name);
 							
 		}
 		else

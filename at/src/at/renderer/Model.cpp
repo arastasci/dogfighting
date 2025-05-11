@@ -1,11 +1,22 @@
 #include "Model.h"
 #include "at/core/Logger.h"
 
-
-at::Model::Model(const std::string& path)
+at::Model::Model(const std::string& path, const std::string& name)
 {
+	m_Name = name;
 	LoadModel(path);
 }
+
+const std::string& at::Model::GetName()
+{
+	return m_Name;
+}
+
+const std::vector<at::Mesh*>& at::Model::GetMeshes()
+{
+	return m_Meshes;
+}
+
 
 void at::Model::LoadModel(const std::string& path)
 {
