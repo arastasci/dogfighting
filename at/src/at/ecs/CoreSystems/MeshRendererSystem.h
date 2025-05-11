@@ -23,14 +23,15 @@ namespace at
 
 					auto model = glm::mat4(1.0f);
 					model = glm::translate(model, transform.position);
-					model = glm::mat4_cast(transform.rotation) * model;
-					model = glm::scale(model, transform.scale);
-					shader->setMat4("model", model);
+					model = model * glm::mat4_cast(transform.rotation);
+					//model = glm::scale(model, transform.scale);
 					auto meshes = meshRenderer.GetMeshes();
 					
-					for (auto& mesh : meshes)
-					{
-						Renderer::DrawElements(mesh.GetVertexArray(), mesh.GetTextures(), meshRenderer.Material.MatShader);
+
+					for (auto* mesh : meshes) {
+						model = mesh->GetModelMatrix() * model;
+						shader->setMat4("model", model);
+						Renderer::DrawElements(mesh->GetVertexArray(), mesh->GetTextures(), meshRenderer.Material.MatShader);
 					}
 
 					RenderWorld::Get().Flush();

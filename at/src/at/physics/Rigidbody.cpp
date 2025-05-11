@@ -8,6 +8,7 @@ namespace at
 	Rigidbody::Rigidbody() 		
 	{
 		m_CollisionShape = std::make_shared<CollisionShape>();
+		m_ShiftedCompoundShape = new btCompoundShape();
 		m_MotionState = new btDefaultMotionState();
 	}
 
@@ -25,8 +26,31 @@ namespace at
 			}
 		}
 
-		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_CollisionShape->GetShape());
-		
+		btVector3 inertia;
+		btTransform principal;
+		m_CollisionShape->CalculatePrincipalAxisTransform(principal, inertia);
+
+		auto* shape = m_CollisionShape->GetShape();
+
+		int numChildShapes = shape->getNumChildShapes();
+
+		for (int i = 0; i < numChildShapes; i++)
+		{
+			auto adjusted = shape->getChildTransform(i);
+			adjusted.setOrigin(adjusted.getOrigin() - principal.getOrigin());
+			m_ShiftedCompoundShape->addChildShape(adjusted, shape->getChildShape(i));
+		}
+
+
+
+		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_ShiftedCompoundShape);
+
+		m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
+
+		m_ShiftedCompoundShape->calculateLocalInertia(2.5f, inertia);
+		m_Rigidbody->setMassProps(2.5f, inertia);
+		m_Rigidbody->updateInertiaTensor();
+
 		world->AddRigidbody(m_Rigidbody.get());
 
 		btTransform transform = m_Rigidbody->getCenterOfMassTransform();

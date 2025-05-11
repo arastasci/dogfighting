@@ -9,12 +9,16 @@ namespace at
 	{
 	public:
 		CollisionShape();
-		void AddMesh(const Mesh& mesh);
+		void AddMesh(const Mesh* mesh);
 		
 		void DebugRender();
 
-		btConvexHullShape* GetShape();
+		btCompoundShape* GetShape();
+		void CalculatePrincipalAxisTransform(btTransform& principal, btVector3& inertia);
+
 	private:
-		btConvexHullShape* m_Shape;
+		btCompoundShape* m_CompoundShape;
+		std::vector<btConvexHullShape*> m_Shapes{};
+		std::vector<float> m_Masses;
 	};
 }

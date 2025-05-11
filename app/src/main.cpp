@@ -21,11 +21,49 @@ public:
 
         for (auto [e, rb, f] : view.each())
         {
-            //rb.ApplyForce(vec3(0, -1.f, 0), Constants::FIXED_TIMESTEP);
-            rb.SetGravity({ 0,0,0 });
-
+            rb.ApplyForce(vec3(0, 9.8f, 0), Constants::FIXED_TIMESTEP);
+            // PlaneAerodynamics(rb.GetRigidbody().get());
         }
     }
+
+private:
+    // called each tick from a pre‑tick callback or btActionInterface
+    void PlaneAerodynamics(btRigidBody* body)
+    {
+        /* --------- 1. basic data we need each tick ------------------------ */
+        btVector3 v = body->getLinearVelocity();
+        btScalar   speed = v.length();
+        if (speed < 1e-2f) return;                       // too slow → no aero
+
+        btVector3 velDir = v / speed;                    // unit velocity (world)
+
+        const btMatrix3x3& basis = body->getWorldTransform().getBasis();
+        btVector3 fwdWorld = basis.getColumn(2).normalized();   // +X is “nose”
+
+        /* --------- 2. how badly are we mis‑aligned? ----------------------- */
+        btScalar cosθ = fwdWorld.dot(velDir);            //  1 → perfect alignment
+        btScalar sinθ = (fwdWorld.cross(velDir)).length(); //  0 → aligned, 1 → 90°
+
+        /* If the nose is already within ~10° of the velocity vector
+           we don’t need any more pitch‑down force. */
+        if (cosθ > 0.985f) return;                       // ≈ 10 deg threshold
+
+        /* --------- 3. drag force (opposite to velocity) ------------------- */
+        const btScalar ρ = 1.225f;                     // kg m‑3 (sea level)
+        const btScalar CdA = 1.5f;                       // crude reference area
+        btVector3 drag = -0.5f * ρ * CdA * speed * speed * velDir;
+
+        /* --------- 4. pick a Cp that rides with the nose ------------------ */
+        const btScalar cpDist = 3.0f;                    // metres ahead of COM
+        btVector3 cpWorld = body->getCenterOfMassPosition() + fwdWorld * cpDist;
+
+        /* --------- 5. fade the force as we get closer to alignment -------- */
+        drag *= sinθ;                                    // zero when aligned
+
+        /* --------- 6. apply it – Bullet converts (r×F) to the right torque */
+        body->applyForce(drag, cpWorld - body->getCenterOfMassPosition());
+    }
+
 };
 
 struct FreeCamera : public BehaviourComponent
@@ -155,9 +193,9 @@ public:
 		auto rb = e.AddComponent<Rigidbody>();
 
         e.AddComponent<FlightControls>();
-       /* auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
+        auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
         backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        backpack.AddComponent<Rigidbody>();*/
+        backpack.AddComponent<Rigidbody>();
 		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);

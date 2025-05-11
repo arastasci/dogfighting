@@ -28,7 +28,8 @@ namespace at
 		bool IsActive();
 		void SetIsActive(bool b);
 		void DrawShape();
-
+		
+		SharedPtr<btRigidBody> GetRigidbody() { return m_Rigidbody; }
 		void ApplyForce(vec3 direction, float force);
 		void SetGravity(vec3 acceleration);
 	private:
@@ -36,6 +37,7 @@ namespace at
 		SharedPtr<btRigidBody> m_Rigidbody;
 		WeakPtr<PhysicsWorld> m_World;
 		SharedPtr<CollisionShape> m_CollisionShape;
+		btCompoundShape* m_ShiftedCompoundShape;
 		btMotionState* m_MotionState{};
 
 		std::unordered_set<Rigidbody*> m_CurrentCollidedObjects{};

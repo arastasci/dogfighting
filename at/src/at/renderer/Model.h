@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 #include "Mesh.h"
 #include "Texture2D.h"
+#include "ModelNode.h"
 
 namespace at {
 
@@ -24,15 +25,15 @@ namespace at {
 			return std::make_shared<Model>(path);
 		}
 
-
-
 		void LoadModel(const std::string& path);
-		void ProcessNode(aiNode* node, const aiScene* scene);
-		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+		void ProcessNode(ModelNode* parent, aiNode* node, const aiScene* scene);
+		Mesh* ProcessMesh(aiMesh* mesh, const mat4& localMatrix, const aiScene* scene);
 		std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+		
 
 		std::string m_Directory;
-		std::vector<Mesh> m_Meshes;
+		std::vector<ModelNode*> m_Nodes;
+		std::vector<Mesh*> m_Meshes;
 		std::vector<Texture> m_Textures;
 		std::vector<Texture> m_texturesLoaded;
 

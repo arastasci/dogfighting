@@ -8,8 +8,8 @@ namespace at
 	}
 
 
-	Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
-		: m_vertices(vertices), m_indices(indices), m_textures(textures)
+	Mesh::Mesh(mat4 localMatrix, std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
+		: m_ModelMatrix(localMatrix), m_vertices(vertices), m_indices(indices), m_textures(textures)
 	{
 		m_VertexArray = std::make_shared<VertexArray>();
 		auto vertexBuffer = std::make_shared<VertexBuffer>(sizeof(Vertex) * m_vertices.size() );
@@ -26,7 +26,6 @@ namespace at
 		auto indexBuffer = std::make_shared<IndexBuffer>(m_indices.data(), m_indices.size());
 
 		m_VertexArray->SetIndexBuffer(indexBuffer);
-
 	}
 
 
@@ -37,6 +36,10 @@ namespace at
 	const std::vector<Vertex>& Mesh::GetVertices() const
 	{
 		return m_vertices;
+	}
+	const mat4& Mesh::GetModelMatrix() const
+	{
+		return m_ModelMatrix;
 	}
 }
 

@@ -12,7 +12,7 @@ namespace at
 		std::shared_ptr<Model> Model;
 		Material Material;
 
-		const std::vector<Mesh>& GetMeshes()
+		const std::vector<Mesh*>& GetMeshes()
 		{
 			return Model->m_Meshes;
 		}

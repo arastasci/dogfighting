@@ -6,6 +6,8 @@ namespace at
 {
 	void PhysicsWorld::Update(float dt)
 	{
+		if (!m_isSimulated)
+			return;
 		m_AccTimestep += dt;
 		while (m_AccTimestep >= Constants::FIXED_TIMESTEP)
 		{
@@ -13,7 +15,7 @@ namespace at
 			m_AccTimestep -= Constants::FIXED_TIMESTEP;
 		}
 
-		// UpdateCollisions();
+		 UpdateCollisions();
 	}
 
 	void PhysicsWorld::Init()

@@ -40,12 +40,19 @@ namespace at
 		virtual void Shutdown() override;
 
 		void GetCollidingObjects(std::vector<Rigidbody*>& colliders, Rigidbody* rb);
+
+		void SetIsSimulated(bool isSimulated) 
+		{
+			m_isSimulated = isSimulated;
+		}
+
+		bool GetIsSimulated() { return m_isSimulated; }
 	private:
 
 		void UpdateCollisions();
 		
 		float m_AccTimestep = 0;
-
+		bool m_isSimulated = true;
 		struct PairRigidHash {
 			size_t operator()(Pair<Rigidbody*, Rigidbody*> const& p) const noexcept
 			{

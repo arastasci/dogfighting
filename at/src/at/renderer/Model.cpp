@@ -18,21 +18,25 @@ void at::Model::LoadModel(const std::string& path)
 		return;
 	}
 	m_Directory = path.substr(0, path.find_last_of('/'));
-	ProcessNode(scene->mRootNode, scene);
+	ProcessNode(nullptr, scene->mRootNode, scene);
 }
 
-void at::Model::ProcessNode(aiNode* node, const aiScene* scene)
+void at::Model::ProcessNode(ModelNode* parent, aiNode* node, const aiScene* scene)
 {
+	auto* mNode = new ModelNode(parent, toGlm(node->mTransformation));
+	if(parent)
+		parent->AddChild(mNode);
+
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		m_Meshes.push_back(ProcessMesh(mesh, scene));
+		mNode->AddMesh(ProcessMesh(mesh, mNode->GetModelMatrix() * toGlm(node->mTransformation), scene));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(node->mChildren[i], scene);
+		ProcessNode(mNode, node->mChildren[i], scene);
 	}
 }
 
@@ -111,7 +115,7 @@ std::vector<at::Texture> at::Model::LoadMaterialTextures(aiMaterial* mat, aiText
 }
 
 
-at::Mesh at::Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+at::Mesh* at::Model::ProcessMesh(aiMesh* mesh, const mat4& localMatrix, const aiScene* scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -179,7 +183,9 @@ at::Mesh at::Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
-	return Mesh(vertices, indices, textures);
+	auto* m = new Mesh(localMatrix, vertices, indices, textures);
+	m_Meshes.push_back(m);
+	return m;
 
 }
 

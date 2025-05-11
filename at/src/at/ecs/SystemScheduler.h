@@ -2,6 +2,7 @@
 
 #include "atpch.h"
 #include "at/ecs/ISystem.h"
+#include "at/utils/Constants.h"
 namespace at
 {
 	class SystemScheduler
@@ -23,11 +24,15 @@ namespace at
 			}
 		}
 
-		void FixedUpdate()
+		void FixedUpdate(double dt)
 		{
-			for (auto& s : m_Systems)
+			while (dt >= Constants::FIXED_TIMESTEP)
 			{
-				s->FixedUpdate();
+				for (auto& s : m_Systems)
+				{
+					s->FixedUpdate();
+				}
+				dt -= Constants::FIXED_TIMESTEP;
 			}
 		}
 
