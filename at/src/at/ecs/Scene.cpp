@@ -67,6 +67,11 @@ namespace at
 		m_SystemScheduler->Update(deltaTime);
 	}
 
+	void Scene::PostUpdate(double deltaTime)
+	{
+		m_SystemScheduler->PostUpdate(deltaTime);
+	}
+
 	void Scene::FixedUpdate(double deltaTime)
 	{
 		m_PhysicsWorld->Update(deltaTime);

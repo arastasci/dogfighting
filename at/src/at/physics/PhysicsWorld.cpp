@@ -9,12 +9,22 @@ namespace at
 		if (!m_isSimulated)
 			return;
 		m_AccTimestep += dt;
+		m_TotalTime += dt;
+		//int maxSubstep = (int)(dt * (1.0f / Constants::FIXED_TIMESTEP)) + 1;
+		bool firstStep = true;
+		
 		while (m_AccTimestep >= Constants::FIXED_TIMESTEP)
 		{
+			/*if (firstStep)
+			{
+				UpdateLastTransforms();
+				firstStep = false;
+			}*/
+
 			m_World->stepSimulation(Constants::FIXED_TIMESTEP, 0, Constants::FIXED_TIMESTEP);
 			m_AccTimestep -= Constants::FIXED_TIMESTEP;
 		}
-
+		//m_World->stepSimulation(dt, maxSubstep, Constants::FIXED_TIMESTEP);
 		 UpdateCollisions();
 	}
 
@@ -44,6 +54,17 @@ namespace at
 			{
 				colliders.push_back(bodyPair.first);
 			}
+		}
+	}
+	void PhysicsWorld::UpdateLastTransforms()
+	{
+		auto rbs = m_World->getNonStaticRigidBodies();
+		int num = rbs.size();
+
+		for (int i = 0; i < num; i++)
+		{
+			auto* rbComponent = static_cast<Rigidbody*>(rbs[i]->getUserPointer());
+			rbComponent->UpdateLastTransform();
 		}
 	}
 	void at::PhysicsWorld::UpdateCollisions()

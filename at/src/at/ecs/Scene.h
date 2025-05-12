@@ -24,6 +24,7 @@ namespace at
 
 		void Start();
 		void Update(double deltaTime);
+		void PostUpdate(double deltaTime);
 		void FixedUpdate(double dT);
 		void OnDestroy();
 
@@ -47,6 +48,15 @@ namespace at
 		{
 			auto system = std::make_shared<T>();
 			m_SystemScheduler->Register(system);
+			return system;
+		}
+
+		template<typename T,
+			typename = std::enable_if_t<std::is_base_of_v<ISystem, T>>>
+		std::shared_ptr<T> AddPostSystem()
+		{
+			auto system = std::make_shared<T>();
+			m_SystemScheduler->RegisterPostSystem(system);
 			return system;
 		}
 

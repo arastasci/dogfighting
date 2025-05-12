@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "at/core/Core.h"
 #include <at/ecs/Component.h>
@@ -21,6 +21,7 @@ namespace at
             position(pos), rotation(rot), scale(scale), parent(p)
         {
         }
+
         Transform(vec3 pos)
             : position(pos),
             rotation(),
@@ -35,13 +36,17 @@ namespace at
         {
         }
 
-        // local transform
-        glm::vec3 position;
-        glm::quat rotation;
-        glm::vec3 scale;
-        Transform* parent = nullptr;
+        glm::quat GetWorldRotation() const
+        {
+            return parent ? parent->GetWorldRotation() * rotation : rotation;
+        }
 
-        mat4 GetWorldTransform()
+        glm::vec3 Forward() const { return GetWorldRotation() * Vector3::forward; } // Z‑
+        glm::vec3 Right()   const { return GetWorldRotation() * Vector3::right; } // X+
+        glm::vec3 Up()      const { return GetWorldRotation() * Vector3::up; } // Y+
+
+
+        mat4 GetWorldTransform() const
         {
             mat4 parentTransform(1.0f);
             if (parent)
@@ -52,6 +57,14 @@ namespace at
 
             return parentTransform * glm::translate(glm::mat4(1.0f), position) * r * glm::scale(glm::mat4(1.0f), scale);
         }
+        
+        // local transform
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
+        Transform* parent = nullptr;
+
+
     };
 
 }

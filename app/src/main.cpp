@@ -1,7 +1,10 @@
 ﻿ #include <at.h>
 
-#include <chrono>
 #include <random>
+#include "FollowCamera.h"
+#include "PlaneController.h"
+
+
 using namespace at;
 
 
@@ -12,12 +15,7 @@ class GoofyBehaviour : public BehaviourComponent
 class GoofySystem : public System
 {
 public:
-    GoofySystem()
-       
-    {
-        seed = std::chrono::system_clock::now().time_since_epoch().count();
-        generator = std::mt19937(seed);
-    }
+    GoofySystem() = default;
 
     void Start() override
     {
@@ -26,7 +24,7 @@ public:
         {
             vec3 forceDirection(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
             forceDirection = glm::normalize(forceDirection);
-            float force = 1000 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float force = 10000000 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             rb.ApplyForce(forceDirection, force);
         }
     }
@@ -47,77 +45,8 @@ private:
         backpack.AddComponent<Rigidbody>();
     }
 
-
-    unsigned seed;
-
-    // mt19937 is a standard mersenne_twister_engine
-    std::mt19937 generator;
 };
 
-class FlightControls : public BehaviourComponent
-{
-    const float ForwardThrust = 100.f;
-};
-
-class FlightSystem : public System
-{
-public:
-    void Start() override
-    {
-        auto view = GetStartedView<FlightControls>();
-        for(auto [e, _, fc] : view.each())
-            Logger::GetClientLogger()->info("Houston... we got a problem?");
-    }
-    void FixedUpdate() override
-    {
-        auto view = GetView<Rigidbody, FlightControls>();
-
-        for (auto [e, _,  rb, f] : view.each())
-        {
-            rb.ApplyForce(vec3(0, 9.8f, 0), Constants::FIXED_TIMESTEP);
-            // PlaneAerodynamics(rb.GetRigidbody().get());
-        }
-    }
-
-private:
-    // called each tick from a pre‑tick callback or btActionInterface
-    void PlaneAerodynamics(btRigidBody* body)
-    {
-        /* --------- 1. basic data we need each tick ------------------------ */
-        btVector3 v = body->getLinearVelocity();
-        btScalar   speed = v.length();
-        if (speed < 1e-2f) return;                       // too slow → no aero
-
-        btVector3 velDir = v / speed;                    // unit velocity (world)
-
-        const btMatrix3x3& basis = body->getWorldTransform().getBasis();
-        btVector3 fwdWorld = basis.getColumn(2).normalized();   // +X is “nose”
-
-        /* --------- 2. how badly are we mis‑aligned? ----------------------- */
-        btScalar cosθ = fwdWorld.dot(velDir);            //  1 → perfect alignment
-        btScalar sinθ = (fwdWorld.cross(velDir)).length(); //  0 → aligned, 1 → 90°
-
-        /* If the nose is already within ~10° of the velocity vector
-           we don’t need any more pitch‑down force. */
-        if (cosθ > 0.985f) return;                       // ≈ 10 deg threshold
-
-        /* --------- 3. drag force (opposite to velocity) ------------------- */
-        const btScalar ρ = 1.225f;                     // kg m‑3 (sea level)
-        const btScalar CdA = 1.5f;                       // crude reference area
-        btVector3 drag = -0.5f * ρ * CdA * speed * speed * velDir;
-
-        /* --------- 4. pick a Cp that rides with the nose ------------------ */
-        const btScalar cpDist = 3.0f;                    // metres ahead of COM
-        btVector3 cpWorld = body->getCenterOfMassPosition() + fwdWorld * cpDist;
-
-        /* --------- 5. fade the force as we get closer to alignment -------- */
-        drag *= sinθ;                                    // zero when aligned
-
-        /* --------- 6. apply it – Bullet converts (r×F) to the right torque */
-        body->applyForce(drag, cpWorld - body->getCenterOfMassPosition());
-    }
-
-};
 
 struct FreeCamera : public BehaviourComponent
 {
@@ -151,7 +80,7 @@ public:
 
             /* ESC releases the mouse so people can use the UI again */
             if (Input::GetKeyPress(Key::Escape) &&
-                Input::GetCursorMode() == Input::CursorMode::Locked)
+                Input::GetCursorMode() == Input::CursorMode::Hidden)
             {
                 Input::SetCursorMode(Input::CursorMode::Normal);
                 cam.firstFrame = true;             // triggers re‑lock on next click
@@ -161,8 +90,8 @@ public:
             const vec2  delta = vec2(mx, my) - cam.lastMousePos;
             cam.lastMousePos = { mx, my };
 
-            cam.yaw -= delta.x * cam.mouseSensitivity;
-            cam.pitch += delta.y * cam.mouseSensitivity;  // invert Y
+            cam.yaw += delta.x * cam.mouseSensitivity;
+            cam.pitch += delta.y * cam.mouseSensitivity;
 
             // clamp pitch to avoid flipping
             cam.pitch = clamp(cam.pitch, -89.0f, 89.0f);
@@ -184,10 +113,10 @@ public:
 
             /* ── 3. Keyboard movement (camera‑relative) ────────────────── */
             float v = cam.moveSpeed * dt;
-            if (Input::GetKeyPress(Key::W)) tr.position -= forward * v;
-            if (Input::GetKeyPress(Key::S)) tr.position += forward * v;
-            if (Input::GetKeyPress(Key::A)) tr.position += right * v;
-            if (Input::GetKeyPress(Key::D)) tr.position -= right * v;
+            if (Input::GetKeyPress(Key::Up)) tr.position -= forward * v;
+            if (Input::GetKeyPress(Key::Down)) tr.position += forward * v;
+            if (Input::GetKeyPress(Key::Left)) tr.position -= right * v;
+            if (Input::GetKeyPress(Key::Right)) tr.position += right * v;
             if (Input::GetKeyPress(Key::P))
             {
                 m_WillPause = true;
@@ -227,9 +156,9 @@ public:
 	virtual void AppInit() override
 	{
         m_activeScene->AddSystem<FreeCameraSystem>();
-        m_activeScene->AddSystem<FlightSystem>();
         m_activeScene->AddSystem<GoofySystem>();
-
+        m_activeScene->AddPostSystem<FollowCameraSystem>();
+        m_activeScene->AddSystem<PlaneControllerSystem>();
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
         e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
@@ -246,22 +175,20 @@ public:
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 
-        e.AddComponent<FlightControls>();
         
-        {
-            auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
-            backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-            backpack.AddComponent<Rigidbody>();
-        }
-        {
-            auto backpack = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(3, 3, 0), quat(), vec3(1.0f)));
-            backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-            //backpack.AddComponent<Rigidbody>();
-        }
-        auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
+        //{
+        //    auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
+        //    backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        //    backpack.AddComponent<Rigidbody>();
+        //}
+       
+        auto camera = m_activeScene->CreateEntity(Transform(/*&e.GetComponent<Transform>(),*/ vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
-		camera.AddComponent<FreeCamera>();
+        camera.AddComponent<FreeCamera>();
+        e.AddComponent<PlaneController>();
+
+        //camera.AddComponent<FollowCamera>(e.GetComponent<Transform>(), vec3(0, 3.0f, -6.0f));
 
 	}
 };

@@ -21,9 +21,10 @@ namespace at
 		Rigidbody(bool isKinematic = false);
 		void AddBodyToWorld(const SharedPtr<PhysicsWorld>& world);
 		void GetCollidingObjects(std::vector<Rigidbody*>& colliders);
-		
+		void UpdateLastTransform();
 		void ClearCollidedObjects();
 		void ReportCollidedObject(Rigidbody* rb);
+		Transform GetInterpolatedTransform(float t);
 		Transform GetWorldTransform() const;
 		Transform GetStaticWorldTransform() const;
 		bool IsActive();
@@ -36,9 +37,11 @@ namespace at
 	private:
 		bool m_isKinematic = false;
 		bool m_isActive = false;
+		btTransform m_LastTransform;
+
+		double m_AccTime;
 		SharedPtr<btRigidBody> m_Rigidbody;
 		WeakPtr<PhysicsWorld> m_World;
-		btUniformScalingShape* m_UniformScalingShape;
 		SharedPtr<CollisionShape> m_CollisionShape;
 		btCompoundShape* m_ShiftedCompoundShape;
 		btMotionState* m_MotionState{};

@@ -48,10 +48,10 @@ namespace at
 		}
 
 		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_ShiftedCompoundShape);
-
+		m_Rigidbody->setActivationState(m_isKinematic ? m_Rigidbody->getActivationState() : DISABLE_DEACTIVATION);
 		m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
 
-		float mass = m_isKinematic ? 0.0f : 2.5f;
+		float mass = m_isKinematic ? 0.0f : 50.f;
 		m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
 		m_Rigidbody->setMassProps(mass, inertia);
 		m_Rigidbody->updateInertiaTensor();
@@ -76,6 +76,12 @@ namespace at
 		m_World.lock()->GetCollidingObjects(colliders, this);
 	}
 
+	void Rigidbody::UpdateLastTransform()
+	{
+		m_Rigidbody->getMotionState()->getWorldTransform(m_LastTransform);
+		m_AccTime = 0;
+	}
+
 	void Rigidbody::ClearCollidedObjects()
 	{
 		m_CurrentCollidedObjects.clear();
@@ -86,6 +92,27 @@ namespace at
 		m_CurrentCollidedObjects.insert(body);
 	}
 
+	Transform Rigidbody::GetInterpolatedTransform(float dt) 
+	{
+		m_AccTime += dt;
+		float t = m_AccTime / Constants::FIXED_TIMESTEP;
+		btTransform btT;
+		m_Rigidbody->getMotionState()->getWorldTransform(btT);
+		btQuaternion currentQ;
+		btT.getBasis().getRotation(currentQ);
+		btQuaternion lastQ;
+		m_LastTransform.getBasis().getRotation(lastQ);
+		auto resQ = slerp(lastQ, currentQ, t);
+		
+		auto currentPos = btT.getOrigin();
+		auto lastPos = m_LastTransform.getOrigin();
+
+		auto resPos = lerp(lastPos, currentPos, t);
+
+		return Transform(toGlm(resPos), toGlm(resQ), vec3(1.0f));
+	}
+
+	// TODO: WARNING! these will drop the parent for now, fix it later
 	Transform Rigidbody::GetWorldTransform() const
 	{
 		btTransform btT;

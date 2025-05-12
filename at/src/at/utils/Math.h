@@ -4,6 +4,7 @@
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btMatrix3x3.h>   
 #include <LinearMath/btTransform.h>
+#include <LinearMath/btQuaternion.h>
 #include <assimp/matrix4x4.h>   // aiMatrix4x4
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -105,7 +106,13 @@ inline vec3 toGlm(const btVector3& v) noexcept
              static_cast<float>(v.z()) };
 }
 
-
+inline quat toGlm(const btQuaternion& v) noexcept
+{
+    return { static_cast<float>(v.w()),
+            static_cast<float>(v.x()),
+             static_cast<float>(v.y()),
+             static_cast<float>(v.z()) };
+}
 template<typename T>
 inline btMatrix3x3 toBt(const glm::mat<3, 3, T, glm::defaultp>& m)
 {

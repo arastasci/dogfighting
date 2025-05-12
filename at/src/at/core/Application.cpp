@@ -48,10 +48,10 @@ namespace at {
 		stbi_set_flip_vertically_on_load(true);
 
 		m_activeScene->AddSystem<EntityManagerSystem>();
-		m_activeScene->AddSystem<CameraSystem>();
-		m_activeScene->AddSystem<PointLightSystem>();
 		m_activeScene->AddSystem<PhysicsSystem>();
-		m_activeScene->AddSystem<MeshRendererSystem>();
+		m_activeScene->AddPostSystem<MeshRendererSystem>();
+		m_activeScene->AddPostSystem<PointLightSystem>();
+		m_activeScene->AddPostSystem<CameraSystem>();
 
 
 		AppInit(); // application initialization code
@@ -85,6 +85,7 @@ namespace at {
 				m_LastFixedTime = timeNow;
 				m_activeScene->FixedUpdate(m_FixedDeltaTime);
 			}
+			m_activeScene->PostUpdate(m_DeltaTime);
 			m_activeScene->EndFrame();
 			//////////////    UPDATE - END         ///////////////
 			

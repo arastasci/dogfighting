@@ -51,11 +51,13 @@ namespace at
 			m_isSimulated = isSimulated;
 		}
 
+		void UpdateLastTransforms();
+
 		bool GetIsSimulated() { return m_isSimulated; }
 	private:
 
 		void UpdateCollisions();
-		
+		float m_TotalTime = 0;
 		float m_AccTimestep = 0;
 		bool m_isSimulated = true;
 		struct PairRigidHash {
