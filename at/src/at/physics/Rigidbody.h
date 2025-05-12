@@ -18,13 +18,14 @@ namespace at
 	class AT_API Rigidbody : public Component
 	{
 	public:
-		Rigidbody();
+		Rigidbody(bool isKinematic = false);
 		void AddBodyToWorld(const SharedPtr<PhysicsWorld>& world);
 		void GetCollidingObjects(std::vector<Rigidbody*>& colliders);
 		
 		void ClearCollidedObjects();
 		void ReportCollidedObject(Rigidbody* rb);
-		Transform getWorldTransform() const;
+		Transform GetWorldTransform() const;
+		Transform GetStaticWorldTransform() const;
 		bool IsActive();
 		void SetIsActive(bool b);
 		void DrawShape();
@@ -33,9 +34,11 @@ namespace at
 		void ApplyForce(vec3 direction, float force);
 		void SetGravity(vec3 acceleration);
 	private:
+		bool m_isKinematic = false;
 		bool m_isActive = false;
 		SharedPtr<btRigidBody> m_Rigidbody;
 		WeakPtr<PhysicsWorld> m_World;
+		btUniformScalingShape* m_UniformScalingShape;
 		SharedPtr<CollisionShape> m_CollisionShape;
 		btCompoundShape* m_ShiftedCompoundShape;
 		btMotionState* m_MotionState{};

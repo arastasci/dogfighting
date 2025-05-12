@@ -16,7 +16,9 @@ namespace at
 			for (auto [e, _, rb] : view.each())
 			{
 				rb.SetIsActive(true);
+
 				rb.AddBodyToWorld(m_Scene->GetPhysicsWorld());
+				
 			}
 		}
 		virtual void FixedUpdate() override
@@ -25,7 +27,17 @@ namespace at
 			for (auto [e, _, rb, t] : view.each())
 			{
 				if (rb.IsActive())
-					t = rb.getWorldTransform();
+				{
+					if (rb.GetRigidbody()->getMass())
+					{
+						t = rb.GetWorldTransform();
+						t.scale = toGlm(rb.GetRigidbody()->getCollisionShape()->getLocalScaling());
+					}
+					else
+					{
+						t = rb.GetStaticWorldTransform();
+					}
+				}
 
 			}
 		}

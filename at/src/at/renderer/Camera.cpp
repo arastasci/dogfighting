@@ -27,9 +27,12 @@ namespace at
 		return m_ViewMatrix;
 	}
 
-	void Camera::Update(glm::vec3 position, glm::quat rotation)
+	void Camera::Update(const mat4& cameraTransform)
 	{
-		vec3 pos = position;
+		vec3 pos;
+		quat rotation;
+		vec3 scale;
+		DecomposeTransform(cameraTransform, pos, rotation, scale);
 		
 		m_ViewMatrix = glm::lookAt(pos, pos + rotation * Vector3::forward, Vector3::up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);

@@ -23,9 +23,7 @@ namespace at
 				shader->setMat4("view", CameraSystem::ViewMatrix);
 				shader->setVec3("viewPos", CameraSystem::ViewPosition);
 
-				auto model = glm::mat4(1.0f);
-				model = glm::translate(model, transform.position);
-				model = model * glm::mat4_cast(transform.rotation);
+				auto model = transform.GetWorldTransform();
 				//model = glm::scale(model, transform.scale);
 				auto meshes = meshRenderer.GetMeshes();
 					

@@ -27,7 +27,8 @@ namespace at
 			
 			
 
-			c.Update(t.position, t.rotation);
+
+			c.Update(t.GetWorldTransform());
 			ProjectionMatrix = c.GetProjectionMatrix();
 			ViewMatrix= c.GetViewMatrix();
 			ViewPosition = t.position;

@@ -241,16 +241,24 @@ public:
 			vec3(0.05f), vec3(0.8f), vec3(1.0f)
 			);
 
-        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -50, 0), quat(), vec3(0.1f)));
+        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(0.5f)));
         terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/lowpoly_terrain/lowpoly_terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        terrainEntity.AddComponent<Rigidbody>();
+        terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 
         e.AddComponent<FlightControls>();
-        auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
-        backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        backpack.AddComponent<Rigidbody>();
-		auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
+        
+        {
+            auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
+            backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+            backpack.AddComponent<Rigidbody>();
+        }
+        {
+            auto backpack = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(3, 3, 0), quat(), vec3(1.0f)));
+            backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+            //backpack.AddComponent<Rigidbody>();
+        }
+        auto camera = m_activeScene->CreateEntity(Transform(vec3(0, 0, -3)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
 		camera.AddComponent<FreeCamera>();

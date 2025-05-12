@@ -7,9 +7,10 @@
 
 namespace at
 {
-	Rigidbody::Rigidbody() 		
+	Rigidbody::Rigidbody(bool isKinematic)
+		: m_isKinematic(isKinematic)
 	{
-		m_CollisionShape = std::make_shared<CollisionShape>();
+		
 		m_ShiftedCompoundShape = new btCompoundShape();
 		m_MotionState = new btDefaultMotionState();
 	}
@@ -46,21 +47,26 @@ namespace at
 			m_ShiftedCompoundShape->addChildShape(adjusted, shape->getChildShape(i));
 		}
 
-
-
 		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_ShiftedCompoundShape);
 
 		m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
 
-		m_ShiftedCompoundShape->calculateLocalInertia(2.5f, inertia);
-		m_Rigidbody->setMassProps(2.5f, inertia);
+		float mass = m_isKinematic ? 0.0f : 2.5f;
+		m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
+		m_Rigidbody->setMassProps(mass, inertia);
 		m_Rigidbody->updateInertiaTensor();
 
-		world->AddRigidbody(m_Rigidbody.get());
-
 		btTransform transform = m_Rigidbody->getCenterOfMassTransform();
-		transform.setOrigin(toBt(m_Entity.GetComponent<Transform>().position));               //set position
-		transform.setBasis(toBt(glm::mat3(m_Entity.GetComponent<Transform>().rotation)));   //set orientation
+		auto t = m_Entity.GetComponent<Transform>().GetWorldTransform();
+		vec3 p, scale;
+		quat rot;
+		DecomposeTransform(t, p, rot, scale);
+		transform.setOrigin(toBt(p));
+		transform.setBasis(toBt(glm::mat3_cast(rot)));
+		//m_UniformScalingShape = new btUniformScalingShape(m_CollisionShape->GetShape(), scale.r);
+		m_ShiftedCompoundShape->setLocalScaling(toBt(scale));
+		world->AddRigidbody(m_Rigidbody.get());
+		world->UpdateAABB(m_Rigidbody.get());
 		m_Rigidbody->setCenterOfMassTransform(transform);
 		m_Rigidbody->setUserPointer(this);
 	}
@@ -80,13 +86,21 @@ namespace at
 		m_CurrentCollidedObjects.insert(body);
 	}
 
-	Transform Rigidbody::getWorldTransform() const
+	Transform Rigidbody::GetWorldTransform() const
 	{
 		btTransform btT;
 		m_Rigidbody->getMotionState()->getWorldTransform(btT);
 		auto btQ = btT.getRotation();
 		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-		return Transform(toGlm(btT.getOrigin()), q, vec3(1.0f));
+		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
+	}
+
+	Transform Rigidbody::GetStaticWorldTransform() const
+	{
+		btTransform btT = m_Rigidbody->getWorldTransform();
+		auto btQ = btT.getRotation();
+		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
+		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
 	}
 
 	bool Rigidbody::IsActive()

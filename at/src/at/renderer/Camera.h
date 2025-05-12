@@ -13,7 +13,7 @@ namespace at
 		mat4 GetProjectionMatrix();
 		mat4 GetViewMatrix();
 
-		void Update(glm::vec3 position, quat rotation);
+		void Update(const mat4& cameraTransform);
 	private:
 		mat4 m_ProjectionMatrix;
 		mat4 m_ViewMatrix;

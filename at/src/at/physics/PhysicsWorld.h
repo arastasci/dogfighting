@@ -33,6 +33,11 @@ namespace at
 			m_World->addRigidBody(rb);
 		}
 
+		void UpdateAABB(btRigidBody* rb)
+		{
+			m_World->updateSingleAabb(rb);
+		}
+
 		void Update(float dt);
 
 		virtual void Init() override;
