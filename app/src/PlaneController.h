@@ -3,119 +3,92 @@
 
 using namespace at;
 
+#pragma once
+#include "at.h"
+
+using namespace at;
+
 struct PlaneController : public Component
 {
-    // ––– physical constants (default values for a small GA trainer) –––
-    float Mass = 300.0f;   // kg
-    float InertiaScale = 0.25f;    // crude Ix=Iy=Iz ≈ Mass × InertiaScale × span²
+    float MaxThrust = 10000.0f; 
+    float MaxSpeed = 40.0f;    
+    float Throttle = 0.0f;     
+    float ThrottleRate = 0.15f;    
+    float PitchTorque = 600.0f;   
+    float RollTorque = 600.0f;   
 
-    // ––– pilot controls –––
-    float ThrustForce = 600.0f;   // N (positive forward)
-    float PitchTorque = 150.0f;   // N·m (about right axis)
-    float RollTorque = 150.0f;   // N·m (about forward axis)
-
-    // ––– damping & aero –––
-    float LinearDamping = 0.04f;    // Bullet linear damping [0‑1]
-    float AngularDamping = 0.50f;    // Bullet angular damping [0‑1]
-    float CdArea = 4.0f;     // drag coefficient * reference area (m²)
-    float RotDragK = 0.05f;    // τ = −k ω  (multiplied by inertia in Start)
+    float DragCoeff = 0.20f;
+    float CdArea = 4.0f;
+    float RotDragK = 0.05f;
 };
 
-//-----------------------------------------------------------------------------
-//  PlaneControllerSystem
-//-----------------------------------------------------------------------------
 class PlaneControllerSystem : public System
 {
-public:
-    // Called once when the entity first gains PlaneController (+ required comps)
-    void Start(entt::entity e,
-        PlaneController& pc,
-        Transform& tr,
-        Rigidbody& rb) override
+    void Start() override
     {
-        // 1) ensure rigid body exists
-        btRigidBody* body = rb.GetRigidbody().get();
-        if (!body) return;
+        auto view = GetStartedView<PlaneController, Rigidbody>();
+        for (auto [e, _, pc, rb] : view.each())
+        {
+            rb.SetGravity(vec3(0, 0, 0));
+            rb.GetRigidbody()->setDamping(0.04f, 0.50f);
 
-        // 2) set mass & inertia (simple uniform box approximation)
-        btVector3 inertia(pc.InertiaScale * pc.Mass,
-            pc.InertiaScale * pc.Mass,
-            pc.InertiaScale * pc.Mass);
-        body->setMassProps(pc.Mass, inertia);
-        body->updateInertiaTensor();
-
-        // 3) built‑in Bullet damping
-        body->setDamping(pc.LinearDamping, pc.AngularDamping);
-
-        // 4) pre‑compute rotational‑drag constant in world units
-        m_RotDragConst[e] = pc.RotDragK * inertia.getX(); // assume Ix≈Iy≈Iz
+            btVector3 inertia = rb.GetRigidbody()->getLocalInertia();
+            m_RotDragConst[e] = pc.RotDragK * inertia.getX();
+        }
     }
 
-    // Fixed‑timestep physics update
     void FixedUpdate() override
     {
-        auto view = GetView<PlaneController, Transform, Rigidbody>();
+        const float dt = Constants::FIXED_TIMESTEP;
 
+        auto view = GetView<PlaneController, Transform, Rigidbody>();
         for (auto [e, _, pc, tr, rb] : view.each())
         {
             btRigidBody* body = rb.GetRigidbody().get();
             if (!body) continue;
+            if (!body->isActive()) body->activate();
 
-            //-------------------------------------------------------------
-            //   WORLD axes
-            //-------------------------------------------------------------
-            const btVector3 Fwd = toBt(glm::normalize(tr.Forward()));
-            const btVector3 Rgt = toBt(glm::normalize(tr.Right()));
+            Logger::GetClientLogger()->info("velocity: {}, percent: {}", body->getLinearVelocity().length(), pc.Throttle);
 
-            //-------------------------------------------------------------
-            //   Thrust & brake
-            //-------------------------------------------------------------
             if (Input::GetKeyPress(Key::Space))
-                body->applyCentralForce(Fwd * pc.ThrustForce);
-
+                pc.Throttle = glm::clamp(pc.Throttle + pc.ThrottleRate * dt, 0.f, 1.f);
             if (Input::GetKeyPress(Key::LeftControl) || Input::GetKeyPress(Key::RightControl))
-                body->applyCentralForce(Fwd * -pc.ThrustForce);
+                pc.Throttle = glm::clamp(pc.Throttle - pc.ThrottleRate * dt, 0.f, 1.f);
 
-            //-------------------------------------------------------------
-            //   Pitch (W/S)  → torque about right axis
-            //-------------------------------------------------------------
-            float pitchInput = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
-                (Input::GetKeyPress(Key::S) ? -1.f : 0.f);
+            const btVector3 fwd = toBt(glm::normalize(tr.Forward()));
+            const btVector3 rgt = toBt(glm::normalize(tr.Right()));
 
-            if (pitchInput != 0.f)
-                body->applyTorque(Rgt * (-pitchInput * pc.PitchTorque));
-
-            //-------------------------------------------------------------
-            //   Roll (A/D)   → torque about forward axis
-            //-------------------------------------------------------------
-            float rollInput = (Input::GetKeyPress(Key::D) ? 1.f : 0.f) +
-                (Input::GetKeyPress(Key::A) ? -1.f : 0.f);
-
-            if (rollInput != 0.f)
-                body->applyTorque(Fwd * (-rollInput * pc.RollTorque));
-
-            //-------------------------------------------------------------
-            //   Quadratic aerodynamic drag  (‑½ ρ CdA v |v|)
-            //-------------------------------------------------------------
-            const float rho = 1.225f;                        // kg m⁻³
             btVector3 v = body->getLinearVelocity();
-            btScalar v2 = v.length2();
+            float speedAlongFwd = v.dot(fwd);
+            float target = pc.Throttle * pc.MaxSpeed;
+            if (speedAlongFwd < target - 0.5f)
+                body->applyCentralForce(fwd * (pc.MaxThrust * pc.Throttle));
+
+            float pitch = (Input::GetKeyPress(Key::W) ? -1.f : 0.f) +
+                (Input::GetKeyPress(Key::S) ? 1.f : 0.f);
+            if (pitch != 0.f)
+                body->applyTorque(rgt * (-pitch * pc.PitchTorque));
+
+            float roll = (Input::GetKeyPress(Key::D) ? 1.f : 0.f) +
+                (Input::GetKeyPress(Key::A) ? -1.f : 0.f);
+            if (roll != 0.f)
+                body->applyTorque(fwd * (-roll * pc.RollTorque));
+
+            const float rho = 1.225f;
+            float v2 = v.length2();
             if (v2 > SIMD_EPSILON)
             {
-                btVector3 Fdrag = v.normalized() * (-0.5f * rho * pc.CdArea * v2);
-                body->applyCentralForce(Fdrag);
+                btVector3 quadraticDrag = v.normalized() * (-0.5f * rho * pc.CdArea * v2);
+                body->applyCentralForce(quadraticDrag);
             }
+            body->applyCentralForce(-v * pc.DragCoeff);
 
-            //-------------------------------------------------------------
-            //   Rotational damping  τ = −k ω
-            //-------------------------------------------------------------
-            btVector3 w = body->getAngularVelocity();
-            btVector3 τ = -w * m_RotDragConst[e];
-            body->applyTorque(τ);
+            btVector3 torqueDrag = -body->getAngularVelocity() * m_RotDragConst[e];
+            body->applyTorque(torqueDrag);
         }
     }
 
 private:
-    // per‑entity rotational‑drag scalar (pre‑multiplied by inertia in Start)
     entt::dense_map<entt::entity, float> m_RotDragConst;
 };
+
