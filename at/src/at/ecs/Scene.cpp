@@ -72,10 +72,26 @@ namespace at
 		m_SystemScheduler->PostUpdate(deltaTime);
 	}
 
-	void Scene::FixedUpdate(double deltaTime)
+	double Scene::FixedUpdate(double dt)
 	{
-		m_PhysicsWorld->Update(deltaTime);
-		m_SystemScheduler->FixedUpdate(deltaTime);
+		m_AccTimestep += dt;
+		m_TotalTime = glfwGetTime();
+
+		if(m_AccTimestep >= Constants::FIXED_TIMESTEP)
+			m_PhysicsWorld->UpdateLastTransforms();
+		
+		while (m_AccTimestep >= Constants::FIXED_TIMESTEP)
+		{
+			m_PhysicsWorld->Update(dt);
+			m_SystemScheduler->FixedUpdate(dt);
+
+			m_AccTimestep -= Constants::FIXED_TIMESTEP;
+		}
+		return m_AccTimestep;
+	}
+	void Scene::Render(double dt)
+	{
+		m_SystemScheduler->Render(dt);
 	}
 	void Scene::OnDestroy()
 	{

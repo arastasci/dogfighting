@@ -25,7 +25,8 @@ namespace at
 		void Start();
 		void Update(double deltaTime);
 		void PostUpdate(double deltaTime);
-		void FixedUpdate(double dT);
+		double FixedUpdate(double dT);
+		void Render(double dt);
 		void OnDestroy();
 
 		void EndFrame();
@@ -72,7 +73,8 @@ namespace at
 
 
 	private:
-
+		float m_TotalTime = 0;
+		float m_AccTimestep = 0;
 		// TOOO: change ltr
 		std::unique_ptr<SystemScheduler> m_SystemScheduler;
 		static std::shared_ptr<Scene> m_activeScene;

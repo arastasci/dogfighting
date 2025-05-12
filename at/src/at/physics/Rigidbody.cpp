@@ -94,8 +94,8 @@ namespace at
 
 	Transform Rigidbody::GetInterpolatedTransform(float dt) 
 	{
-		m_AccTime += dt;
-		float t = m_AccTime / Constants::FIXED_TIMESTEP;
+
+		float t = dt;
 		btTransform btT;
 		m_Rigidbody->getMotionState()->getWorldTransform(btT);
 		btQuaternion currentQ;
@@ -106,7 +106,6 @@ namespace at
 		
 		auto currentPos = btT.getOrigin();
 		auto lastPos = m_LastTransform.getOrigin();
-
 		auto resPos = lerp(lastPos, currentPos, t);
 
 		return Transform(toGlm(resPos), toGlm(resQ), vec3(1.0f));
@@ -116,6 +115,7 @@ namespace at
 	Transform Rigidbody::GetWorldTransform() const
 	{
 		btTransform btT;
+		
 		m_Rigidbody->getMotionState()->getWorldTransform(btT);
 		auto btQ = btT.getRotation();
 		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());

@@ -65,7 +65,6 @@ namespace at {
 		while (!m_currentWindow->ShouldClose())
 		{
 			auto timeNow = glfwGetTime();
-			m_FixedDeltaTime = timeNow - m_LastFixedTime;
 
 			m_DeltaTime = timeNow - m_FrameTime;
 			m_FrameTime = timeNow;
@@ -78,13 +77,10 @@ namespace at {
 
 			m_activeScene->Start();
 
-			m_activeScene->Update(m_DeltaTime);
+			auto accTime = m_activeScene->FixedUpdate(m_DeltaTime);
 
-			if (m_FixedDeltaTime >= Constants::FIXED_TIMESTEP)
-			{
-				m_LastFixedTime = timeNow;
-				m_activeScene->FixedUpdate(m_FixedDeltaTime);
-			}
+			m_activeScene->Update(m_DeltaTime);
+			m_activeScene->Render(accTime / Constants::FIXED_TIMESTEP);
 			m_activeScene->PostUpdate(m_DeltaTime);
 			m_activeScene->EndFrame();
 			//////////////    UPDATE - END         ///////////////

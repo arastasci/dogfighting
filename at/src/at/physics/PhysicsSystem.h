@@ -21,7 +21,7 @@ namespace at
 				
 			}
 		}
-		virtual void FixedUpdate() override
+		virtual void Render(float dt) override
 		{
 			auto view = GetView<Rigidbody, Transform>();
 			for (auto [e, _, rb, t] : view.each())
@@ -30,7 +30,7 @@ namespace at
 				{
 					if (rb.GetRigidbody()->getMass())
 					{
-						t = rb.GetWorldTransform();
+						t = rb.GetInterpolatedTransform(dt);
 						t.scale = toGlm(rb.GetRigidbody()->getCollisionShape()->getLocalScaling());
 					}
 					else

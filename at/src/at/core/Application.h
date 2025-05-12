@@ -18,7 +18,7 @@ namespace at
 	protected:
 		static Application* m_instance;
 		Window* m_currentWindow;
-
+		double m_AccumulatedTime;
 		double m_DeltaTime;
 		double m_FixedDeltaTime;
 		double m_LastFixedTime;

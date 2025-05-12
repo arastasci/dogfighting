@@ -41,13 +41,17 @@ namespace at
 
 		void FixedUpdate(double dt)
 		{
-			while (dt >= Constants::FIXED_TIMESTEP)
-			{
 				for (auto& s : m_Systems)
 				{
 					s->FixedUpdate();
 				}
-				dt -= Constants::FIXED_TIMESTEP;
+		}
+
+		void Render(double dt)
+		{
+			for (auto& s : m_Systems)
+			{
+				s->Render(dt);
 			}
 		}
 

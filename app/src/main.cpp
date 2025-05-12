@@ -182,7 +182,7 @@ public:
         //    backpack.AddComponent<Rigidbody>();
         //}
        
-        auto camera = m_activeScene->CreateEntity(Transform(/*&e.GetComponent<Transform>(),*/ vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
+        auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
         camera.AddComponent<FreeCamera>();
