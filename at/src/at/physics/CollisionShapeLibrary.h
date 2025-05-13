@@ -11,7 +11,7 @@ namespace at {
 	class AT_API CollisionShapeLibrary : public EngineSubsystem<CollisionShapeLibrary>
 	{
 	public:
-		std::shared_ptr<CollisionShape> CreateOrGetCollisionShape(const std::string& name)
+		std::shared_ptr<CollisionShape> CreateOrGetCollisionShape(const std::string& name, bool isStatic)
 		{
 
 			if (m_ShapeMap.find(name) != m_ShapeMap.end())

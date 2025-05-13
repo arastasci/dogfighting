@@ -8,7 +8,7 @@
 #include "at/ecs/CoreSystems/MeshRendererSystem.h"
 #include "at/ecs/CoreSystems/PointLightSystem.h"
 #include "at/physics/PhysicsSystem.h"
-
+#include "at/renderer/SkyboxSystem.h"
 #include "at/utils/Constants.h"
 
 #include "Input.h"
@@ -45,15 +45,16 @@ namespace at {
 		m_currentWindow = new Window();
 		Renderer::Init();
 		m_activeScene->Init();
-		stbi_set_flip_vertically_on_load(true);
+
 
 		m_activeScene->AddSystem<EntityManagerSystem>();
 		m_activeScene->AddSystem<PhysicsSystem>();
+		m_activeScene->AddPostSystem<CameraSystem>();
 		m_activeScene->AddPostSystem<MeshRendererSystem>();
 		m_activeScene->AddPostSystem<PointLightSystem>();
-		m_activeScene->AddPostSystem<CameraSystem>();
-
-
+		m_activeScene->AddPostSystem<SkyboxSystem>();
+		
+		stbi_set_flip_vertically_on_load(true);
 		AppInit(); // application initialization code
 	}
 
@@ -72,7 +73,6 @@ namespace at {
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 			//////////////    UPDATE         ///////////////
 
 			m_activeScene->Start();
@@ -83,8 +83,9 @@ namespace at {
 			m_activeScene->Render(accTime / Constants::FIXED_TIMESTEP);
 			m_activeScene->PostUpdate(m_DeltaTime);
 			m_activeScene->EndFrame();
-			//////////////    UPDATE - END         ///////////////
 			
+			//////////////    UPDATE - END         ///////////////
+
 
 			m_currentWindow->SwapBuffers();
 			glfwPollEvents();

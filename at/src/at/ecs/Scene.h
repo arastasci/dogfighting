@@ -26,7 +26,7 @@ namespace at
 		void Update(double deltaTime);
 		void PostUpdate(double deltaTime);
 		double FixedUpdate(double dT);
-		void Render(double dt);
+		void Render(double t);
 		void OnDestroy();
 
 		void EndFrame();

@@ -8,20 +8,30 @@ using namespace at;
 
 using namespace at;
 
+#pragma once
+#include "at.h"
+
+using namespace at;
+
+// ----------------------------------------------------
 struct PlaneController : public Component
 {
-    float MaxThrust = 10000.0f; 
-    float MaxSpeed = 40.0f;    
-    float Throttle = 0.0f;     
-    float ThrottleRate = 0.15f;    
-    float PitchTorque = 600.0f;   
-    float RollTorque = 600.0f;   
+    float MaxThrust = 10000.0f;
+    float MaxSpeed = 40.0f;
+    float Throttle = 0.0f;
+    float ThrottleRate = 0.15f;
+
+    float PitchTorque = 600.0f;
+    float RollTorque = 600.0f;
 
     float DragCoeff = 0.20f;
     float CdArea = 4.0f;
     float RotDragK = 0.05f;
-};
 
+    float WingArea = 6.0f;   // m²
+    float Cl = 1.0f;   // lift coeff
+};
+// ----------------------------------------------------
 class PlaneControllerSystem : public System
 {
     void Start() override
@@ -29,7 +39,6 @@ class PlaneControllerSystem : public System
         auto view = GetStartedView<PlaneController, Rigidbody>();
         for (auto [e, _, pc, rb] : view.each())
         {
-            rb.SetGravity(vec3(0, 0, 0));
             rb.GetRigidbody()->setDamping(0.04f, 0.50f);
 
             btVector3 inertia = rb.GetRigidbody()->getLocalInertia();
@@ -40,6 +49,8 @@ class PlaneControllerSystem : public System
     void FixedUpdate() override
     {
         const float dt = Constants::FIXED_TIMESTEP;
+        const float rho0 = 1.225f;      // sea‑level air density
+        const float scaleHeight = 10000.0f;    // density fall‑off
 
         auto view = GetView<PlaneController, Transform, Rigidbody>();
         for (auto [e, _, pc, tr, rb] : view.each())
@@ -47,8 +58,6 @@ class PlaneControllerSystem : public System
             btRigidBody* body = rb.GetRigidbody().get();
             if (!body) continue;
             if (!body->isActive()) body->activate();
-
-            Logger::GetClientLogger()->info("velocity: {}, percent: {}", body->getLinearVelocity().length(), pc.Throttle);
 
             if (Input::GetKeyPress(Key::Space))
                 pc.Throttle = glm::clamp(pc.Throttle + pc.ThrottleRate * dt, 0.f, 1.f);
@@ -59,27 +68,35 @@ class PlaneControllerSystem : public System
             const btVector3 rgt = toBt(glm::normalize(tr.Right()));
 
             btVector3 v = body->getLinearVelocity();
-            float speedAlongFwd = v.dot(fwd);
-            float target = pc.Throttle * pc.MaxSpeed;
-            if (speedAlongFwd < target - 0.5f)
+            float      speedFwd = v.dot(fwd);
+            float      target = pc.Throttle * pc.MaxSpeed;
+            if (speedFwd < target - 0.5f)
                 body->applyCentralForce(fwd * (pc.MaxThrust * pc.Throttle));
 
             float pitch = (Input::GetKeyPress(Key::W) ? -1.f : 0.f) +
                 (Input::GetKeyPress(Key::S) ? 1.f : 0.f);
-            if (pitch != 0.f)
-                body->applyTorque(rgt * (-pitch * pc.PitchTorque));
+            if (pitch) body->applyTorque(rgt * (-pitch * pc.PitchTorque));
 
             float roll = (Input::GetKeyPress(Key::D) ? 1.f : 0.f) +
                 (Input::GetKeyPress(Key::A) ? -1.f : 0.f);
-            if (roll != 0.f)
-                body->applyTorque(fwd * (-roll * pc.RollTorque));
+            if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
 
-            const float rho = 1.225f;
             float v2 = v.length2();
             if (v2 > SIMD_EPSILON)
             {
-                btVector3 quadraticDrag = v.normalized() * (-0.5f * rho * pc.CdArea * v2);
-                body->applyCentralForce(quadraticDrag);
+                // lift: perpendicular to velocity and wing span (right axis)
+                btVector3 liftDir = rgt.cross(v);
+                if (liftDir.length2() > SIMD_EPSILON)
+                {
+                    liftDir.normalize();
+                    float altitude = body->getWorldTransform().getOrigin().getY();
+                    float rho = rho0 * std::exp(-altitude / scaleHeight);
+                    float liftMag = 0.5f * rho * pc.Cl * pc.WingArea * v2;
+                    body->applyCentralForce(liftDir * liftMag);
+                }
+
+                btVector3 quadDrag = v.normalized() * (-0.5f * rho0 * pc.CdArea * v2);
+                body->applyCentralForce(quadDrag);
             }
             body->applyCentralForce(-v * pc.DragCoeff);
 
@@ -91,4 +108,3 @@ class PlaneControllerSystem : public System
 private:
     entt::dense_map<entt::entity, float> m_RotDragConst;
 };
-

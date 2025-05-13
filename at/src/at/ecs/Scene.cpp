@@ -89,9 +89,9 @@ namespace at
 		}
 		return m_AccTimestep;
 	}
-	void Scene::Render(double dt)
+	void Scene::Render(double t)
 	{
-		m_SystemScheduler->Render(dt);
+		m_SystemScheduler->Render(t);
 	}
 	void Scene::OnDestroy()
 	{

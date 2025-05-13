@@ -1,0 +1,9 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl DiffuseMat
+Ka 0.000 0.000 0.000         # ambient (ignored by most real‑time shaders)
+Kd 1.000 1.000 1.000         # diffuse tint (white keeps original tex colours)
+d 1.0                        # fully opaque
+illum 1                      # basic colour; no specular
+map_Kd grass-seamlessjpg.jpg   # <<— your image file

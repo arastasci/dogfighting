@@ -15,6 +15,7 @@ namespace at
 		void Init();
 		void Run();
 		Window* GetWindow();
+
 	protected:
 		static Application* m_instance;
 		Window* m_currentWindow;

@@ -8,7 +8,7 @@
 namespace at
 {
 	class MeshRendererSystem;
-
+	class SkyboxSystem;
 	class CameraSystem : public System
 	{
 	public:
@@ -39,6 +39,7 @@ namespace at
 	private:
 
 		friend class MeshRendererSystem;
+		friend class SkyboxSystem;
 		inline static mat4 ProjectionMatrix;
 		inline static mat4 ViewMatrix;
 		inline static vec3 ViewPosition;

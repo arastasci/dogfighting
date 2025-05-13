@@ -35,6 +35,16 @@ public:
         {
             CreatePlane();
         }
+        if (Input::GetKeyPress(Key::F))
+        {
+            auto view = GetView<GoofyBehaviour>();
+
+            for (auto& [e, _, g] : view.each())
+            {
+                Entity en = { e, m_Scene };
+                en.DestroyEntity();
+            }
+        }
     }
 private:
     void CreatePlane()
@@ -170,8 +180,8 @@ public:
 			vec3(0.05f), vec3(0.8f), vec3(1.0f)
 			);
 
-        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(0.5f)));
-        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/lowpoly_terrain/lowpoly_terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(1.f)));
+        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/mountain/mountain.fbx", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 

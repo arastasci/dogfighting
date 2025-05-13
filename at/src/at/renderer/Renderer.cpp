@@ -3,6 +3,10 @@
 
 namespace at
 {
+
+
+
+
 	void Renderer::Init()
 	{
 	#ifdef AT_DEBUG
@@ -63,4 +67,5 @@ namespace at
 		uint32_t count = vertexArray->GetIndexBuffer()->GetCount();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
+	
 }

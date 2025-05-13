@@ -47,11 +47,11 @@ namespace at
 				}
 		}
 
-		void Render(double dt)
+		void Render(double t)
 		{
 			for (auto& s : m_Systems)
 			{
-				s->Render(dt);
+				s->Render(t);
 			}
 		}
 

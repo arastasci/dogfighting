@@ -17,7 +17,6 @@ const std::vector<at::Mesh*>& at::Model::GetMeshes()
 	return m_Meshes;
 }
 
-
 void at::Model::LoadModel(const std::string& path)
 {
 	auto importer = Assimp::Importer();
@@ -50,7 +49,6 @@ void at::Model::ProcessNode(ModelNode* parent, aiNode* node, const aiScene* scen
 		ProcessNode(mNode, node->mChildren[i], scene);
 	}
 }
-
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma)
 {
@@ -167,7 +165,6 @@ at::Mesh* at::Model::ProcessMesh(aiMesh* mesh, const mat4& localMatrix, const ai
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
-
 
 	if (mesh->mMaterialIndex >= 0)
 	{
