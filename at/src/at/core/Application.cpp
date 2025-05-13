@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "Logger.h"
 #include "at/renderer/Renderer.h"
-
+#include "at/networking/Networking.h"
 #include "at/ecs/CoreSystems/EntityManagerSystem.h"
 #include "at/ecs/CoreSystems/CameraSystem.h"
 #include "at/ecs/CoreSystems/MeshRendererSystem.h"
@@ -44,6 +44,7 @@ namespace at {
 
 		m_currentWindow = new Window();
 		Renderer::Init();
+		Networking::Get().Init();
 		m_activeScene->Init();
 
 
