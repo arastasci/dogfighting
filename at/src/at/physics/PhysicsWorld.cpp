@@ -13,7 +13,7 @@ namespace at
 
 		
 		//m_World->stepSimulation(dt, maxSubstep, Constants::FIXED_TIMESTEP);
-		UpdateCollisions();
+		//UpdateCollisions();
 	}
 
 	void PhysicsWorld::Init()

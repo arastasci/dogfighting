@@ -8,7 +8,7 @@
 namespace at
 {
 	Rigidbody::Rigidbody(bool isKinematic)
-		: m_isKinematic(isKinematic)
+		: m_isStatic(isKinematic)
 	{
 		
 		m_ShiftedCompoundShape = new btCompoundShape();
@@ -24,7 +24,7 @@ namespace at
 		{
 			auto& mr = m_Entity.GetComponent<MeshRenderer>();
 			const auto& name = mr.Model->GetName();
-			m_CollisionShape =  CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name);
+			m_CollisionShape =  CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name, m_isStatic);
 							
 		}
 		else
@@ -32,29 +32,37 @@ namespace at
 			assert(false);
 		}
 
-		btVector3 inertia;
-		btTransform principal;
-		m_CollisionShape->CalculatePrincipalAxisTransform(principal, inertia);
-
-		auto* shape = m_CollisionShape->GetShape();
-
-		int numChildShapes = shape->getNumChildShapes();
-
-		for (int i = 0; i < numChildShapes; i++)
+		if (!m_isStatic)
 		{
-			auto adjusted = shape->getChildTransform(i);
-			adjusted.setOrigin(adjusted.getOrigin() - principal.getOrigin());
-			m_ShiftedCompoundShape->addChildShape(adjusted, shape->getChildShape(i));
+			btVector3 inertia;
+			btTransform principal;
+			m_CollisionShape->CalculatePrincipalAxisTransform(principal, inertia);
+
+			auto* shape = m_CollisionShape->GetShape();
+
+			int numChildShapes = shape->getNumChildShapes();
+
+			for (int i = 0; i < numChildShapes; i++)
+			{
+				auto adjusted = shape->getChildTransform(i);
+				adjusted.setOrigin(adjusted.getOrigin() - principal.getOrigin());
+				m_ShiftedCompoundShape->addChildShape(adjusted, shape->getChildShape(i));
+			}
+
+			m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState, m_ShiftedCompoundShape);
+			m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);
+			m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
+			float mass = 50.f;
+			m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
+			m_Rigidbody->setMassProps(mass, inertia);
+			m_Rigidbody->updateInertiaTensor();
+		}
+		else
+		{
+			m_Rigidbody = std::make_shared<btRigidBody>(0, m_MotionState, m_CollisionShape->GetShape());
 		}
 
-		m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState , m_ShiftedCompoundShape);
-		m_Rigidbody->setActivationState(m_isKinematic ? m_Rigidbody->getActivationState() : DISABLE_DEACTIVATION);
-		m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
-
-		float mass = m_isKinematic ? 0.0f : 50.f;
-		m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
-		m_Rigidbody->setMassProps(mass, inertia);
-		m_Rigidbody->updateInertiaTensor();
+		
 
 		btTransform transform = m_Rigidbody->getCenterOfMassTransform();
 		auto t = m_Entity.GetComponent<Transform>().GetWorldTransform();
@@ -64,7 +72,15 @@ namespace at
 		transform.setOrigin(toBt(p));
 		transform.setBasis(toBt(glm::mat3_cast(rot)));
 		//m_UniformScalingShape = new btUniformScalingShape(m_CollisionShape->GetShape(), scale.r);
-		m_ShiftedCompoundShape->setLocalScaling(toBt(scale));
+		if (!m_isStatic)
+		{
+			m_ShiftedCompoundShape->setLocalScaling(toBt(scale));
+		}
+		else
+		{
+			m_CollisionShape->GetShape()->setLocalScaling(toBt(scale));
+
+		}
 		world->AddRigidbody(m_Rigidbody.get());
 		world->UpdateAABB(m_Rigidbody.get());
 		m_Rigidbody->setCenterOfMassTransform(transform);
@@ -122,12 +138,13 @@ namespace at
 		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
 	}
 
+
 	Transform Rigidbody::GetStaticWorldTransform() const
 	{
 		btTransform btT = m_Rigidbody->getWorldTransform();
 		auto btQ = btT.getRotation();
 		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
+		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_CollisionShape->GetShape()->getLocalScaling()));
 	}
 
 	bool Rigidbody::IsActive()

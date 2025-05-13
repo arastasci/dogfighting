@@ -35,7 +35,7 @@ namespace at
 		void ApplyForce(vec3 direction, float force);
 		void SetGravity(vec3 acceleration);
 	private:
-		bool m_isKinematic = false;
+		bool m_isStatic = false;
 		bool m_isActive = false;
 		btTransform m_LastTransform;
 

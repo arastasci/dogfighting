@@ -1,4 +1,4 @@
-#pragma once 
+﻿#pragma once 
 
 #include "CollisionShape.h"
 #include "at/renderer/Mesh.h"
@@ -25,6 +25,37 @@ namespace at
 		m_Masses.push_back(1.0f);
 		
 	}
+
+	void CollisionShape::AddStaticMesh(const Mesh* mesh)
+	{
+		const auto& verts = mesh->GetVertices();
+		const auto& indices = mesh->GetIndices();
+
+		auto* triMesh = new btTriangleMesh(/*use32bitIndices=*/true,
+			/*use4componentVertices=*/false);
+
+		// ❸ Feed every triangle to Bullet
+		for (std::size_t i = 0; i + 2 < indices.size(); i += 3)
+		{
+			const vec3& p0 = verts[indices[i]].Position;
+			const vec3& p1 = verts[indices[i + 1]].Position;
+			const vec3& p2 = verts[indices[i + 2]].Position;
+
+			triMesh->addTriangle(toBt(p0), toBt(p1), toBt(p2));
+		}
+
+		// ❹ Build an *optimized* static shape out of the triangle soup
+		const bool useQuantizedAabbCompression = true;
+		auto* meshShape = new btBvhTriangleMeshShape(triMesh,
+			useQuantizedAabbCompression);
+
+		// ❺ Attach it to your compound with the mesh’s model matrix
+		btTransform modelXf(toBt(mesh->GetModelMatrix()));
+		m_CompoundShape->addChildShape(modelXf, meshShape);
+		m_Shapes.push_back(meshShape);
+		m_Masses.push_back(0.0f);
+	}
+
 
 	void CollisionShape::DebugRender()
 	{

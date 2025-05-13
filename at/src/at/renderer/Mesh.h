@@ -28,6 +28,8 @@ namespace at
 		std::vector<Texture>& GetTextures() { return m_textures; }
 		std::shared_ptr<VertexArray>& GetVertexArray();
 		const std::vector<Vertex>& GetVertices() const;
+		const std::vector<uint32_t>& GetIndices() const { return m_indices; }
+
 		const mat4& GetModelMatrix() const;
 	private:
 		std::shared_ptr<VertexArray> m_VertexArray;

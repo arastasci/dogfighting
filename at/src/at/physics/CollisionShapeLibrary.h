@@ -21,13 +21,25 @@ namespace at {
 			}
 			auto modelPtr = std::make_shared<CollisionShape>();
 
-			auto meshes = ModelLibrary::Get().GetModel(name)->GetMeshes();
-
-			for (auto& mesh : meshes)
+			if (!isStatic)
 			{
-				modelPtr->AddMesh(mesh);
-			}
+				auto meshes = ModelLibrary::Get().GetModel(name)->GetMeshes();
 
+				for (auto& mesh : meshes)
+				{
+					modelPtr->AddMesh(mesh);
+				}
+
+			}
+			else
+			{
+				auto meshes = ModelLibrary::Get().GetModel(name)->GetMeshes();
+
+				for (auto& mesh : meshes)
+				{
+					modelPtr->AddStaticMesh(mesh);
+				}
+			}
 			m_ShapeMap[name] = modelPtr;
 			return modelPtr;
 		}

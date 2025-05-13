@@ -10,7 +10,7 @@ namespace at
 	public:
 		CollisionShape();
 		void AddMesh(const Mesh* mesh);
-		
+		void AddStaticMesh(const Mesh* mesh);
 		void DebugRender();
 
 		btCompoundShape* GetShape();
@@ -18,7 +18,8 @@ namespace at
 
 	private:
 		btCompoundShape* m_CompoundShape;
-		std::vector<btConvexHullShape*> m_Shapes{};
+
+		std::vector<btCollisionShape*> m_Shapes{};
 		std::vector<float> m_Masses;
 	};
 }

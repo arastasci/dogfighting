@@ -180,12 +180,11 @@ public:
 			vec3(0.05f), vec3(0.8f), vec3(1.0f)
 			);
 
-        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(1.f)));
-        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/mountain/mountain.fbx", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(10, 5, 10)));
+        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/simple_terrain/terrainv2.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 
-        
         //{
         //    auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
         //    backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));

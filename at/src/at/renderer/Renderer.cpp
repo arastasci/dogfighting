@@ -24,13 +24,11 @@ namespace at
 
 	}
 
-
 	void Renderer::SetViewport(int x, int y, int width, int height)
 	{
 		glViewport(x, y, width, height);
 	}
 
-	
 
 	void Renderer::DrawElements(std::shared_ptr<VertexArray>& vertexArray, std::vector<Texture>& textures, std::shared_ptr<Shader> shader)
 	{
