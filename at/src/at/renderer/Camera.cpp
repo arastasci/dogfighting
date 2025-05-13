@@ -10,7 +10,7 @@ namespace at
 	}
 
 	Camera::Camera(vec3 position, vec3 front, vec3 up, float FOV, float aspectRatio) 
-		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(0.1f), m_FarPlane(800.f)
+		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(0.1f), m_FarPlane(2000.f)
 	{
 		vec3 pos = position;
 		m_ViewMatrix = glm::lookAt(pos, pos + front, up);

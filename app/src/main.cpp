@@ -173,7 +173,7 @@ public:
 
         e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
 
-		e.AddComponent<DirectionalLightComponent>(DirectionalLight{ vec3(0, -1, -1), vec3(0.05f), vec3(0.4f), vec3(0.5f) });
+		e.AddComponent<DirectionalLightComponent>(DirectionalLight{ vec3(0, -1, 1), vec3(0.05f), vec3(0.4f), vec3(0.5f) });
 		auto e2 = m_activeScene->CreateEntity(Transform(vec3(1, 0, -1)));
 		e2.AddComponent<PointLightComponent>(
 			1, 0.09f, 0.032f,
@@ -181,7 +181,7 @@ public:
 			);
 
         auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(10, 5, 10)));
-        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/simple_terrain/terrainv2.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/meshy/terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 

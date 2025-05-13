@@ -44,12 +44,11 @@ namespace at
 			triMesh->addTriangle(toBt(p0), toBt(p1), toBt(p2));
 		}
 
-		// ❹ Build an *optimized* static shape out of the triangle soup
 		const bool useQuantizedAabbCompression = true;
 		auto* meshShape = new btBvhTriangleMeshShape(triMesh,
 			useQuantizedAabbCompression);
 
-		// ❺ Attach it to your compound with the mesh’s model matrix
+
 		btTransform modelXf(toBt(mesh->GetModelMatrix()));
 		m_CompoundShape->addChildShape(modelXf, meshShape);
 		m_Shapes.push_back(meshShape);

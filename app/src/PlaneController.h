@@ -16,8 +16,8 @@ using namespace at;
 // ----------------------------------------------------
 struct PlaneController : public Component
 {
-    float MaxThrust = 10000.0f;
-    float MaxSpeed = 40.0f;
+    float MaxThrust = 15000.0f;
+    float MaxSpeed = 80.0f;
     float Throttle = 0.0f;
     float ThrottleRate = 0.15f;
 
@@ -29,7 +29,7 @@ struct PlaneController : public Component
     float RotDragK = 0.05f;
 
     float WingArea = 6.0f;   // m²
-    float Cl = 1.0f;   // lift coeff
+    float Cl = 0.2f;   // lift coeff
 };
 // ----------------------------------------------------
 class PlaneControllerSystem : public System
@@ -81,11 +81,14 @@ class PlaneControllerSystem : public System
                 (Input::GetKeyPress(Key::A) ? -1.f : 0.f);
             if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
 
+
+            Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
+
             float v2 = v.length2();
             if (v2 > SIMD_EPSILON)
             {
                 // lift: perpendicular to velocity and wing span (right axis)
-                btVector3 liftDir = rgt.cross(v);
+                btVector3 liftDir = v.cross(rgt);
                 if (liftDir.length2() > SIMD_EPSILON)
                 {
                     liftDir.normalize();

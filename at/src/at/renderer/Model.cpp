@@ -145,7 +145,6 @@ at::Mesh* at::Model::ProcessMesh(aiMesh* mesh, const mat4& localMatrix, const ai
 		vector.z = mesh->mNormals[i].z;
 		vertex.Normal = vector;
 
-
 		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
 		{
 			glm::vec2 vec;
