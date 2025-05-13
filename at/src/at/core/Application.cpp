@@ -12,6 +12,7 @@
 #include "at/utils/Constants.h"
 
 #include "Input.h"
+#include <at/networking/NetworkingSystem.h>
 
 namespace at {
 	 Application* Application::m_instance;
@@ -44,12 +45,28 @@ namespace at {
 
 		m_currentWindow = new Window();
 		Renderer::Init();
+
+		char option;
+		Logger::GetCoreLogger()->info("h or c?");
+		std::cin >> option;
 		Networking::Get().Init();
+
+		if (option == 'h')
+		{
+			Networking::Get().Host();
+		}
+		else
+		{
+			Networking::Get().Connect();
+		}
+
+
 		m_activeScene->Init();
 
 
 		m_activeScene->AddSystem<EntityManagerSystem>();
 		m_activeScene->AddSystem<PhysicsSystem>();
+		m_activeScene->AddSystem<NetworkingSystem>();
 		m_activeScene->AddPostSystem<CameraSystem>();
 		m_activeScene->AddPostSystem<MeshRendererSystem>();
 		m_activeScene->AddPostSystem<PointLightSystem>();

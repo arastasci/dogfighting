@@ -82,7 +82,7 @@ class PlaneControllerSystem : public System
             if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
 
 
-            Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
+            //Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
 
             float v2 = v.length2();
             if (v2 > SIMD_EPSILON)
