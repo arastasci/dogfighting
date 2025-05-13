@@ -13,7 +13,7 @@ namespace at
 
 		
 		//m_World->stepSimulation(dt, maxSubstep, Constants::FIXED_TIMESTEP);
-		//UpdateCollisions();
+		UpdateCollisions();
 	}
 
 	void PhysicsWorld::Init()
@@ -64,12 +64,17 @@ namespace at
 			auto* rb = static_cast<Rigidbody*>(rigidbodies.at(i)->getUserPointer());
 			rb->ClearCollidedObjects();
 		}
+		m_CurrentCollisionMap.clear();
 
 		int numManifolds = m_Dispatcher->getNumManifolds();
 
 		for (int i = 0; i < numManifolds; i++)
 		{
 			auto manifold = m_Dispatcher->getManifoldByIndexInternal(i);
+
+			int numContacts = manifold->getNumContacts();
+			if (!numContacts) continue;
+
 			auto* rb0 = static_cast<Rigidbody*>(manifold->getBody0()->getUserPointer());
 			auto* rb1 = static_cast<Rigidbody*>(manifold->getBody1()->getUserPointer());
 			if (rb0 && rb1)

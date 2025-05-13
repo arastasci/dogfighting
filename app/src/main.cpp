@@ -3,6 +3,7 @@
 #include <random>
 #include "FollowCamera.h"
 #include "PlaneController.h"
+#include "CollisionCallback.h"
 
 
 using namespace at;
@@ -168,6 +169,7 @@ public:
         m_activeScene->AddSystem<FreeCameraSystem>();
         m_activeScene->AddSystem<GoofySystem>();
         m_activeScene->AddPostSystem<FollowCameraSystem>();
+        m_activeScene->AddSystem<CollisionSystem>();
         m_activeScene->AddSystem<PlaneControllerSystem>();
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
@@ -185,18 +187,13 @@ public:
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 
-        //{
-        //    auto backpack = m_activeScene->CreateEntity(Transform(vec3(3, 50, 0)));
-        //    backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        //    backpack.AddComponent<Rigidbody>();
-        //}
        
         auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
         camera.AddComponent<FreeCamera>();
         e.AddComponent<PlaneController>();
-
+        e.AddComponent<CollisionCallback>();
         //camera.AddComponent<FollowCamera>(e.GetComponent<Transform>(), vec3(0, 3.0f, -6.0f));
 
 	}
