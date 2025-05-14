@@ -57,6 +57,18 @@ namespace at
 		return e;
 	}
 
+	void Scene::PreUpdate()
+	{
+		auto view = GetAllEntitiesWith<CreatedTag>();
+
+		for (auto [e_, _] : view.each())
+		{
+			Entity e = { e_, this };
+			e.RemoveComponent<CreatedTag>();
+			e.AddComponent<ActiveTag>();
+		}
+	}
+
 	void Scene::Start()
 	{
 		m_SystemScheduler->Start();

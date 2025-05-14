@@ -48,7 +48,7 @@ namespace at {
 		m_activeScene->Init();
 
 
-		m_activeScene->AddSystem<EntityManagerSystem>();
+		//m_activeScene->AddSystem<EntityManagerSystem>();
 		m_activeScene->AddSystem<PhysicsSystem>();
 		m_activeScene->AddPostSystem<CameraSystem>();
 		m_activeScene->AddPostSystem<MeshRendererSystem>();
@@ -78,8 +78,8 @@ namespace at {
 
 			m_activeScene->Start();
 
+			m_activeScene->PreUpdate();
 			auto accTime = m_activeScene->FixedUpdate(m_DeltaTime);
-
 			m_activeScene->Update(m_DeltaTime);
 			m_activeScene->Render(accTime / Constants::FIXED_TIMESTEP);
 			m_activeScene->PostUpdate(m_DeltaTime);

@@ -22,6 +22,7 @@ namespace at
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
 
+		void PreUpdate();
 		void Start();
 		void Update(double deltaTime);
 		void PostUpdate(double deltaTime);
