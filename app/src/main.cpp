@@ -140,7 +140,7 @@ public:
         auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(10, 5, 10)));
         terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/meshy/terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         terrainEntity.AddComponent<Rigidbody>(true);
-		auto rb = e.AddComponent<Rigidbody>();
+		e.AddComponent<Rigidbody>();
 
         auto rocket = m_activeScene->CreateEntity(Transform(vec3(0, 30, 0), quat(), vec3(0.1f)));
         rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));

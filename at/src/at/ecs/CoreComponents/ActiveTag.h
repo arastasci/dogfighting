@@ -6,8 +6,6 @@ namespace at
 {
 	class ActiveTag : public Component
 	{
-	public:
-		ActiveTag() = default;
-		int m_{};
+
 	};
 }

@@ -15,6 +15,18 @@ namespace at
 		m_MotionState = new btDefaultMotionState();
 	}
 
+	Rigidbody::~Rigidbody()
+	{
+		if (m_Rigidbody)
+		{
+			m_World.lock()->RemoveRigidbody(m_Rigidbody.get());
+			Logger::GetClientLogger()->info("Rigidbody removed.");
+
+		}
+		else
+			Logger::GetClientLogger()->warn("Rigidbody wasn't even there but removed :D");
+	}
+
 	void Rigidbody::AddBodyToWorld(const SharedPtr<PhysicsWorld>& world)
 	{
 		m_World = std::weak_ptr(world);

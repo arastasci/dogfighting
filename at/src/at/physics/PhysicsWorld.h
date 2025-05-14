@@ -32,6 +32,10 @@ namespace at
 		{
 			m_World->addRigidBody(rb);
 		}
+		void RemoveRigidbody(btRigidBody* rb)
+		{
+			m_World->removeRigidBody(rb);
+		}
 
 		void UpdateAABB(btRigidBody* rb)
 		{

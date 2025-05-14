@@ -19,6 +19,7 @@ namespace at
 	{
 	public:
 		Rigidbody(bool isKinematic = false, bool override = false);
+		~Rigidbody();
 		void AddBodyToWorld(const SharedPtr<PhysicsWorld>& world);
 		void GetCollidingObjects(std::vector<Rigidbody*>& colliders);
 		void UpdateLastTransform();

@@ -51,10 +51,11 @@ class PlaneControllerSystem : public System
             if (!body) continue;
             if (!body->isActive()) body->activate();
 
+            btVector3 v = body->getLinearVelocity();
 
             if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT))
             {
-                ShootRocket(tr);
+                ShootRocket(v, tr);
             }
 
             if (Input::GetKeyPress(Key::Space))
@@ -65,7 +66,6 @@ class PlaneControllerSystem : public System
             const btVector3 fwd = toBt(glm::normalize(tr.Forward()));
             const btVector3 rgt = toBt(glm::normalize(tr.Right()));
 
-            btVector3 v = body->getLinearVelocity();
             float      speedFwd = v.dot(fwd);
             float      target = pc.Throttle * pc.MaxSpeed;
             if (speedFwd < target - 0.5f)
@@ -80,7 +80,7 @@ class PlaneControllerSystem : public System
             if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
 
 
-            Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
+            //Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
 
             float v2 = v.length2();
             if (v2 > SIMD_EPSILON)
@@ -114,16 +114,16 @@ class PlaneControllerSystem : public System
 private:
     entt::dense_map<entt::entity, float> m_RotDragConst;
 
-    void ShootRocket(const Transform& t)
+    void ShootRocket(const btVector3& velocity, const Transform& t)
     {
         if (m_AccTime <= 0.3)
             return;
 
         m_AccTime = 0.0;
-        auto rocket = m_Scene->CreateEntity(Transform(t.position - t.Up() + t.Forward(), RotateRocket(t), vec3(0.01f)));
+        auto rocket = m_Scene->CreateEntity(Transform(t.position - 1.25f * t.Up() + 4.25f * t.Forward(), RotateRocket(t), vec3(0.01f)));
         rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         rocket.AddComponent<Rigidbody>(false, true);
-        rocket.AddComponent<RocketBehaviour>();
+        rocket.AddComponent<RocketBehaviour>(velocity);
     }
 
     quat RotateRocket(const Transform& t)

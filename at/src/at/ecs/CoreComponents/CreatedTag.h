@@ -6,8 +6,6 @@ namespace at
 {
 	class CreatedTag : public Component
 	{
-	public:
-		CreatedTag() = default;
-		int m_{};
+
 	};
 }
