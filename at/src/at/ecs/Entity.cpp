@@ -7,13 +7,12 @@ namespace at
 	{
 	}
 
-	Entity::Entity(entt::entity handle, Scene* scene) : m_handle(handle), m_scene(scene)
-	{
-	}
+
 
 	void Entity::DestroyEntity()
 	{
-		AddComponent<ToBeDestroyedTag>();
+		if(!HasComponent<ToBeDestroyedTag>())
+			AddComponent<ToBeDestroyedTag>();
 	}
 
 }

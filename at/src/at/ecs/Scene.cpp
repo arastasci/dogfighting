@@ -63,7 +63,7 @@ namespace at
 
 		for (auto [e_, _] : view.each())
 		{
-			Entity e = { e_, this };
+			Entity e = { e_, shared_from_this()};
 			e.RemoveComponent<CreatedTag>();
 			e.AddComponent<ActiveTag>();
 		}

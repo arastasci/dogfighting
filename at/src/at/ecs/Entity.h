@@ -13,8 +13,6 @@ namespace at
 	{
 	public:
 		Entity(entt::entity handle, std::shared_ptr<Scene> scene);
-
-		Entity(entt::entity handle, Scene* scene);
 		Entity() = default;
 
 
@@ -57,7 +55,6 @@ namespace at
 			assert(!HasComponent<T>(), "Entity already has component!");
 			auto& ref =  m_scene->m_registry.emplace<T>(m_handle, std::forward<Args>(args)...);
 			ref.SetEntity(*this);
-			ref.SetScene(m_scene);
 			return ref;
 		};
 
