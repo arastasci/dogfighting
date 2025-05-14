@@ -3,16 +3,8 @@
 
 using namespace at;
 
-#pragma once
-#include "at.h"
-
-using namespace at;
-
-#pragma once
-#include "at.h"
-
-using namespace at;
-
+#include "GoofySystem.h"
+#include "RocketSystem.h"
 // ----------------------------------------------------
 struct PlaneController : public Component
 {
@@ -58,6 +50,12 @@ class PlaneControllerSystem : public System
             btRigidBody* body = rb.GetRigidbody().get();
             if (!body) continue;
             if (!body->isActive()) body->activate();
+
+
+            if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT))
+            {
+                ShootRocket(tr);
+            }
 
             if (Input::GetKeyPress(Key::Space))
                 pc.Throttle = glm::clamp(pc.Throttle + pc.ThrottleRate * dt, 0.f, 1.f);
@@ -108,6 +106,48 @@ class PlaneControllerSystem : public System
         }
     }
 
+    void Update(float dt) override
+    {
+        m_AccTime += dt;
+    }
+
 private:
     entt::dense_map<entt::entity, float> m_RotDragConst;
+
+    void ShootRocket(const Transform& t)
+    {
+        if (m_AccTime <= 0.3)
+            return;
+
+        m_AccTime = 0.0;
+        auto rocket = m_Scene->CreateEntity(Transform(t.position - t.Up() + t.Forward(), RotateRocket(t), vec3(0.01f)));
+        rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        rocket.AddComponent<Rigidbody>(false, true);
+        rocket.AddComponent<RocketBehaviour>();
+    }
+
+    quat RotateRocket(const Transform& t)
+    {
+        auto fwd = t.Forward();
+        const glm::vec3 forward(0.0f, 1.0f, 0.0f);
+
+        glm::quat q;
+
+        float cosTheta = glm::clamp(glm::dot(forward, fwd), -1.0f, 1.0f);
+        if (cosTheta < -0.9999f) {                            
+
+            glm::vec3 axis = glm::normalize(glm::cross(forward, glm::vec3(1, 0, 0)));
+            if (glm::length2(axis) < 1e-6f)
+                axis = glm::normalize(glm::cross(forward, glm::vec3(0, 0, 1)));
+            q = glm::angleAxis(glm::pi<float>(), axis);
+        }
+        else {
+            glm::vec3 axis = glm::cross(forward, fwd);
+            q = glm::quat(1.0f + cosTheta, axis.x, axis.y, axis.z);
+            q = glm::normalize(q);
+        }
+
+        return q;
+    }
+    double m_AccTime = 0.0;
 };

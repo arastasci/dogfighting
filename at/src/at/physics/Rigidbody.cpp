@@ -7,8 +7,8 @@
 
 namespace at
 {
-	Rigidbody::Rigidbody(bool isKinematic)
-		: m_isStatic(isKinematic)
+	Rigidbody::Rigidbody(bool isKinematic, bool override)
+		: m_isStatic(isKinematic), m_Override(override)
 	{
 		
 		m_ShiftedCompoundShape = new btCompoundShape();
@@ -20,19 +20,22 @@ namespace at
 		m_World = std::weak_ptr(world);
 
 
-		if (m_Entity.HasComponent<MeshRenderer>())
+		if (!m_Override && m_Entity.HasComponent<MeshRenderer>() )
 		{
 			auto& mr = m_Entity.GetComponent<MeshRenderer>();
 			const auto& name = mr.Model->GetName();
 			m_CollisionShape =  CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name, m_isStatic);
 							
 		}
-		else
-		{
-			assert(false);
-		}
 
-		if (!m_isStatic)
+
+		if (m_Override)
+		{
+			m_ShiftedCompoundShape->addChildShape(btTransform::getIdentity(), new btBoxShape(btVector3(1, 1, 1)));
+			m_Rigidbody = m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState, m_ShiftedCompoundShape);
+
+		}
+		else if (!m_isStatic)
 		{
 			btVector3 inertia;
 			btTransform principal;
@@ -72,15 +75,8 @@ namespace at
 		transform.setOrigin(toBt(p));
 		transform.setBasis(toBt(glm::mat3_cast(rot)));
 		//m_UniformScalingShape = new btUniformScalingShape(m_CollisionShape->GetShape(), scale.r);
-		if (!m_isStatic)
-		{
-			m_ShiftedCompoundShape->setLocalScaling(toBt(scale));
-		}
-		else
-		{
-			m_CollisionShape->GetShape()->setLocalScaling(toBt(scale));
+		m_Rigidbody->getCollisionShape()->setLocalScaling(toBt(scale));
 
-		}
 		world->AddRigidbody(m_Rigidbody.get());
 		world->UpdateAABB(m_Rigidbody.get());
 		m_Rigidbody->setCenterOfMassTransform(transform);
@@ -160,6 +156,11 @@ namespace at
 	void Rigidbody::DrawShape()
 	{
 		
+	}
+
+	void Rigidbody::SetColliderScale(const btVector3& scale)
+	{
+		m_OverriddenScale = scale;
 	}
 
 	void Rigidbody::ApplyForce(vec3 direction, float force)

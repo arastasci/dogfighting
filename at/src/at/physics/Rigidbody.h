@@ -18,7 +18,7 @@ namespace at
 	class AT_API Rigidbody : public Component
 	{
 	public:
-		Rigidbody(bool isKinematic = false);
+		Rigidbody(bool isKinematic = false, bool override = false);
 		void AddBodyToWorld(const SharedPtr<PhysicsWorld>& world);
 		void GetCollidingObjects(std::vector<Rigidbody*>& colliders);
 		void UpdateLastTransform();
@@ -30,6 +30,7 @@ namespace at
 		bool IsActive();
 		void SetIsActive(bool b);
 		void DrawShape();
+		void SetColliderScale(const btVector3&);
 		
 		SharedPtr<btRigidBody> GetRigidbody() { return m_Rigidbody; }
 		void ApplyForce(vec3 direction, float force);
@@ -38,8 +39,9 @@ namespace at
 		bool m_isStatic = false;
 		bool m_isActive = false;
 		btTransform m_LastTransform;
-
+		bool m_Override;
 		double m_AccTime;
+		btVector3 m_OverriddenScale;
 		SharedPtr<btRigidBody> m_Rigidbody;
 		WeakPtr<PhysicsWorld> m_World;
 		SharedPtr<CollisionShape> m_CollisionShape;

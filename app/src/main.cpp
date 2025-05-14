@@ -4,59 +4,12 @@
 #include "FollowCamera.h"
 #include "PlaneController.h"
 #include "CollisionCallback.h"
-
+#include "GoofySystem.h"
+#include "RocketSystem.h"
 
 using namespace at;
 
 
-class GoofyBehaviour : public BehaviourComponent
-{
-};
-
-class GoofySystem : public System
-{
-public:
-    GoofySystem() = default;
-
-    void Start() override
-    {
-        auto view = GetStartedView<GoofyBehaviour, Rigidbody>();
-        for (auto& [e, _, g, rb] : view.each())
-        {
-            vec3 forceDirection(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-            forceDirection = glm::normalize(forceDirection);
-            float force = 10000000 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-            rb.ApplyForce(forceDirection, force);
-        }
-    }
-
-    void Update(float dt) override
-    {
-        if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT))
-        {
-            CreatePlane();
-        }
-        if (Input::GetKeyPress(Key::F))
-        {
-            auto view = GetView<GoofyBehaviour>();
-
-            for (auto& [e, _, g] : view.each())
-            {
-                Entity en = { e, m_Scene };
-                en.DestroyEntity();
-            }
-        }
-    }
-private:
-    void CreatePlane()
-    {
-        auto backpack = m_Scene->CreateEntity(Transform(vec3(3, 50, 0)));
-        backpack.AddComponent<GoofyBehaviour>();
-        backpack.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        backpack.AddComponent<Rigidbody>();
-    }
-
-};
 
 
 struct FreeCamera : public BehaviourComponent
@@ -168,9 +121,11 @@ public:
 	{
         m_activeScene->AddSystem<FreeCameraSystem>();
         m_activeScene->AddSystem<GoofySystem>();
+        m_activeScene->AddSystem<RocketSystem>();
         m_activeScene->AddPostSystem<FollowCameraSystem>();
         m_activeScene->AddSystem<CollisionSystem>();
         m_activeScene->AddSystem<PlaneControllerSystem>();
+
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
         e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
@@ -187,13 +142,17 @@ public:
         terrainEntity.AddComponent<Rigidbody>(true);
 		auto rb = e.AddComponent<Rigidbody>();
 
-       
+        auto rocket = m_activeScene->CreateEntity(Transform(vec3(0, 30, 0), quat(), vec3(0.1f)));
+        rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        rocket.AddComponent<Rigidbody>(false, true);
+
         auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
         camera.AddComponent<FreeCamera>();
         e.AddComponent<PlaneController>();
         e.AddComponent<CollisionCallback>();
+        
         //camera.AddComponent<FollowCamera>(e.GetComponent<Transform>(), vec3(0, 3.0f, -6.0f));
 
 	}
