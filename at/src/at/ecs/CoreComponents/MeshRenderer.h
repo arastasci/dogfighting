@@ -9,6 +9,10 @@ namespace at
 	struct AT_API MeshRenderer : public Component
 	{
 		MeshRenderer(std::shared_ptr<Model> m, const std::shared_ptr<Material>& mat) : Model(m), Material(*mat){}
+		~MeshRenderer()
+		{
+
+		}
 		std::shared_ptr<Model> Model;
 		Material Material;
 
@@ -16,5 +20,6 @@ namespace at
 		{
 			return Model->m_Meshes;
 		}
+		bool IsEnabled = true;
 	};
 }

@@ -16,6 +16,8 @@ namespace at
 			auto view = GetView<MeshRenderer, Transform>();
 			for(auto& [e, _, meshRenderer, transform] : view.each())
 			{
+				if (!meshRenderer.IsEnabled)
+					continue;
 				auto shader = meshRenderer.Material.MatShader;
 				shader->use();
 				meshRenderer.Material.UploadUniforms();
