@@ -10,7 +10,64 @@
 using namespace at;
 
 
+struct Spawner : public BehaviourComponent
+{
 
+};
+
+class SpawnerSystem : public System
+{
+public:
+    void Start()
+    {
+        auto view = GetStartedView<Spawner, Rigidbody>();
+        for (auto [e, _, sp, rb] : view.each())
+        {
+            rb.SetGravity(vec3(0));
+        }
+    }
+    void Update(float dt) override
+    {
+        if (amount < maxAmount)
+        {
+            Spawn();
+            amount++;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        auto view = GetView<Spawner, MeshRenderer, Rigidbody>();
+        for (auto [e, _, sp, mr, rb] : view.each())
+        {
+            std::vector<Rigidbody*> colliders;
+            rb.GetCollidingObjects(colliders);
+            for (auto c : colliders)
+            {
+                if (c->m_Entity.HasComponent<RocketBehaviour>())
+                {
+                    mr.IsEnabled = false;
+                    rb.Detach();
+                    break;
+                }
+            }
+        }
+    }
+private: 
+    void Spawn()
+    {
+        vec3 spawnDir(static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX), static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+        spawnDir -= vec3(0.5f);
+        vec3 spawnPos(100.f * spawnDir.x, 50 + 30.f * spawnDir.y, 100.f * spawnDir.z);
+
+        auto target = m_Scene->CreateEntity(Transform(spawnPos));
+        target.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        target.AddComponent<Spawner>();
+        target.AddComponent<Rigidbody>();
+    }
+    int amount = 0;
+    int maxAmount = 20;
+};
 
 struct FreeCamera : public BehaviourComponent
 {
@@ -125,7 +182,7 @@ public:
         m_activeScene->AddPostSystem<FollowCameraSystem>();
         m_activeScene->AddSystem<CollisionSystem>();
         m_activeScene->AddSystem<PlaneControllerSystem>();
-
+        m_activeScene->AddSystem<SpawnerSystem>();
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
         e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
@@ -164,7 +221,7 @@ public:
 int  main()
 { 
 	at::Logger::Init();
-	AT_INFO("Well, we lent some code from {0}...", "Cherno");
+	AT_INFO("Initializing the application.");
 
 	Sandbox* s = new Sandbox();
 	s->Init();
