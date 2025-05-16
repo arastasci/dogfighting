@@ -1,7 +1,7 @@
 #pragma once
 #include "at.h"
 using namespace at;
-class FollowCamera : public Component
+class FollowCamera
 {
 public:
 	FollowCamera(const Transform& t, const vec3 offset) 
@@ -19,7 +19,7 @@ public:
 	{
 		auto view = GetView<FollowCamera, Transform>();
 
-		for (auto [e, _, fc, t] : view.each())
+		for (auto [e, fc, t] : view.each())
 		{
 			// assume the followed transform is a root entity
 			auto& worldTransform = fc.FollowedTransform;

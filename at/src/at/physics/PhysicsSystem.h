@@ -13,18 +13,18 @@ namespace at
 		virtual void Start() override
 		{
 			auto view = GetStartedView<Rigidbody>();
-			for (auto [e, _, rb] : view.each())
+			for (auto [e, rb] : view.each())
 			{
 				rb.SetIsActive(true);
 
-				rb.AddBodyToWorld(m_Scene->GetPhysicsWorld());
+				rb.AddBodyToWorld(m_Scene->GetPhysicsWorld(), {e, m_Scene});
 				
 			}
 		}
 		virtual void Render(float dt) override
 		{
 			auto view = GetView<Rigidbody, Transform>();
-			for (auto [e, _, rb, t] : view.each())
+			for (auto [e, rb, t] : view.each())
 			{
 				if (rb.IsActive())
 				{

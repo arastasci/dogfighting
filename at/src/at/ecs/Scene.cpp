@@ -1,10 +1,12 @@
-#include "Scene.h"
 #include <at.h>
+#include "Scene.h"
 #include "Entity.h"
 #include "entt/entt.hpp"
 #include "at/renderer/RenderWorld.h"
 #include "at/ecs/CoreComponents/CreatedTag.h"
 #include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
+#include "at/ecs/CoreComponents/ActiveTag.h"
+
 
 namespace at
 {
@@ -61,7 +63,7 @@ namespace at
 	{
 		auto view = GetAllEntitiesWith<CreatedTag>();
 
-		for (auto [e_, _] : view.each())
+		for (auto [e_] : view.each())
 		{
 			Entity e = { e_, shared_from_this()};
 			e.RemoveComponent<CreatedTag>();
@@ -112,9 +114,6 @@ namespace at
 	void Scene::EndFrame()
 	{
 		auto view = GetAllEntitiesWith<ToBeDestroyedTag>();
-		for (auto [e, _] : view.each())
-		{
-			m_registry.destroy(e);
-		}
+		m_registry.destroy(view.begin(), view.end());
 	}
 }

@@ -10,7 +10,7 @@
 using namespace at;
 
 
-struct Spawner : public BehaviourComponent
+struct Spawner
 {
 
 };
@@ -21,7 +21,7 @@ public:
     void Start()
     {
         auto view = GetStartedView<Spawner, Rigidbody>();
-        for (auto [e, _, sp, rb] : view.each())
+        for (auto [e, rb] : view.each())
         {
             rb.SetGravity(vec3(0));
         }
@@ -38,16 +38,17 @@ public:
     void FixedUpdate()
     {
         auto view = GetView<Spawner, MeshRenderer, Rigidbody>();
-        for (auto [e, _, sp, mr, rb] : view.each())
+        for (auto [e, mr, rb] : view.each())
         {
+            Entity en = { e, m_Scene };
             std::vector<Rigidbody*> colliders;
             rb.GetCollidingObjects(colliders);
             for (auto c : colliders)
             {
-                if (c->m_Entity.HasComponent<RocketBehaviour>())
+                Entity cEn = { c->GetOwner(), m_Scene };
+                if ( cEn.HasComponent<RocketBehaviour>())
                 {
-                    mr.IsEnabled = false;
-                    rb.Detach();
+                    en.DestroyEntity();
                     break;
                 }
             }
@@ -71,12 +72,12 @@ private:
 
 struct FreeCamera : public BehaviourComponent
 {
-    float yaw = 0.0f;   // degrees, 0 = look +Z
-    float pitch = 0.0f;   // degrees, 0 = level, + up
-    float moveSpeed = 5.0f;   // units / second
-    float mouseSensitivity = 0.1f;   // deg per pixel
+    float yaw = 0.0f;   
+    float pitch = 0.0f; 
+    float moveSpeed = 5.0f;  
+    float mouseSensitivity = 0.1f;   
     glm::vec2 lastMousePos = { 0.0f, 0.0f };
-    bool firstFrame = true;    // initialise lastMousePos
+    bool firstFrame = true;  
 };
 
 class FreeCameraSystem : public at::System
@@ -87,25 +88,22 @@ public:
         using namespace glm;
         auto view = GetView<at::Transform, FreeCamera>();
 
-        // read current mouse position once per frame
         auto [mx, my] = Input::GetMousePos();
 
-        for (auto [e, _, tr, cam] : view.each())
+        for (auto [e, tr, cam] : view.each())
         {
-            /* first run ‑ enable pointer lock */
             if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT))
             {
                 Input::SetCursorMode(Input::CursorMode::Locked);
                 cam.firstFrame = false;
             }
 
-            /* ESC releases the mouse so people can use the UI again */
             if (Input::GetKeyPress(Key::Escape) &&
                 Input::GetCursorMode() == Input::CursorMode::Hidden)
             {
                 Input::SetCursorMode(Input::CursorMode::Normal);
-                cam.firstFrame = true;             // triggers re‑lock on next click
-                return;                            // skip camera update this frame
+                cam.firstFrame = true;            
+                return;                            
             }
 
             const vec2  delta = vec2(mx, my) - cam.lastMousePos;
@@ -114,10 +112,8 @@ public:
             cam.yaw += delta.x * cam.mouseSensitivity;
             cam.pitch += delta.y * cam.mouseSensitivity;
 
-            // clamp pitch to avoid flipping
             cam.pitch = clamp(cam.pitch, -89.0f, 89.0f);
 
-            /* ── 2. Build camera basis vectors ─────────────────────────── */
             const float yawRad = radians(cam.yaw);
             const float pitchRad = radians(cam.pitch);
 
@@ -132,7 +128,6 @@ public:
             vec3 right = normalize(cross(forward, worldUp));
             vec3 up = cross(right, forward);
 
-            /* ── 3. Keyboard movement (camera‑relative) ────────────────── */
             float v = cam.moveSpeed * dt;
             if (Input::GetKeyPress(Key::Up)) tr.position -= forward * v;
             if (Input::GetKeyPress(Key::Down)) tr.position += forward * v;
@@ -150,16 +145,12 @@ public:
                 pW->SetIsSimulated(!pW->GetIsSimulated());
             }
 
-            /* ── 4. Write rotation quaternion to the Transform ─────────── */
             tr.rotation = glm::quatLookAt(forward, up);
         }
     }
 private:
     bool m_WillPause = false;
 };
-
-
-
 
 
 class Sandbox : public at::Application

@@ -56,7 +56,7 @@ public:
         {
             auto view = GetView<GoofyBehaviour>();
 
-            for (auto& [e, _, g] : view.each())
+            for (auto& [e] : view.each())
             {
                 Entity en = { e, m_Scene };
                 en.DestroyEntity();

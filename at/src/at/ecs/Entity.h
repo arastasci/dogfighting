@@ -3,11 +3,10 @@
 #include <entt/entity/registry.hpp>
 #include "Scene.h"
 #include "at/utils/Helpers.h"
-
+#include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
 namespace at
 {
 	class Transform;
-	class Component;
 	class ToBeDestroyedTag;
 	class AT_API Entity
 	{
@@ -43,22 +42,22 @@ namespace at
 			return m_scene->m_registry.get<T>(m_handle);
 		};
 
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+		template<typename T>
 		bool HasComponent()
 		{
 			return m_scene->m_registry.any_of<T>(m_handle);
 		};
 
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>, typename... Args>
-		T& AddComponent(Args&&... args)
+		template<typename T, typename... Args>
+		decltype(auto) AddComponent(Args&&... args)
 		{
-			assert(!HasComponent<T>(), "Entity already has component!");
-			auto& ref =  m_scene->m_registry.emplace<T>(m_handle, std::forward<Args>(args)...);
-			ref.SetEntity(*this);
-			return ref;
-		};
+			assert(!HasComponent<T>() && "Entity already has component!");
+			return m_scene->m_registry.emplace<T>(
+				m_handle,
+				std::forward<Args>(args)...);
+		}
 
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>, typename... Args>
+		template<typename T, typename... Args>
 		T& AddOrReplaceComponent(Args&&... args)
 		{
 			return m_scene->m_registry.emplace_or_replace<T>(m_handle, std::forward<Args>(args)...);
@@ -66,7 +65,7 @@ namespace at
 
 		// remove returns the num of elements removed so
 		// returns true if component is removed
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+		template<typename T>
 		bool RemoveComponent()
 		{
 			return m_scene->m_registry.remove<T>(m_handle) != 0; 

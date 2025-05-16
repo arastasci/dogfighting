@@ -17,9 +17,9 @@ namespace at
 		{
 			auto view = GetStartedView<>();
 
-			for (auto [e_, _] : view.each())
+			for (auto [e_] : view.each())
 			{
-				Entity e = { e_, m_Scene };
+				Entity e(e_, m_Scene);
 				e.RemoveComponent<CreatedTag>();
 				e.AddComponent<ActiveTag>();
 			}

@@ -20,7 +20,7 @@ public:
 	void Start() override
 	{
 		auto view = GetStartedView<RocketBehaviour, Transform, Rigidbody>();
-		for (auto [e, _, rocket, tr, rb] : view.each())
+		for (auto [e, rocket, tr, rb] : view.each())
 		{
 			//rb.GetRigidbody()->setDamping(0, 0);
 			rb.GetRigidbody()->setLinearVelocity(rocket.initialVelocity + toBt(rocket.Force * tr.Up()));
@@ -31,10 +31,10 @@ public:
 	void FixedUpdate() override
 	{
 		auto view = GetView<RocketBehaviour, Rigidbody>();
-		for (auto [e, _, rocket, rb] : view.each())
+		for (auto [e, rocket, rb] : view.each())
 		{
 			rocket.accTime += Constants::FIXED_TIMESTEP;
-		/*	if (rocket.accTime >= 2.0f)
+			if (rocket.accTime >= 2.0f)
 			{
 				Entity entity = { e, m_Scene };
 				entity.DestroyEntity();
@@ -45,7 +45,7 @@ public:
 			{
 				Entity entity = { e, m_Scene };
 				entity.DestroyEntity();
-			}*/
+			}
 		}
 	}
 

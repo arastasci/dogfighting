@@ -83,6 +83,7 @@ namespace at {
 			m_activeScene->Update(m_DeltaTime);
 			m_activeScene->Render(accTime / Constants::FIXED_TIMESTEP);
 			m_activeScene->PostUpdate(m_DeltaTime);
+			m_activeScene->OnDestroy();
 			m_activeScene->EndFrame();
 			
 			//////////////    UPDATE - END         ///////////////

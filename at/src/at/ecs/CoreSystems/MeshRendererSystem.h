@@ -14,7 +14,7 @@ namespace at
 		virtual void Update(float dt) override
 		{
 			auto view = GetView<MeshRenderer, Transform>();
-			for(auto& [e, _, meshRenderer, transform] : view.each())
+			for(auto& [e,  meshRenderer, transform] : view.each())
 			{
 				if (!meshRenderer.IsEnabled)
 					continue;

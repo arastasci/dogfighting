@@ -1,11 +1,11 @@
 #pragma once
 #include "atpch.h"
 #include "at/renderer/Light.h"
-#include "at/ecs/Component.h"
+
 
 namespace at
 {
-	struct DirectionalLightComponent : public Component
+	struct DirectionalLightComponent 
 	{
 		DirectionalLightComponent(DirectionalLight l) : light(l)
 		{

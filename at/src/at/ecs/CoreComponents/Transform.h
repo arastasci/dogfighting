@@ -1,12 +1,11 @@
 ﻿#pragma once
 
 #include "at/core/Core.h"
-#include <at/ecs/Component.h>
 #include "at/utils/Math.h"
 
 namespace at
 {
-    struct AT_API Transform : public Component
+    struct AT_API Transform 
     {
         Transform(const Transform& other) = default;
 

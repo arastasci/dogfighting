@@ -8,6 +8,7 @@
 #include "at/ecs/CoreComponents/CreatedTag.h"
 #include "at/ecs/CoreComponents/ActiveTag.h"
 #include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
+#include "Entity.h"
 namespace at
 {
 	class AT_API System : public ISystem

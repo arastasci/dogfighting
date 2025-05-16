@@ -2,7 +2,7 @@
 #include "at.h"
 
 using namespace at;
-class CollisionCallback : public Component
+class CollisionCallback
 {
 
 };
@@ -14,7 +14,7 @@ public:
 	{
 		auto view = GetView<CollisionCallback, Rigidbody>();
 
-		for (auto [e, _, cc, rb] : view.each())
+		for (auto [e, rb] : view.each())
 		{
 			std::vector<Rigidbody*> colliders;
 			 rb.GetCollidingObjects(colliders);

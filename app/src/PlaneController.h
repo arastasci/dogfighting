@@ -6,7 +6,7 @@ using namespace at;
 #include "GoofySystem.h"
 #include "RocketSystem.h"
 // ----------------------------------------------------
-struct PlaneController : public Component
+struct PlaneController
 {
     float MaxThrust = 15000.0f;
     float MaxSpeed = 80.0f;
@@ -29,7 +29,7 @@ class PlaneControllerSystem : public System
     void Start() override
     {
         auto view = GetStartedView<PlaneController, Rigidbody>();
-        for (auto [e, _, pc, rb] : view.each())
+        for (auto [e, pc, rb] : view.each())
         {
             rb.GetRigidbody()->setDamping(0.04f, 0.50f);
 
@@ -45,7 +45,7 @@ class PlaneControllerSystem : public System
         const float scaleHeight = 10000.0f;    // density fall‑off
 
         auto view = GetView<PlaneController, Transform, Rigidbody>();
-        for (auto [e, _, pc, tr, rb] : view.each())
+        for (auto [e, pc, tr, rb] : view.each())
         {
             btRigidBody* body = rb.GetRigidbody().get();
             if (!body) continue;

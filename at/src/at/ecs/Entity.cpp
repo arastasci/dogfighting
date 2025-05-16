@@ -7,8 +7,6 @@ namespace at
 	{
 	}
 
-
-
 	void Entity::DestroyEntity()
 	{
 		if(!HasComponent<ToBeDestroyedTag>())

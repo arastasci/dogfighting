@@ -5,187 +5,238 @@
 #include "at/ecs/CoreComponents/MeshRenderer.h"
 #include "CollisionShapeLibrary.h"
 
+
 namespace at
 {
-	Rigidbody::Rigidbody(bool isKinematic, bool override)
-		: m_isStatic(isKinematic), m_Override(override)
-	{
-		
-		m_ShiftedCompoundShape = new btCompoundShape();
-		m_MotionState = new btDefaultMotionState();
-	}
+   
+    Rigidbody::Rigidbody(bool isKinematic, bool overrideShape)
+        : m_isStatic(isKinematic), m_Override(overrideShape),
+        m_ShiftedCompoundShape(std::make_unique<btCompoundShape>()),
+        m_MotionState(std::make_unique<btDefaultMotionState>())
+    {
+    }
 
-	Rigidbody::~Rigidbody()
-	{
-		if (m_Rigidbody)
-		{
-			m_World.lock()->RemoveRigidbody(m_Rigidbody.get());
-			Logger::GetClientLogger()->info("Rigidbody removed.");
+    void Rigidbody::Detach()
+    {
+        if (auto world = m_World.lock())
+        {
+            if (m_Rigidbody && m_Rigidbody->isInWorld())
+            {
+                world->RemoveRigidbody(m_Rigidbody.get());
+            }
+        }
+        m_Rigidbody.reset();
+    }
 
-		}
-		else
-			Logger::GetClientLogger()->warn("Rigidbody wasn't even there but removed :D");
-	}
+    Rigidbody::~Rigidbody()
+    {
+        Detach();
+    }
 
-	void Rigidbody::AddBodyToWorld(const SharedPtr<PhysicsWorld>& world)
-	{
-		m_World = std::weak_ptr(world);
+    Rigidbody::Rigidbody(Rigidbody&& other) noexcept
+        :
+        m_Owner(other.m_Owner),
+        m_isStatic(other.m_isStatic),
+        m_isActive(other.m_isActive),
+        m_Override(other.m_Override),
+        m_LastTransform(other.m_LastTransform),
+        m_AccTime(other.m_AccTime),
+        m_OverriddenScale(other.m_OverriddenScale),
+        m_ShiftedCompoundShape(std::move(other.m_ShiftedCompoundShape)),
+        m_MotionState(std::move(other.m_MotionState)),
+        m_Rigidbody(std::move(other.m_Rigidbody)),
+        m_World(std::move(other.m_World)),
+        m_CollisionShape(std::move(other.m_CollisionShape)),
+        m_CurrentCollidedObjects(std::move(other.m_CurrentCollidedObjects))
+    {
 
+        if (m_Rigidbody)
+            m_Rigidbody->setUserPointer(this);
+    }
 
-		if (!m_Override && m_Entity.HasComponent<MeshRenderer>() )
-		{
-			auto& mr = m_Entity.GetComponent<MeshRenderer>();
-			const auto& name = mr.Model->GetName();
-			m_CollisionShape =  CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name, m_isStatic);
-							
-		}
+    Rigidbody& Rigidbody::operator=(Rigidbody&& other) noexcept
+    {
+        if (this != &other)
+        {
+            Detach();
+            m_Owner = other.m_Owner;
+            m_isStatic = other.m_isStatic;
+            m_isActive = other.m_isActive;
+            m_Override = other.m_Override;
+            m_LastTransform = other.m_LastTransform;
+            m_AccTime = other.m_AccTime;
+            m_OverriddenScale = other.m_OverriddenScale;
+            m_ShiftedCompoundShape = std::move(other.m_ShiftedCompoundShape);
+            m_MotionState = std::move(other.m_MotionState);
+            m_Rigidbody = std::move(other.m_Rigidbody);
+            m_World = std::move(other.m_World);
+            m_CollisionShape = std::move(other.m_CollisionShape);
+            m_CurrentCollidedObjects = std::move(other.m_CurrentCollidedObjects);
 
+            if (m_Rigidbody)
+                m_Rigidbody->setUserPointer(this);
+        }
+        return *this;
+    }
 
-		if (m_Override)
-		{
-			m_ShiftedCompoundShape->addChildShape(btTransform::getIdentity(), new btBoxShape(btVector3(1, 1, 1)));
-			m_Rigidbody = m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState, m_ShiftedCompoundShape);
+    void Rigidbody::AddBodyToWorld(const SharedPtr<PhysicsWorld>& world, Entity thisEntity)
+    {
+        m_World = world;
 
-		}
-		else if (!m_isStatic)
-		{
-			btVector3 inertia;
-			btTransform principal;
-			m_CollisionShape->CalculatePrincipalAxisTransform(principal, inertia);
+        if (!m_Override && thisEntity.HasComponent<MeshRenderer>())
+        {
+            auto& mr = thisEntity.GetComponent<MeshRenderer>();
+            const auto& name = mr.Model->GetName();
+            m_CollisionShape = CollisionShapeLibrary::Get().CreateOrGetCollisionShape(name, m_isStatic);
+        }
 
-			auto* shape = m_CollisionShape->GetShape();
+        if (m_Override)
+        {
+            m_ShiftedCompoundShape->addChildShape(btTransform::getIdentity(), new btBoxShape(btVector3(1, 1, 1)));
+            m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState.get(), m_ShiftedCompoundShape.get());
+            m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);
+            float mass = 1.f;
+            btVector3 inertia;
+            m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
+            m_Rigidbody->setMassProps(mass, inertia);
+            m_Rigidbody->updateInertiaTensor();
+        }
+        else if (!m_isStatic)
+        {
+            btVector3 inertia;
+            btTransform principal;
+            m_CollisionShape->CalculatePrincipalAxisTransform(principal, inertia);
 
-			int numChildShapes = shape->getNumChildShapes();
+            auto* shape = m_CollisionShape->GetShape();
+            int numChildShapes = shape->getNumChildShapes();
 
-			for (int i = 0; i < numChildShapes; i++)
-			{
-				auto adjusted = shape->getChildTransform(i);
-				adjusted.setOrigin(adjusted.getOrigin() - principal.getOrigin());
-				m_ShiftedCompoundShape->addChildShape(adjusted, shape->getChildShape(i));
-			}
+            for (int i = 0; i < numChildShapes; ++i)
+            {
+                auto adjusted = shape->getChildTransform(i);
+                adjusted.setOrigin(adjusted.getOrigin() - principal.getOrigin());
 
-			m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState, m_ShiftedCompoundShape);
-			m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);
-			m_Rigidbody->setCollisionShape(m_ShiftedCompoundShape);
-			float mass = 50.f;
-			m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
-			m_Rigidbody->setMassProps(mass, inertia);
-			m_Rigidbody->updateInertiaTensor();
-		}
-		else
-		{
-			m_Rigidbody = std::make_shared<btRigidBody>(0, m_MotionState, m_CollisionShape->GetShape());
-		}
+                auto* originalChild = shape->getChildShape(i);
 
-		
+                m_ShiftedCompoundShape->addChildShape(adjusted, originalChild);
+            }
 
-		btTransform transform = m_Rigidbody->getCenterOfMassTransform();
-		auto t = m_Entity.GetComponent<Transform>().GetWorldTransform();
-		vec3 p, scale;
-		quat rot;
-		DecomposeTransform(t, p, rot, scale);
-		transform.setOrigin(toBt(p));
-		transform.setBasis(toBt(glm::mat3_cast(rot)));
-		//m_UniformScalingShape = new btUniformScalingShape(m_CollisionShape->GetShape(), scale.r);
-		m_Rigidbody->getCollisionShape()->setLocalScaling(toBt(scale));
+            m_Rigidbody = std::make_shared<btRigidBody>(1, m_MotionState.get(), m_ShiftedCompoundShape.get());
+            m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);
+            float mass = 50.f;
+            m_ShiftedCompoundShape->calculateLocalInertia(mass, inertia);
+            m_Rigidbody->setMassProps(mass, inertia);
+            m_Rigidbody->updateInertiaTensor();
+        }
+        else
+        {
+            m_Rigidbody = std::make_shared<btRigidBody>(0, m_MotionState.get(), m_CollisionShape->GetShape());
+        }
 
-		world->AddRigidbody(m_Rigidbody.get());
-		world->UpdateAABB(m_Rigidbody.get());
-		m_Rigidbody->setCenterOfMassTransform(transform);
-		m_Rigidbody->setUserPointer(this);
-	}
+        auto t = thisEntity.GetComponent<Transform>().GetWorldTransform();
+        vec3 p, s;
+        quat r;
+        DecomposeTransform(t, p, r, s);
 
-	void Rigidbody::GetCollidingObjects(std::vector<Rigidbody*>& colliders)
-	{
-		m_World.lock()->GetCollidingObjects(colliders, this);
-	}
+        btTransform transform;
+        transform.setOrigin(toBt(p));
+        transform.setBasis(toBt(glm::mat3_cast(r)));
+        m_Rigidbody->getCollisionShape()->setLocalScaling(toBt(s));
 
-	void Rigidbody::UpdateLastTransform()
-	{
-		m_Rigidbody->getMotionState()->getWorldTransform(m_LastTransform);
-		m_AccTime = 0;
-	}
+        world->AddRigidbody(m_Rigidbody.get());
+        world->UpdateAABB(m_Rigidbody.get());
+        m_Rigidbody->setCenterOfMassTransform(transform);
+        m_Rigidbody->setUserPointer(this);
+        m_Owner = (entt::entity)thisEntity;
+    }
 
-	void Rigidbody::ClearCollidedObjects()
-	{
-		m_CurrentCollidedObjects.clear();
-	}
+    void Rigidbody::GetCollidingObjects(std::vector<Rigidbody*>& colliders)
+    {
+        if (auto w = m_World.lock())
+            w->GetCollidingObjects(colliders, this);
+    }
 
-	void Rigidbody::ReportCollidedObject(Rigidbody* body)
-	{
-		m_CurrentCollidedObjects.insert(body);
-	}
+    void Rigidbody::UpdateLastTransform()
+    {
+        m_Rigidbody->getMotionState()->getWorldTransform(m_LastTransform);
+        m_AccTime = 0.0;
+    }
 
-	Transform Rigidbody::GetInterpolatedTransform(float dt) 
-	{
+    void Rigidbody::ClearCollidedObjects()
+    {
+        m_CurrentCollidedObjects.clear();
+    }
 
-		float t = dt;
-		btTransform btT;
-		m_Rigidbody->getMotionState()->getWorldTransform(btT);
-		btQuaternion currentQ;
-		btT.getBasis().getRotation(currentQ);
-		btQuaternion lastQ;
-		m_LastTransform.getBasis().getRotation(lastQ);
-		auto resQ = slerp(lastQ, currentQ, t);
-		
-		auto currentPos = btT.getOrigin();
-		auto lastPos = m_LastTransform.getOrigin();
-		auto resPos = lerp(lastPos, currentPos, t);
+    void Rigidbody::ReportCollidedObject(Rigidbody* body)
+    {
+        m_CurrentCollidedObjects.insert(body);
+    }
 
-		return Transform(toGlm(resPos), toGlm(resQ), vec3(1.0f));
-	}
+    Transform Rigidbody::GetInterpolatedTransform(float dt)
+    {
+        float t = dt;
+        btTransform btT;
+        m_Rigidbody->getMotionState()->getWorldTransform(btT);
+        btQuaternion currentQ;
+        btT.getBasis().getRotation(currentQ);
+        btQuaternion lastQ;
+        m_LastTransform.getBasis().getRotation(lastQ);
+        auto resQ = slerp(lastQ, currentQ, t);
 
-	// TODO: WARNING! these will drop the parent for now, fix it later
-	Transform Rigidbody::GetWorldTransform() const
-	{
-		btTransform btT;
-		
-		m_Rigidbody->getMotionState()->getWorldTransform(btT);
-		auto btQ = btT.getRotation();
-		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
-	}
+        auto currentPos = btT.getOrigin();
+        auto lastPos = m_LastTransform.getOrigin();
+        auto resPos = lerp(lastPos, currentPos, t);
 
+        return Transform(toGlm(resPos), toGlm(resQ), vec3(1.0f));
+    }
 
-	Transform Rigidbody::GetStaticWorldTransform() const
-	{
-		btTransform btT = m_Rigidbody->getWorldTransform();
-		auto btQ = btT.getRotation();
-		glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-		return Transform(toGlm(btT.getOrigin()), q, toGlm(m_CollisionShape->GetShape()->getLocalScaling()));
-	}
+    Transform Rigidbody::GetWorldTransform() const
+    {
+        btTransform btT;
+        m_Rigidbody->getMotionState()->getWorldTransform(btT);
+        auto btQ = btT.getRotation();
+        glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
+        return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
+    }
 
-	bool Rigidbody::IsActive()
-	{
-		return m_isActive;
-	}
+    Transform Rigidbody::GetStaticWorldTransform() const
+    {
+        btTransform btT = m_Rigidbody->getWorldTransform();
+        auto btQ = btT.getRotation();
+        glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
+        return Transform(toGlm(btT.getOrigin()), q, toGlm(m_CollisionShape->GetShape()->getLocalScaling()));
+    }
 
-	void Rigidbody::SetIsActive(bool b)
-	{
-		m_isActive = b;
-	}
+    bool Rigidbody::IsActive() const
+    {
+        return m_isActive;
+    }
 
-	void Rigidbody::DrawShape()
-	{
-		
-	}
+    void Rigidbody::SetIsActive(bool b)
+    {
+        m_isActive = b;
+    }
 
-	void Rigidbody::SetColliderScale(const btVector3& scale)
-	{
-		m_OverriddenScale = scale;
-	}
+    void Rigidbody::SetColliderScale(const btVector3& scale)
+    {
+        m_OverriddenScale = scale;
+    }
 
-	void Rigidbody::ApplyForce(vec3 direction, float force)
-	{
-		if (!m_World.lock()->GetIsSimulated())
-			return;
-		//m_Rigidbody->applyCentralForce(toBt(force * direction));
-		m_Rigidbody->applyCentralImpulse(toBt(force * direction));	
-	}
+    void Rigidbody::ApplyForce(vec3 direction, float force)
+    {
+        if (auto w = m_World.lock())
+        {
+            if (!w->GetIsSimulated())
+                return;
+        }
+        m_Rigidbody->applyCentralImpulse(toBt(force * direction));
+    }
 
-	void Rigidbody::SetGravity(vec3 acceleration)
-	{
-		m_Rigidbody->setGravity(toBt(acceleration));
-	}
-
+    void Rigidbody::SetGravity(vec3 acceleration)
+    {
+        m_Rigidbody->setGravity(toBt(acceleration));
+    }
+    entt::entity Rigidbody::GetOwner()
+    {
+        return m_Owner;
+    }
 }

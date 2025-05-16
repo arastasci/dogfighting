@@ -3,7 +3,7 @@ project(AtEngine CXX)
 
 set(STEAM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vendor/steam" CACHE PATH "Steamworks SDK root")
 
-find_path(STEAM_INCLUDE_DIR steam_api.h PATHS "${STEAM_ROOT}/public" REQUIRED)
+# find_path(STEAM_INCLUDE_DIR steam/steam_api.h PATHS "${STEAM_ROOT}/public" REQUIRED)
 find_library(STEAM_LIB steam_api64 PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
 find_file(STEAM_DLL steam_api64.dll PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
 
@@ -11,7 +11,7 @@ add_library(steam_api64 SHARED IMPORTED)
 set_target_properties(steam_api64 PROPERTIES
     IMPORTED_IMPLIB "${STEAM_LIB}"
     IMPORTED_LOCATION "${STEAM_DLL}"
-    INTERFACE_INCLUDE_DIRECTORIES "${STEAM_INCLUDE_DIR}"
+    INTERFACE_INCLUDE_DIRECTORIES "${STEAM_ROOT}/public"
 )
 
 # Define the precompiled header file relative to the at folder.
