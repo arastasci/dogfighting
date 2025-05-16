@@ -23,7 +23,7 @@ public:
 		for (auto [e, rocket, tr, rb] : view.each())
 		{
 			//rb.GetRigidbody()->setDamping(0, 0);
-			rb.GetRigidbody()->setLinearVelocity(rocket.initialVelocity + toBt(rocket.Force * tr.Up()));
+			rb.GetRigidbody()->setLinearVelocity(rocket.initialVelocity +Math::toBt(rocket.Force * tr.Up()));
 
 		}
 	}

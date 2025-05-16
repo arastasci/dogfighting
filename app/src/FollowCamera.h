@@ -15,7 +15,7 @@ public:
 class FollowCameraSystem : public System
 {
 public:
-	virtual void Update(float dt) override
+	virtual void LateUpdate(float dt) override
 	{
 		auto view = GetView<FollowCamera, Transform>();
 

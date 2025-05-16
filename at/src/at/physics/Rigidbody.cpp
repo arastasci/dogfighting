@@ -140,8 +140,9 @@ namespace at
         btTransform transform;
         transform.setOrigin(toBt(p));
         transform.setBasis(toBt(glm::mat3_cast(r)));
+        m_LastTransform = transform;
         m_Rigidbody->getCollisionShape()->setLocalScaling(toBt(s));
-
+    
         world->AddRigidbody(m_Rigidbody.get());
         world->UpdateAABB(m_Rigidbody.get());
         m_Rigidbody->setCenterOfMassTransform(transform);
@@ -186,7 +187,7 @@ namespace at
         auto lastPos = m_LastTransform.getOrigin();
         auto resPos = lerp(lastPos, currentPos, t);
 
-        return Transform(toGlm(resPos), toGlm(resQ), vec3(1.0f));
+        return Transform(Math::toGlm(resPos), Math::toGlm(resQ), vec3(1.0f));
     }
 
     Transform Rigidbody::GetWorldTransform() const
@@ -195,7 +196,7 @@ namespace at
         m_Rigidbody->getMotionState()->getWorldTransform(btT);
         auto btQ = btT.getRotation();
         glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-        return Transform(toGlm(btT.getOrigin()), q, toGlm(m_ShiftedCompoundShape->getLocalScaling()));
+        return Transform(Math::toGlm(btT.getOrigin()), q, Math::toGlm(m_ShiftedCompoundShape->getLocalScaling()));
     }
 
     Transform Rigidbody::GetStaticWorldTransform() const
@@ -203,7 +204,7 @@ namespace at
         btTransform btT = m_Rigidbody->getWorldTransform();
         auto btQ = btT.getRotation();
         glm::quat q(btQ.w(), btQ.x(), btQ.y(), btQ.z());
-        return Transform(toGlm(btT.getOrigin()), q, toGlm(m_CollisionShape->GetShape()->getLocalScaling()));
+        return Transform(Math::toGlm(btT.getOrigin()), q, Math::toGlm(m_CollisionShape->GetShape()->getLocalScaling()));
     }
 
     bool Rigidbody::IsActive() const

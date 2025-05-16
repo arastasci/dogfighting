@@ -1,11 +1,11 @@
 #include "Camera.h"
 namespace at
 {
-	Camera::Camera(glm::vec3 position, glm::quat rotation,float FOV, float aspectRatio, float nearPlane, float farPlane)
+	Camera::Camera(glm::vec3 position, glm::quat rotation, float FOV, float aspectRatio, float nearPlane, float farPlane)
 		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(nearPlane), m_FarPlane(farPlane)
 	{
 		vec3 pos = position;
-		m_ViewMatrix = glm::lookAt(pos, pos + Vector3::forward, Vector3::up);
+		m_ViewMatrix = glm::lookAt(pos, pos + Math::Vector3::forward, Math::Vector3::up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 

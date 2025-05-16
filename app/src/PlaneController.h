@@ -63,8 +63,8 @@ class PlaneControllerSystem : public System
             if (Input::GetKeyPress(Key::LeftControl) || Input::GetKeyPress(Key::RightControl))
                 pc.Throttle = glm::clamp(pc.Throttle - pc.ThrottleRate * dt, 0.f, 1.f);
 
-            const btVector3 fwd = toBt(glm::normalize(tr.Forward()));
-            const btVector3 rgt = toBt(glm::normalize(tr.Right()));
+            const btVector3 fwd =Math::toBt(glm::normalize(tr.Forward()));
+            const btVector3 rgt =Math::toBt(glm::normalize(tr.Right()));
 
             float      speedFwd = v.dot(fwd);
             float      target = pc.Throttle * pc.MaxSpeed;

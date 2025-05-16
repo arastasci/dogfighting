@@ -3,8 +3,10 @@
 #include "at/core/Core.h"
 #include "at/utils/Math.h"
 
+
 namespace at
 {
+    using namespace Math;
     struct AT_API Transform 
     {
         Transform(const Transform& other) = default;
@@ -65,5 +67,17 @@ namespace at
 
 
     };
+}
 
+namespace Math
+{
+    inline btTransform toBt(const at::Transform& t)
+    {
+        btTransform btT;
+        btT.setOrigin(toBt(t.position));
+        btT.setBasis(toBt(t.rotation));
+        return btT;
+
+
+    }
 }

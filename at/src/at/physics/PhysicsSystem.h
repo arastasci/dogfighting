@@ -30,7 +30,10 @@ namespace at
 				{
 					if (rb.GetRigidbody()->getMass())
 					{
-						t = rb.GetInterpolatedTransform(dt);
+						if (m_Interpolates)
+							t = rb.GetInterpolatedTransform(dt);
+						else
+							t = rb.GetWorldTransform();
 						t.scale = Math::toGlm(rb.GetRigidbody()->getCollisionShape()->getLocalScaling());
 					}
 					else
@@ -41,5 +44,8 @@ namespace at
 
 			}
 		}
+
+	private:
+		const bool m_Interpolates = false;
 	};
 }

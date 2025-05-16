@@ -33,7 +33,7 @@ void at::Model::LoadModel(const std::string& path)
 
 void at::Model::ProcessNode(ModelNode* parent, aiNode* node, const aiScene* scene)
 {
-	auto* mNode = new ModelNode(parent, toGlm(node->mTransformation));
+	auto* mNode = new ModelNode(parent, Math::toGlm(node->mTransformation));
 	if(parent)
 		parent->AddChild(mNode);
 
@@ -41,7 +41,7 @@ void at::Model::ProcessNode(ModelNode* parent, aiNode* node, const aiScene* scen
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		mNode->AddMesh(ProcessMesh(mesh, mNode->GetModelMatrix() * toGlm(node->mTransformation), scene));
+		mNode->AddMesh(ProcessMesh(mesh, mNode->GetModelMatrix() * Math::toGlm(node->mTransformation), scene));
 	}
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
