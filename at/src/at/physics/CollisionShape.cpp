@@ -16,11 +16,11 @@ namespace at
 		auto newConvexHull = new btConvexHullShape();
 		for (auto& p : points)
 		{
-			newConvexHull->addPoint(toBt(p.Position));
+			newConvexHull->addPoint(Math::toBt(p.Position));
 		}
 		
 		m_Shapes.push_back(newConvexHull);
-		btTransform bT(toBt(mesh->GetModelMatrix()));
+		btTransform bT(Math::toBt(mesh->GetModelMatrix()));
 		m_CompoundShape->addChildShape(bT, newConvexHull);
 		m_Masses.push_back(1.0f);
 		
@@ -41,7 +41,7 @@ namespace at
 			const vec3& p1 = verts[indices[i + 1]].Position;
 			const vec3& p2 = verts[indices[i + 2]].Position;
 
-			triMesh->addTriangle(toBt(p0), toBt(p1), toBt(p2));
+			triMesh->addTriangle(Math::toBt(p0),Math::toBt(p1),Math::toBt(p2));
 		}
 
 		const bool useQuantizedAabbCompression = true;
@@ -49,7 +49,7 @@ namespace at
 			useQuantizedAabbCompression);
 
 
-		btTransform modelXf(toBt(mesh->GetModelMatrix()));
+		btTransform modelXf(Math::toBt(mesh->GetModelMatrix()));
 		m_CompoundShape->addChildShape(modelXf, meshShape);
 		m_Shapes.push_back(meshShape);
 		m_Masses.push_back(0.0f);

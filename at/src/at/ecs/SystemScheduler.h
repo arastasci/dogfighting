@@ -17,11 +17,6 @@ namespace at
 			system->SetScene(m_Scene);
 		}
 
-		void RegisterPostSystem(SharedPtr<ISystem> system)
-		{
-			m_PostSystems.push_back(system);
-			system->SetScene(m_Scene);
-		}
 
 		void Start()
 		{
@@ -47,13 +42,6 @@ namespace at
 				}
 		}
 
-		void Render(double t)
-		{
-			for (auto& s : m_Systems)
-			{
-				s->Render(t);
-			}
-		}
 
 		void OnDestroy()
 		{
@@ -63,18 +51,17 @@ namespace at
 			}
 		}
 
-		void PostUpdate(float dt)
+		void LateUpdate(float dt)
 		{
-			for (auto& s : m_PostSystems)
+			for (auto& s : m_Systems)
 			{
-				s->Update(dt);
+				s->LateUpdate(dt);
 			}
 		}
 
 	private:
 		std::shared_ptr<Scene> m_Scene;
 		std::vector<std::shared_ptr<ISystem>> m_Systems;
-		std::vector<SharedPtr<ISystem>> m_PostSystems;
 		friend class Scene;
 
 	};

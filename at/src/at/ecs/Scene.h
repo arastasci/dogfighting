@@ -11,6 +11,8 @@ namespace at
 	class Entity;
 	class Transform;
 	class CameraComponent;
+	class MeshRendererSystem;
+	class PhysicsSystem;
 	class AT_API Scene : public std::enable_shared_from_this<Scene>
 	{
 	public:
@@ -25,9 +27,10 @@ namespace at
 		void PreUpdate();
 		void Start();
 		void Update(double deltaTime);
-		void PostUpdate(double deltaTime);
+		void LateUpdate(double deltaTime);
 		double FixedUpdate(double dT);
-		void Render(double t);
+		void InterpolatePhysicsTransforms(double t);
+		void Render();
 		void OnDestroy();
 
 		void EndFrame();
@@ -53,14 +56,6 @@ namespace at
 			return system;
 		}
 
-		template<typename T,
-			typename = std::enable_if_t<std::is_base_of_v<ISystem, T>>>
-		std::shared_ptr<T> AddPostSystem()
-		{
-			auto system = std::make_shared<T>();
-			m_SystemScheduler->RegisterPostSystem(system);
-			return system;
-		}
 
 		const SharedPtr<PhysicsWorld> GetPhysicsWorld()
 		{
@@ -81,6 +76,8 @@ namespace at
 		static std::shared_ptr<Scene> m_activeScene;
 		static CameraComponent* m_MainCamera;
 		SharedPtr<PhysicsWorld> m_PhysicsWorld;
+		std::unique_ptr<PhysicsSystem> m_PhysicsSystem;
+		std::unique_ptr<MeshRendererSystem> m_RendererSystem;
 		entt::registry m_registry;
 
 		friend class Entity;

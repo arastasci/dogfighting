@@ -7,7 +7,8 @@
 #include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
 #include "at/ecs/CoreComponents/ActiveTag.h"
 
-
+#include "at/renderer/MeshRendererSystem.h"
+#include "at/physics/PhysicsSystem.h"
 namespace at
 {
 	std::shared_ptr<Scene> Scene::m_activeScene;
@@ -34,6 +35,10 @@ namespace at
 			m_SystemScheduler->m_Scene = shared_from_this();
 			m_PhysicsWorld = std::make_shared<PhysicsWorld>();
 			m_PhysicsWorld->Init();
+			m_PhysicsSystem = std::make_unique<PhysicsSystem>();
+			m_PhysicsSystem->SetScene(shared_from_this());
+			m_RendererSystem = std::make_unique<MeshRendererSystem>();
+			m_RendererSystem->SetScene(shared_from_this());
 		}
 		else
 		{
@@ -73,6 +78,7 @@ namespace at
 
 	void Scene::Start()
 	{
+		m_PhysicsSystem->Start();
 		m_SystemScheduler->Start();
 	}
 
@@ -81,9 +87,9 @@ namespace at
 		m_SystemScheduler->Update(deltaTime);
 	}
 
-	void Scene::PostUpdate(double deltaTime)
+	void Scene::LateUpdate(double deltaTime)
 	{
-		m_SystemScheduler->PostUpdate(deltaTime);
+		m_SystemScheduler->LateUpdate(deltaTime);
 	}
 
 	double Scene::FixedUpdate(double dt)
@@ -103,10 +109,19 @@ namespace at
 		}
 		return m_AccTimestep;
 	}
-	void Scene::Render(double t)
+	void Scene::InterpolatePhysicsTransforms(double t)
 	{
-		m_SystemScheduler->Render(t);
+		m_PhysicsSystem->InterpolateTransforms(t);
 	}
+
+	void Scene::Render()
+	{
+		m_RendererSystem->UpdateCameraProperties();
+		m_RendererSystem->RegisterPointLights();
+		m_RendererSystem->RenderEntities();
+		m_RendererSystem->DrawCubemap();
+	}
+
 	void Scene::OnDestroy()
 	{
 		m_SystemScheduler->OnDestroy();

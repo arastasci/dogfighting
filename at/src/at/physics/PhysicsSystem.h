@@ -21,7 +21,7 @@ namespace at
 				
 			}
 		}
-		virtual void Render(float dt) override
+		void InterpolateTransforms(float dt) 
 		{
 			auto view = GetView<Rigidbody, Transform>();
 			for (auto [e, rb, t] : view.each())
@@ -31,7 +31,7 @@ namespace at
 					if (rb.GetRigidbody()->getMass())
 					{
 						t = rb.GetInterpolatedTransform(dt);
-						t.scale = toGlm(rb.GetRigidbody()->getCollisionShape()->getLocalScaling());
+						t.scale = Math::toGlm(rb.GetRigidbody()->getCollisionShape()->getLocalScaling());
 					}
 					else
 					{

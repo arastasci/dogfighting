@@ -17,7 +17,7 @@ namespace at
 		/// t is the interpolation alpha.
 		/// </summary>
 		/// <param name="t">interpolation alpha</param>
-		virtual void Render(float t) = 0;
+		virtual void LateUpdate(float t) = 0;
 		virtual void FixedUpdate() = 0;
 		virtual void OnDestroy() = 0;
 		void SetScene(std::shared_ptr<Scene> scene) { m_Scene = scene; }

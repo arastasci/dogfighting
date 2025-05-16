@@ -18,7 +18,7 @@ namespace at
 		virtual void Start() {}
 		virtual void Update(float dt){}
 		virtual void FixedUpdate(){}
-		virtual void Render(float t){}
+		virtual void LateUpdate(float dt){}
 		virtual void OnDestroy() {}
 	protected:
 

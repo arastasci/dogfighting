@@ -170,7 +170,7 @@ public:
         m_activeScene->AddSystem<FreeCameraSystem>();
         m_activeScene->AddSystem<GoofySystem>();
         m_activeScene->AddSystem<RocketSystem>();
-        m_activeScene->AddPostSystem<FollowCameraSystem>();
+        m_activeScene->AddSystem<FollowCameraSystem>();
         m_activeScene->AddSystem<CollisionSystem>();
         m_activeScene->AddSystem<PlaneControllerSystem>();
         m_activeScene->AddSystem<SpawnerSystem>();

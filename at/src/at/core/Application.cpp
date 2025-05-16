@@ -3,12 +3,6 @@
 #include "Logger.h"
 #include "at/renderer/Renderer.h"
 #include "at/networking/Networking.h"
-#include "at/ecs/CoreSystems/EntityManagerSystem.h"
-#include "at/ecs/CoreSystems/CameraSystem.h"
-#include "at/ecs/CoreSystems/MeshRendererSystem.h"
-#include "at/ecs/CoreSystems/PointLightSystem.h"
-#include "at/physics/PhysicsSystem.h"
-#include "at/renderer/SkyboxSystem.h"
 #include "at/utils/Constants.h"
 
 #include "Input.h"
@@ -48,13 +42,6 @@ namespace at {
 		m_activeScene->Init();
 
 
-		//m_activeScene->AddSystem<EntityManagerSystem>();
-		m_activeScene->AddSystem<PhysicsSystem>();
-		m_activeScene->AddPostSystem<CameraSystem>();
-		m_activeScene->AddPostSystem<MeshRendererSystem>();
-		m_activeScene->AddPostSystem<PointLightSystem>();
-		m_activeScene->AddPostSystem<SkyboxSystem>();
-		
 		stbi_set_flip_vertically_on_load(true);
 		AppInit(); // application initialization code
 	}
@@ -79,11 +66,12 @@ namespace at {
 			m_activeScene->Start();
 
 			m_activeScene->PreUpdate();
-			auto accTime = m_activeScene->FixedUpdate(m_DeltaTime);
+			const auto accTime = m_activeScene->FixedUpdate(m_DeltaTime);
 			m_activeScene->Update(m_DeltaTime);
-			m_activeScene->Render(accTime / Constants::FIXED_TIMESTEP);
-			m_activeScene->PostUpdate(m_DeltaTime);
+			m_activeScene->InterpolatePhysicsTransforms(accTime / Constants::FIXED_TIMESTEP);
+			m_activeScene->LateUpdate(m_DeltaTime);
 			m_activeScene->OnDestroy();
+			m_activeScene->Render();
 			m_activeScene->EndFrame();
 			
 			//////////////    UPDATE - END         ///////////////
