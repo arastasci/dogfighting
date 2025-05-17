@@ -1,19 +1,35 @@
 cmake_minimum_required(VERSION 3.16)
 project(AtEngine CXX)
 
-set(STEAM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vendor/steam" CACHE PATH "Steamworks SDK root")
 
-# find_path(STEAM_INCLUDE_DIR steam/steam_api.h PATHS "${STEAM_ROOT}/public" REQUIRED)
-find_library(STEAM_LIB steam_api64 PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
-find_file(STEAM_DLL steam_api64.dll PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
 
-add_library(steam_api64 SHARED IMPORTED)
-set_target_properties(steam_api64 PROPERTIES
-    IMPORTED_IMPLIB "${STEAM_LIB}"
-    IMPORTED_LOCATION "${STEAM_DLL}"
-    INTERFACE_INCLUDE_DIRECTORIES "${STEAM_ROOT}/public"
-)
+option(USE_STEAM "Should use Steamworks SDK instead of GameNetworkingSockets" OFF)
 
+if(USE_STEAM)
+    set(STEAM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vendor/steam" CACHE PATH "Steamworks SDK root")
+
+    # find_path(STEAM_INCLUDE_DIR steam/steam_api.h PATHS "${STEAM_ROOT}/public" REQUIRED)
+    find_library(STEAM_LIB steam_api64 PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
+    find_file(STEAM_DLL steam_api64.dll PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
+    add_library(steam_api64 SHARED IMPORTED)
+    set_target_properties(steam_api64 PROPERTIES
+        IMPORTED_IMPLIB "${STEAM_LIB}"
+        IMPORTED_LOCATION "${STEAM_DLL}"
+        INTERFACE_INCLUDE_DIRECTORIES "${STEAM_ROOT}/public"
+    )
+    
+else()
+    set(GNS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vendor/GameNetworkingSockets" CACHE PATH "GameNetworkingSockets Root")
+    find_library(GNS_LIB GameNetworkingSockets PATHS "${GNS_ROOT}/bin/Debug" REQUIRED)
+    find_file(GNS_DLL GameNetworkingSockets.dll PATHS "${GNS_ROOT}/bin/Debug" REQUIRED)
+    add_library(GameNetworkingSockets SHARED IMPORTED)
+    set_target_properties(GameNetworkingSockets PROPERTIES
+    IMPORTED_IMPLIB "${GNS_LIB}"
+    IMPORTED_LOCATION "${GNS_DLL}"
+    INTERFACE_INCLUDE_DIRECTORIES "${GNS_ROOT}/include"
+    )
+    
+endif()
 # Define the precompiled header file relative to the at folder.
 set(PCH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/atpch.h")
 
@@ -79,8 +95,13 @@ target_link_libraries(AtEngine PUBLIC
     BulletSoftBody
     Bullet3Common
     BulletInverseDynamics
-    steam_api64
 )
+
+if(USE_STEAM)
+    target_link_libraries(AtEngine PUBLIC steam_api64)
+else()
+    target_link_libraries(AtEngine PUBLIC GameNetworkingSockets)
+endif()
 
 add_custom_command(TARGET AtEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -89,8 +110,16 @@ add_custom_command(TARGET AtEngine POST_BUILD
     COMMENT "Copying res folder to output directory."
 )
 
-add_custom_command(TARGET AtEngine POST_BUILD
+if(USE_STEAM)
+    add_custom_command(TARGET AtEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_PROPERTY:steam_api64,IMPORTED_LOCATION>"
+            "$<TARGET_FILE_DIR:AtEngine>"
+    )
+else()
+    add_custom_command(TARGET AtEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_PROPERTY:steam_api64,IMPORTED_LOCATION>"
+        "$<TARGET_PROPERTY:GameNetworkingSockets,IMPORTED_LOCATION>"
         "$<TARGET_FILE_DIR:AtEngine>"
-)
+    )
+endif()
