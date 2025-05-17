@@ -16,7 +16,9 @@
 #include <utility>
 #include <cstdint>
 #include <optional>
-
+#include <algorithm>
+#include <execution>
+#include <mutex>
 ////// containers //////////////////////////
 #include <vector>
 #include <unordered_map>
