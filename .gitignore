@@ -400,3 +400,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+!at/vendor/GameNetworkingSockets/bin
+!at/vendor/GameNetworkingSockets/bin/*
