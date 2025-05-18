@@ -39,8 +39,22 @@ namespace at {
 		m_currentWindow = new Window();
 		Renderer::Init();
 		Networking::Get().Init();
-		m_activeScene->Init();
+		char c;
+		std::cout << "h or c" << std::endl;
+		std::cin >> c;
+		if (c == 'h')
+		{
+			Networking::Get().Host();
+		}
+		else
+		{
+			Networking::Get().Connect();
+		}
 
+		m_activeScene->Init();
+		
+		if(Networking::Get().IsHost())
+			Networking::Get().BindRegistry(m_activeScene->GetRegistry());
 
 		stbi_set_flip_vertically_on_load(true);
 		AppInit(); // application initialization code
@@ -62,7 +76,7 @@ namespace at {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//////////////    UPDATE         ///////////////
-
+			Networking::Get().Update();
 			m_activeScene->Start();
 
 			m_activeScene->PreUpdate();

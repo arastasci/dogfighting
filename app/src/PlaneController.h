@@ -120,7 +120,7 @@ private:
             return;
 
         m_AccTime = 0.0;
-        auto rocket = m_Scene->CreateEntity(Transform(t.position - 2.25f * t.Up() + 5.25f * t.Forward(), RotateRocket(t), vec3(0.01f)));
+        auto rocket = m_Scene->CreateNetworkedEntity(Transform(t.position - 2.25f * t.Up() + 5.25f * t.Forward(), RotateRocket(t), vec3(0.01f)));
         rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         rocket.AddComponent<Rigidbody>(false, true);
         rocket.AddComponent<RocketBehaviour>(velocity);

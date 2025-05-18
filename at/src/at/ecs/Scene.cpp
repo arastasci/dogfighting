@@ -6,7 +6,7 @@
 #include "at/ecs/CoreComponents/CreatedTag.h"
 #include "at/ecs/CoreComponents/ToBeDestroyedTag.h"
 #include "at/ecs/CoreComponents/ActiveTag.h"
-
+#include "at/networking/NetworkTag.h"
 #include "at/renderer/MeshRendererSystem.h"
 #include "at/physics/PhysicsSystem.h"
 namespace at
@@ -44,6 +44,20 @@ namespace at
 		{
 			AT_CORE_WARN("A passive scene has been initialized");
 		}
+	}
+
+	Entity Scene::CreateNetworkedEntity()
+	{
+		Transform t;
+		return CreateNetworkedEntity(t);
+	}
+
+	Entity Scene::CreateNetworkedEntity(const Transform& t)
+	{
+		auto e = CreateEntity(t);
+		e.AddComponent<NetworkTag>();
+		// TODO: broadcast networked entity creation
+		return e;
 	}
 
 

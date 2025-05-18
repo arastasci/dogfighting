@@ -21,6 +21,8 @@ namespace at
 		Scene();
 		~Scene();
 		void Init();
+		Entity CreateNetworkedEntity();
+		Entity CreateNetworkedEntity(const Transform& t);
 		Entity CreateEntity();
 		Entity CreateEntity(const Transform& t);
 
