@@ -18,7 +18,7 @@ namespace at
 
 	void PhysicsWorld::Init()
 	{
-		m_World->setGravity(btVector3(0, -3.8f, 0));
+		m_World->setGravity(btVector3(0, -9.8f, 0));
 	}
 
 	void PhysicsWorld::Shutdown()

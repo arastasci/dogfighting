@@ -71,12 +71,12 @@ class PlaneControllerSystem : public System
             if (speedFwd < target - 0.5f)
                 body->applyCentralForce(fwd * (pc.MaxThrust * pc.Throttle));
 
-            float pitch = (Input::GetKeyPress(Key::W) ? -1.f : 0.f) +
-                (Input::GetKeyPress(Key::S) ? 1.f : 0.f);
+            float pitch = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
+                (Input::GetKeyPress(Key::S) ? -1.f : 0.f);
             if (pitch) body->applyTorque(rgt * (-pitch * pc.PitchTorque));
 
-            float roll = (Input::GetKeyPress(Key::D) ? 1.f : 0.f) +
-                (Input::GetKeyPress(Key::A) ? -1.f : 0.f);
+            float roll = (Input::GetKeyPress(Key::D) ? -1.f : 0.f) +
+                (Input::GetKeyPress(Key::A) ? 1.f : 0.f);
             if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
 
 

@@ -109,8 +109,8 @@ public:
             const vec2  delta = vec2(mx, my) - cam.lastMousePos;
             cam.lastMousePos = { mx, my };
 
-            cam.yaw += delta.x * cam.mouseSensitivity;
-            cam.pitch += delta.y * cam.mouseSensitivity;
+            cam.yaw -= delta.x * cam.mouseSensitivity;
+            cam.pitch -= delta.y * cam.mouseSensitivity;
 
             cam.pitch = clamp(cam.pitch, -89.0f, 89.0f);
 
@@ -129,8 +129,8 @@ public:
             vec3 up = cross(right, forward);
 
             float v = cam.moveSpeed * dt;
-            if (Input::GetKeyPress(Key::Up)) tr.position -= forward * v;
-            if (Input::GetKeyPress(Key::Down)) tr.position += forward * v;
+            if (Input::GetKeyPress(Key::Up)) tr.position += forward * v;
+            if (Input::GetKeyPress(Key::Down)) tr.position -= forward * v;
             if (Input::GetKeyPress(Key::Left)) tr.position -= right * v;
             if (Input::GetKeyPress(Key::Right)) tr.position += right * v;
             if (Input::GetKeyPress(Key::P))
@@ -194,7 +194,7 @@ public:
         rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
         rocket.AddComponent<Rigidbody>(false, true);
 
-        auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(2.5f, 2.5f, -6.0f), quat(vec3(0,90,0)), vec3(1.0f)));
+        auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(-2.5f, 2.5f, -6.0f), quat(), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
         camera.AddComponent<FreeCamera>();

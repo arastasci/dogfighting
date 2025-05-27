@@ -5,7 +5,7 @@ namespace at
 		: m_FOV(FOV), m_AspectRatio(aspectRatio), m_NearPlane(nearPlane), m_FarPlane(farPlane)
 	{
 		vec3 pos = position;
-		m_ViewMatrix = glm::lookAt(pos, pos + Math::Vector3::forward, Math::Vector3::up);
+		m_ViewMatrix = glm::lookAt(pos, pos + rotation * Math::Vector3::forward, Math::Vector3::up);
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 
@@ -30,6 +30,6 @@ namespace at
 	void Camera::Update(const mat4& cameraTransform)
 	{
 		m_ViewMatrix = glm::inverse(cameraTransform);
-		m_ProjectionMatrix = glm::perspectiveLH_ZO(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
+		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 	}
 }
