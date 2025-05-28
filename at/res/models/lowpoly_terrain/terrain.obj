@@ -1,0 +1,25 @@
+# rectangle.obj
+mtllib rectangle.mtl        # look for materials in rectangle.mtl
+o Rectangle
+
+# vertex positions 
+v -0.5 0.0 -0.5 
+v  0.5 0.0 -0.5 
+v  0.5 0.0 0.5 
+v -0.5 0.0 0.5 
+
+
+vt 0.0 0.0
+vt 1.0 0.0
+vt 1.0 1.0
+vt 0.0 1.0
+
+# one shared normal (facing +Z)
+vn 0.0 0.0 1.0
+
+usemtl DiffuseMat           # <<— material whose map_Kd is diffuse_texture.png
+s off                       # no smoothing groups
+
+# two triangles
+f 1/1/1 2/2/1 3/3/1
+f 1/1/1 3/3/1 4/4/1
