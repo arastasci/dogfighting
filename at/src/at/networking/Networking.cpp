@@ -80,11 +80,27 @@ namespace at
 			}
 		}
 	}
-	void Networking::Connect(CSteamID id)
+	void Networking::Connect(uint64 id)
 	{
 		{
 			SteamNetworkingIdentity identity;
-			identity.SetSteamID(id);
+			identity.Clear();
+			identity.m_eType = k_ESteamNetworkingIdentityType_SteamID;
+			identity.SetSteamID64(id);
+			if (identity.IsInvalid())
+			{
+				AT_CORE_INFO("The identity {} is invalid!", identity.m_steamID64);
+			}
+			while (true)
+			{
+				SteamRelayNetworkStatus_t status;
+				SteamNetworkingUtils()->GetRelayNetworkStatus(&status);
+				if (status.m_eAvail == k_ESteamNetworkingAvailability_Current)
+				{
+					AT_CORE_WARN("Connected to the relay network.");
+					break;
+				}
+			}
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
 
@@ -428,7 +444,7 @@ namespace at
 			{
 				// Note: we could distinguish between a timeout, a rejected connection,
 				// or some other transport problem.
-				std::cout << "Could not connect to remove host. " << info->m_info.m_szEndDebug << std::endl;
+				std::cout << "Could not connect to remote host. " << info->m_info.m_szEndDebug << std::endl;
 			}
 			else if (info->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
 			{

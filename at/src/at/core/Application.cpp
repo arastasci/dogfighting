@@ -52,7 +52,7 @@ namespace at {
 		{
 			Networking::Get().Host();
 #ifdef USE_STEAM
-			Networking::Get().Connect(Networking::Get().GetSteamID());
+			Networking::Get().Connect(Networking::Get().GetSteamID().ConvertToUint64());
 #else
 			Networking::Get().Connect();
 #endif
@@ -64,7 +64,7 @@ namespace at {
 			AT_CORE_INFO("Enter the SteamID of your friend:");
 			std::cin >> id_64;
 
-			Networking::Get().Connect(CSteamID(id_64));
+			Networking::Get().Connect(id_64);
 #else
 			Networking::Get().Connect();
 #endif

@@ -63,7 +63,7 @@ namespace at
 		void Host();
 		void Connect();
 #ifdef USE_STEAM
-		void Connect(CSteamID id);
+		void Connect(uint64 id);
 #endif
 		void BindScene(SharedPtr<Scene> scene);
 		void SetHandleServerAppMessageCallback(HandleAppServerMessageCallback);
