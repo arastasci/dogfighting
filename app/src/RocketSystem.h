@@ -3,15 +3,14 @@
 
 using namespace at;
 
-class RocketBehaviour : public BehaviourComponent
+class RocketBehaviour
 {
 public:
-	RocketBehaviour(const btVector3& vel) 
-		: initialVelocity(vel)
-	{}
-	btVector3 initialVelocity;
+
+	btVector3 initialVelocity{};
 	double accTime = 0.0f;
 	const float Force = 80.f;
+	HSteamNetConnection owner;
 };
 
 class RocketSystem : public System

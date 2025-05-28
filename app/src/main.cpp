@@ -6,8 +6,19 @@
 #include "CollisionCallback.h"
 #include "GoofySystem.h"
 #include "RocketSystem.h"
-
+#include "AppMessages.h"
 using namespace at;
+
+
+class PlanePrefab : Prefab<PlanePrefab>
+{
+public:
+    void InitEntity(Entity e) override
+    {
+        e.AddComponent<MeshRenderer>("plane", "defaultMaterial");
+        e.AddComponent<Rigidbody>();
+    }
+};
 
 
 struct Spawner
@@ -61,10 +72,8 @@ private:
         spawnDir -= vec3(0.5f);
         vec3 spawnPos(100.f * spawnDir.x, 50 + 30.f * spawnDir.y, 100.f * spawnDir.z);
 
-        auto target = m_Scene->CreateEntity(Transform(spawnPos));
-        target.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        auto target = m_Scene->CreateNetworkedPrefab<PlanePrefab>(Transform(spawnPos));
         target.AddComponent<Spawner>();
-        target.AddComponent<Rigidbody>();
     }
     int amount = 0;
     int maxAmount = 20;
@@ -167,6 +176,8 @@ public:
 	}
 	virtual void AppInit() override
 	{
+        Networking::Get().SetHandleServerAppMessageCallback(Messages::HandleAppMessages_Server);
+        Networking::Get().SetHandleClientAppMessageCallback(Messages::HandleAppMessages_Client);
         m_activeScene->AddSystem<FreeCameraSystem>();
         m_activeScene->AddSystem<GoofySystem>();
         m_activeScene->AddSystem<RocketSystem>();
@@ -176,7 +187,8 @@ public:
         m_activeScene->AddSystem<SpawnerSystem>();
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
-        e.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/plane/plane.fbx", "plane"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+
+        e.AddComponent<MeshRenderer>("plane","defaultMaterial");
 
 		e.AddComponent<DirectionalLightComponent>(DirectionalLight{ vec3(0, -1, 1), vec3(0.05f), vec3(0.4f), vec3(0.5f) });
 		auto e2 = m_activeScene->CreateEntity(Transform(vec3(1, 0, -1)));
@@ -186,12 +198,12 @@ public:
 			);
 
         auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(10, 5, 10)));
-        terrainEntity.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/meshy/terrain.obj", "terrain"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        terrainEntity.AddComponent<MeshRenderer>("terrain", "defaultMaterial");
         terrainEntity.AddComponent<Rigidbody>(true);
 		e.AddComponent<Rigidbody>();
 
         auto rocket = m_activeScene->CreateEntity(Transform(vec3(0, 30, 0), quat(), vec3(0.1f)));
-        rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
+        rocket.AddComponent<MeshRenderer>("rocket", "defaultMaterial");
         rocket.AddComponent<Rigidbody>(false, true);
 
         auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(-2.5f, 2.5f, -6.0f), quat(), vec3(1.0f)));
@@ -201,7 +213,6 @@ public:
         e.AddComponent<PlaneController>();
         e.AddComponent<CollisionCallback>();
         
-        //camera.AddComponent<FollowCamera>(e.GetComponent<Transform>(), vec3(0, 3.0f, -6.0f));
 
 	}
 };

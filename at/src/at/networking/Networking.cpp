@@ -1,11 +1,42 @@
 #include "Networking.h"
 #include "at/core/Logger.h"
 #include "NetworkTag.h"
-#include "Messages.h"
+#include "at/ecs/Entity.h"
+#include "DirtyComponent.h"
+#include "entt/core/hashed_string.hpp"
 namespace at
 {
+	//void Networking::UpdateDirtyComponents()
+	//{
+
+	//	auto& reg = m_Scene->GetRegistry();
+	//	auto view = reg.view<ActiveTag, DirtyComponent>();
+
+	//	for (auto& [e, dc] : view.each())
+	//	{
+	//		auto& dirtyComponents = dc.DirtyComponentIDs;
+
+	void Networking::HandleAppMessage(SteamNetworkingMessage_t* msg)
+	{
+
+	}
+
+	//		for (auto& id : dirtyComponents)
+	//		{
+	//			auto mType = entt::resolve(id);
+	//			auto getFunc = mType.func(entt::hashed_string("get"));
+	//			entt::meta_any comp = getFunc.invoke(reg, e);
+	//			SendToAllClients(new Messages::ComponentUpdatedMessage(e, id, comp.base().data()));
+	//		}
+	//		dc.Consume();
+	//	}
+	//}
 	void Networking::Update()
 	{
+		/*if (IsHost())
+		{
+			UpdateDirtyComponents();
+		}*/
 		ReceiveMessages();
 		m_Interface->RunCallbacks();
 	}
@@ -43,15 +74,38 @@ namespace at
 			}
 		}
 	}
-	void Networking::BindRegistry(entt::registry& registry)
+	void Networking::BindScene(SharedPtr<Scene> scene)
 	{
+		m_Scene = scene;
+		auto& registry = scene->GetRegistry();
+		scene->SetComponentCreatedCallback(
+			[this](entt::entity e, std::size_t id)
+			{
+				if (m_Scene->GetRegistry().any_of<NetworkTag>(e))
+				{
+					this->OnComponentCreated(e, id);  
+				}
+			});
+
 		registry.on_construct<NetworkTag>().connect<&OnNetworkedEntityCreatedCallback>();
 		registry.on_destroy<NetworkTag>().connect<&OnNetworkedEntityDestroyedCallback>();
 	}
+
+	void Networking::SetHandleServerAppMessageCallback(HandleAppServerMessageCallback callback)
+	{
+		m_HandleServerAppMessageCallback = callback;
+	}
+
+	void Networking::SetHandleClientAppMessageCallback(HandleAppMessageCallback callback)
+	{
+		m_HandleClientAppMessageCallback = callback;
+	}
+
 	void Networking::OnNetworkedEntityDestroyedCallback(entt::registry& registry, entt::entity e)
 	{
 		Get().OnNetworkedEntityDestroyed(registry, e);
 	}
+	
 	void Networking::OnNetworkedEntityDestroyed(entt::registry& registry, entt::entity e)
 	{
 		if (IsHost())
@@ -74,20 +128,30 @@ namespace at
 
 		}
 	}
-	void Networking::SendToHost(const void* data)
+	void Networking::SendToHost( void* data)
 	{
+		if (IsHost())
+		{
+			auto* msg = new  SteamNetworkingMessage_t();
+			msg->m_conn = m_Connection;
+			msg->m_cbSize = sizeof(data);
+			msg->m_pData = data;
+			m_HandleServerAppMessageCallback(m_Scene, *m_ConnectedClients.begin(), msg);
+		}
+		else
 		SendToClient(m_Connection, data);
 	}
 	void Networking::SendToAllClients(const void* msg)
 	{
-		for (auto it = m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
+		for (auto it = ++m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
 		{
 			SendToClient(*it, msg);
 		}
 	}
 	void Networking::SendToClient(ClientID id, const void* data)
 	{
-		m_Interface->SendMessageToConnection(id, data, sizeof(data), 0, nullptr);
+		auto res = m_Interface->SendMessageToConnection(id, data, sizeof(data), 0, nullptr);
+		return;
 	}
 
 
@@ -105,6 +169,7 @@ namespace at
 		if (IsHost())
 		{
 			SteamNetworkingMessage_t* incomingMessage = nullptr;
+			
 			int messageCount = m_Interface->ReceiveMessagesOnPollGroup(m_PollGroup, &incomingMessage, 1);
 			if (messageCount <= 0)
 			{
@@ -116,7 +181,7 @@ namespace at
 				std::cout << "ERROR: Received data from unregistered client\n";
 				return;
 			}
-
+			m_HandleServerAppMessageCallback(m_Scene, *itClient, incomingMessage);
 			
 		}
 		else if(IsClient())
@@ -139,12 +204,38 @@ namespace at
 				{
 					auto msg = *static_cast<const Messages::EntityCreatedMessage*>((incomingMessage->GetData()));
 					AT_CORE_INFO("Entity created with handle {}", static_cast<uint32_t>(msg.e));
+					auto handle = static_cast<entt::entity>(m_Scene->CreateNetworkedEntity());
+					m_RemoteToLocalMap[msg.e] = handle;
+					m_LocalToRemoteMap[handle] = msg.e;
 					break;
 				}
 				case Messages::EntityDestroyed:
 				{
 					auto msg = *static_cast<const Messages::EntityDestroyedMessage*>((incomingMessage->GetData()));
 					AT_CORE_INFO("Entity destroyed with handle {}", static_cast<uint32_t>(msg.e));
+					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
+					if (m_Scene->DestroyEntity(entity))
+					{
+						m_RemoteToLocalMap.erase(msg.e);
+						m_LocalToRemoteMap.erase(entity);
+					}
+					else
+					{
+						assert(false);
+					}
+					break;
+				}
+				case Messages::TransformUpdate:
+				{
+					auto msg = *static_cast<const Messages::TransformUpdateMessage*>((incomingMessage->GetData()));
+					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
+					auto& t = m_Scene->GetRegistry().get<Transform>(entity);
+					t = msg.transform;
+					break;
+				}
+				default:
+				{
+					m_HandleClientAppMessageCallback(m_Scene, incomingMessage);
 					break;
 				}
 				}
@@ -152,6 +243,17 @@ namespace at
 			}
 
 		}
+	}
+	entt::entity Networking::ToLocal(entt::entity e)
+	{
+		return m_RemoteToLocalMap[e];
+	}
+	void Networking::OnComponentCreated(entt::entity e, size_t id)
+	{
+		//if (IsHost())
+		//{
+		//	SendToAllClients(new Messages::ComponentCreatedMessage(e, id));
+		//}
 	}
 	void Networking::ConnectionStatusChangedCallbackHost(SteamNetConnectionStatusChangedCallback_t* info)
 	{

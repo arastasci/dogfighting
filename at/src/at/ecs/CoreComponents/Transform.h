@@ -3,7 +3,6 @@
 #include "at/core/Core.h"
 #include "at/utils/Math.h"
 
-
 namespace at
 {
     using namespace Math;
@@ -64,7 +63,6 @@ namespace at
         glm::quat rotation;
         glm::vec3 scale;
         Transform* parent = nullptr;
-
 
     };
 }

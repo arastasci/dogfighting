@@ -1,4 +1,5 @@
 #pragma once
+#include "atpch.h"
 #include <at/core/Core.h>
 #include <entt/entity/registry.hpp>
 #include "Scene.h"
@@ -52,9 +53,11 @@ namespace at
 		decltype(auto) AddComponent(Args&&... args)
 		{
 			assert(!HasComponent<T>() && "Entity already has component!");
+			
 			return m_scene->m_registry.emplace<T>(
 				m_handle,
-				std::forward<Args>(args)...);
+				std::forward<Args>(args)...
+			);
 		}
 
 		template<typename T, typename... Args>
@@ -63,7 +66,7 @@ namespace at
 			return m_scene->m_registry.emplace_or_replace<T>(m_handle, std::forward<Args>(args)...);
 		};
 
-		// remove returns the num of elements removed so
+		
 		// returns true if component is removed
 		template<typename T>
 		bool RemoveComponent()

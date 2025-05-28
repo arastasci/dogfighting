@@ -1,11 +1,12 @@
 ﻿#pragma once
 #include "at.h"
 
-using namespace at;
+#include "AppMessages.h"
 
 #include "GoofySystem.h"
 #include "RocketSystem.h"
-// ----------------------------------------------------
+
+using namespace at; 
 struct PlaneController
 {
     float MaxThrust = 15000.0f;
@@ -20,12 +21,23 @@ struct PlaneController
     float CdArea = 4.0f;
     float RotDragK = 0.05f;
 
-    float WingArea = 6.0f;   // m²
-    float Cl = 0.2f;   // lift coeff
+    float WingArea = 6.0f;   
+    float Cl = 0.2f;   
 };
-// ----------------------------------------------------
+
+struct RocketPrefab : public Prefab<RocketPrefab>
+{
+    void InitEntity(Entity e) override
+    {
+        e.AddComponent<MeshRenderer>("rocket", "defaultMaterial");
+        e.AddComponent<Rigidbody>(false, true);
+        e.AddComponent<RocketBehaviour>();
+    }
+};
+
 class PlaneControllerSystem : public System
 {
+public:
     void Start() override
     {
         auto view = GetStartedView<PlaneController, Rigidbody>();
@@ -103,6 +115,12 @@ class PlaneControllerSystem : public System
 
             btVector3 torqueDrag = -body->getAngularVelocity() * m_RotDragConst[e];
             body->applyTorque(torqueDrag);
+
+            if (Networking::Get().IsHost() && m_Scene->GetRegistry().any_of<DirtyComponent>(e))
+            {
+                auto& dc = m_Scene->GetRegistry().get<DirtyComponent>(e);
+                dc.SetDirty<Transform>();
+            }
         }
     }
 
@@ -110,23 +128,7 @@ class PlaneControllerSystem : public System
     {
         m_AccTime += dt;
     }
-
-private:
-    entt::dense_map<entt::entity, float> m_RotDragConst;
-
-    void ShootRocket(const btVector3& velocity, const Transform& t)
-    {
-        if (m_AccTime <= 0.3)
-            return;
-
-        m_AccTime = 0.0;
-        auto rocket = m_Scene->CreateNetworkedEntity(Transform(t.position - 2.25f * t.Up() + 5.25f * t.Forward(), RotateRocket(t), vec3(0.01f)));
-        rocket.AddComponent<MeshRenderer>(ModelLibrary::Get().CreateOrGetModel("res/models/rocket/rocket.fbx", "rocket"), MaterialLibrary::Get().CreateOrGetMaterial("res/shaders/lit_v.glsl", "res/shaders/lit_f.glsl", "defaultMaterial"));
-        rocket.AddComponent<Rigidbody>(false, true);
-        rocket.AddComponent<RocketBehaviour>(velocity);
-    }
-
-    quat RotateRocket(const Transform& t)
+    static quat RotateRocket(const Transform& t)
     {
         auto fwd = t.Forward();
         const glm::vec3 forward(0.0f, 1.0f, 0.0f);
@@ -134,7 +136,7 @@ private:
         glm::quat q;
 
         float cosTheta = glm::clamp(glm::dot(forward, fwd), -1.0f, 1.0f);
-        if (cosTheta < -0.9999f) {                            
+        if (cosTheta < -0.9999f) {
 
             glm::vec3 axis = glm::normalize(glm::cross(forward, glm::vec3(1, 0, 0)));
             if (glm::length2(axis) < 1e-6f)
@@ -149,5 +151,22 @@ private:
 
         return q;
     }
+    static inline std::unordered_map<HSteamNetConnection, entt::entity> m_ConnToEntityMap;
+private:
+    
+    entt::dense_map<entt::entity, float> m_RotDragConst;
+
+    void ShootRocket(const btVector3& velocity, const Transform& t)
+    {
+        if (m_AccTime <= 0.3)
+            return;
+
+        m_AccTime = 0.0;
+        auto& nc = Networking::Get();
+        nc.SendToHost(new Messages::RocketFiredMessage());
+
+    }
+
+   
     double m_AccTime = 0.0;
 };

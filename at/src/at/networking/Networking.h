@@ -11,6 +11,8 @@
 #include "steam/isteamclient.h"
 #include "steam/steam_api.h"
 #endif
+#include "Messages.h"
+
 namespace at
 {
 	using ClientID = HSteamNetConnection;
@@ -47,22 +49,41 @@ namespace at
 
 		}
 
+		//void UpdateDirtyComponents();
+		using HandleAppMessageCallback = std::function<void(SharedPtr<Scene>, SteamNetworkingMessage_t*)>;
+		using HandleAppServerMessageCallback = std::function<void(SharedPtr<Scene>, HSteamNetConnection, SteamNetworkingMessage_t*)>;
+		void HandleAppMessage(SteamNetworkingMessage_t* msg);
 		void Update();
 		void Host();
 		void Connect();
-		void BindRegistry(entt::registry& registry);
+		void BindScene(SharedPtr<Scene> scene);
+		void SetHandleServerAppMessageCallback(HandleAppServerMessageCallback);
+		void SetHandleClientAppMessageCallback(HandleAppMessageCallback);
 		static void OnNetworkedEntityDestroyedCallback(entt::registry& registry, entt::entity e);
 		void OnNetworkedEntityDestroyed(entt::registry& registry, entt::entity e);
 		static void OnNetworkedEntityCreatedCallback(entt::registry& registry, entt::entity e);
 		void OnNetworkedEntityCreated(entt::registry& registry, entt::entity e);
-		void SendToHost(const void*);
+		void SendToHost( void*);
 		void SendToAllClients(const void*);
 		void SendToClient(ClientID id, const void*);
 		bool IsHost();
 		bool IsClient();
 
+		template<typename T>
+		void OnComponentCreated(entt::entity e)
+		{
+			if (IsHost())
+			{
+				SendToAllClients(new Messages::ComponentCreatedMessage(e, StaticComponentID<T>::value));
+			}
+		}
 		void ReceiveMessages();
+
+		entt::entity ToLocal(entt::entity);
 	private:
+		HandleAppServerMessageCallback m_HandleServerAppMessageCallback;
+		HandleAppMessageCallback m_HandleClientAppMessageCallback;
+		void OnComponentCreated(entt::entity, size_t);
 		static void ConnectionStatusChangedCallbackHost(SteamNetConnectionStatusChangedCallback_t* info);
 		void OnConnectionStatusChangedHost(SteamNetConnectionStatusChangedCallback_t* info);
 		static void ConnectionStatusChangedCallbackClient(SteamNetConnectionStatusChangedCallback_t* info);
@@ -70,7 +91,9 @@ namespace at
 		bool m_IsClient;
 		bool m_IsHost;
 		std::unordered_set<ClientID> m_ConnectedClients;
-		std::unordered_map<entt::entity, entt::entity> m_RemoteEntityMap;
+		std::unordered_map<entt::entity, entt::entity> m_RemoteToLocalMap;
+		std::unordered_map<entt::entity, entt::entity> m_LocalToRemoteMap;
+		SharedPtr<Scene> m_Scene;
 		const int m_DefaultPort = 40002;
 		ISteamNetworkingSockets* m_Interface = nullptr;
 		HSteamNetConnection m_Connection = 0;

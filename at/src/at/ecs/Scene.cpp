@@ -9,6 +9,7 @@
 #include "at/networking/NetworkTag.h"
 #include "at/renderer/MeshRendererSystem.h"
 #include "at/physics/PhysicsSystem.h"
+#include <at/networking/DirtyComponent.h>
 namespace at
 {
 	std::shared_ptr<Scene> Scene::m_activeScene;
@@ -46,6 +47,8 @@ namespace at
 		}
 	}
 
+
+
 	Entity Scene::CreateNetworkedEntity()
 	{
 		Transform t;
@@ -56,6 +59,7 @@ namespace at
 	{
 		auto e = CreateEntity(t);
 		e.AddComponent<NetworkTag>();
+		e.AddComponent<DirtyComponent>();
 		// TODO: broadcast networked entity creation
 		return e;
 	}
@@ -76,6 +80,29 @@ namespace at
 		e.AddComponent<Transform>(t);
 
 		return e;
+	}
+
+	Entity Scene::GetEntity(entt::entity e)
+	{
+		return { e, shared_from_this() };
+	}
+
+	bool Scene::IsValidEntity(entt::entity e)
+	{
+		return m_registry.valid(e);
+	}
+
+	bool Scene::DestroyEntity(entt::entity e)
+	{
+		if (!m_registry.valid(e))
+			return false;
+		m_registry.destroy(e);
+		return true;
+	}
+
+	void Scene::SetComponentCreatedCallback(OnComponentCreatedCallback callback)
+	{
+		m_OnComponentCreatedCallback = callback;
 	}
 
 	void Scene::PreUpdate()

@@ -37,6 +37,12 @@ namespace at {
 		}
 
 		m_currentWindow = new Window();
+
+
+		RegisterComponents();
+		ModelLibrary::Get().Init();
+		MaterialLibrary::Get().Init();
+		ShaderLibrary::Get().Init();
 		Renderer::Init();
 		Networking::Get().Init();
 		char c;
@@ -45,6 +51,7 @@ namespace at {
 		if (c == 'h')
 		{
 			Networking::Get().Host();
+			Networking::Get().Connect();
 		}
 		else
 		{
@@ -53,8 +60,7 @@ namespace at {
 
 		m_activeScene->Init();
 		
-		if(Networking::Get().IsHost())
-			Networking::Get().BindRegistry(m_activeScene->GetRegistry());
+		Networking::Get().BindScene(m_activeScene);
 
 		stbi_set_flip_vertically_on_load(true);
 		AppInit(); // application initialization code
@@ -102,6 +108,11 @@ namespace at {
 	Window* Application::GetWindow()
 	{
 		return m_currentWindow;
+	}
+
+	void Application::RegisterComponents()
+	{
+		reflectComponent<Transform>();
 	}
 
 

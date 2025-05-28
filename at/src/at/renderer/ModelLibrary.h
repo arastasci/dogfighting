@@ -9,7 +9,15 @@ namespace at
 	class AT_API ModelLibrary : public EngineSubsystem<ModelLibrary>
 	{
 	public:
-		std::shared_ptr<Model> CreateOrGetModel(const std::string& path, const std::string& name )
+		void Init() override
+		{
+			m_Paths["plane"] = "res/models/plane/plane.fbx";
+			m_Paths["rocket"] = "res/models/rocket/rocket.fbx";
+			m_Paths["terrain"] = "res/models/meshy/terrain.obj";
+
+		}
+
+		std::shared_ptr<Model> CreateOrGetModel(const std::string& name )
 		{
 
 			if (m_Models.find(name) != m_Models.end())
@@ -17,7 +25,7 @@ namespace at
 				AT_CORE_INFO("Model {} already loaded.", name);
 				return m_Models[name];
 			}
-			auto modelPtr = Model::CreateModel(path, name);
+			auto modelPtr = Model::CreateModel(m_Paths[name], name);
 
 			m_Models[name] = modelPtr;
 			return modelPtr;
@@ -36,5 +44,7 @@ namespace at
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;
+		
+		std::unordered_map<std::string, std::string> m_Paths;
 	};
 }

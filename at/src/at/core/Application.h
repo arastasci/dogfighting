@@ -25,5 +25,7 @@ namespace at
 		double m_LastFixedTime;
 		double m_FrameTime;
 		std::shared_ptr<Scene> m_activeScene;
+	private:
+		void RegisterComponents();
 	};
 }
