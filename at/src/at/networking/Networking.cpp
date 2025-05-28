@@ -69,6 +69,10 @@ namespace at
 			{
 				m_IsClient = true;
 			}
+			if (m_IsHost)
+			{
+				m_HostConnection = m_Connection;
+			}
 		}
 	}
 	void Networking::BindScene(SharedPtr<Scene> scene)
@@ -146,7 +150,7 @@ namespace at
 			msg->m_conn = m_Connection;
 			msg->m_cbSize = size;
 			msg->m_pData = data;
-			m_HandleServerAppMessageCallback(m_Scene, *m_ConnectedClients.begin(), msg);
+			m_HandleServerAppMessageCallback(m_Scene, m_HostConnection, msg);
 		}
 		else
 		SendToClient(m_Connection, data, size);
@@ -160,7 +164,7 @@ namespace at
 	}
 	void Networking::SendToClient(ClientID id, const void* data, size_t size)
 	{
-		if (m_ConnectedClients.size() >= 1 && id == *m_ConnectedClients.begin()) 
+		if (id == m_HostConnection) 
 		{
 			auto* msg = new  SteamNetworkingMessage_t();
 			msg->m_conn = m_Connection;
@@ -168,11 +172,15 @@ namespace at
 			msg->m_pData = const_cast<void*>(data);
 			m_HandleClientAppMessageCallback(m_Scene,  msg);
 		}
-		auto res = m_Interface->SendMessageToConnection(id, data, size, 0, nullptr);
-		if (res == k_EResultOK)
+		else
 		{
-			//AT_CORE_INFO("Message sent to {}", id);
+			auto res = m_Interface->SendMessageToConnection(id, data, size, 0, nullptr);
+			if (res == k_EResultOK)
+			{
+				//AT_CORE_INFO("Message sent to {}", id);
+			}
 		}
+		
 	}
 
 
@@ -184,14 +192,19 @@ namespace at
 	{
 		return m_IsClient;
 	}
+	void Networking::SetSelfClientId(HSteamNetConnection conn)
+	{
+		if (IsHost())
+			m_HostConnection = conn;
+		SelfClientID = conn;
+	}
 	void Networking::ReceiveMessages()
 	{
 		if (IsHost())
 		{
 			SteamNetworkingMessage_t* msg = nullptr;
-			if (m_ConnectedClients.size() <= 1)
-				return;
-			for (auto connIt = ++m_ConnectedClients.begin(); connIt != m_ConnectedClients.end(); ++connIt)
+
+			for (auto connIt = m_ConnectedClients.begin(); connIt != m_ConnectedClients.end(); ++connIt)
 			{
 				int num = m_Interface->ReceiveMessagesOnConnection(*connIt, &msg, 1);
 				while (num > 0)
@@ -348,7 +361,7 @@ namespace at
 			// Retrieve connection info
 			SteamNetConnectionInfo_t connectionInfo;
 			m_Interface->GetConnectionInfo(status->m_hConn, &connectionInfo);
-			
+
 			// Register connected client
 			m_ConnectedClients.insert(status->m_hConn);
 		

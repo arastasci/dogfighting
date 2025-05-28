@@ -83,7 +83,10 @@ namespace at
 		void UpdateCameraProperties()
 		{
 			auto view = GetView<CameraComponent, Transform>();
-
+			AT_CORE_WARN("We have {} cam instances", view.storage<CameraComponent>()->size());
+			int size = view.storage<CameraComponent>()->size();
+			if (size <= 0)
+				return;
 			if (!m_MainCamera)
 			{
 				m_MainCamera = { *view.begin(), m_Scene };
@@ -91,7 +94,7 @@ namespace at
 			
 			Camera c = view.get<CameraComponent>((entt::entity)m_MainCamera).Camera;
 			auto& t = view.get<Transform>((entt::entity)m_MainCamera);
-
+			
 			c.Update(t.GetWorldTransform());
 			ProjectionMatrix = c.GetProjectionMatrix();
 			ViewMatrix = c.GetViewMatrix();

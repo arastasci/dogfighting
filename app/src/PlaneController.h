@@ -33,6 +33,14 @@ struct PlayerPlaneController
     float roll;
     float thrust;
     bool shooting;
+    bool IsOwned = false;
+    void Reset()
+    {
+        pitch = 0;
+        roll = 0;
+        thrust = 0;
+        shooting = false;
+    }
 };
 
 namespace Messages
@@ -58,11 +66,10 @@ public:
     {
 
         auto& view = GetView<PlayerPlaneController>();
-        auto entity = view.front();
-        
-        if ( entity != entt::null)
+        for (auto& [e, controller] : view.each())
         {
-            auto& [controller]= view.get(entity);
+            if (!controller.IsOwned)
+                continue;
             controller.pitch = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
                 (Input::GetKeyPress(Key::S) ? -1.f : 0.f);
 
@@ -72,14 +79,16 @@ public:
             controller.thrust = (Input::GetKeyPress(Key::Space) ? 1.f : 0.f) +
                 (Input::GetKeyPress(Key::LeftControl) ? -1.f : 0.f);
 
-            if (m_AccTime > 0.3f)
+            if (m_AccTime > 0.3f && Input::GetKeyPress(Key::F))
             {
-                controller.shooting = Input::GetKeyPress(Key::F);
+                controller.shooting = true;
                 m_AccTime = 0;
             }
-            auto* msg = new Messages::PlaneInputMessage(entity, controller);
+            auto* msg = new Messages::PlaneInputMessage(e, controller);
             Networking::Get().SendToHost(msg, sizeof(*msg));
+            controller.Reset();
         }
+
     }
 private:
     float m_AccTime{};

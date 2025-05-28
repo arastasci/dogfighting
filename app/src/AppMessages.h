@@ -7,11 +7,15 @@ namespace Messages
     {
         RocketFired = MessageType::CoreMessageCount + 1,
         PlayerInput,
+        ConnectionApproved,
         ServerMessageCount,
     };
 
 
+    struct ConnectionApprovedMessage : public Message<ConnectionApproved>
+    {
 
+    };
     struct RocketFiredMessage : public Message<RocketFired>
     {
 
@@ -20,6 +24,7 @@ namespace Messages
     enum AppMessageType_Client
     {
         PlayerSpawned = ServerMessageCount + 1, // the client that this message sent to itself spawned, and the entity handle is the plane it owns
+        Connected,
         PlayerDead,
     };
 
@@ -29,7 +34,11 @@ namespace Messages
         entt::entity e;
     };
 
-    
+    struct ConnectedMessage : public Message<Connected>
+    {
+        ConnectedMessage(HSteamNetConnection con) : conn(con) {}
+        HSteamNetConnection conn;
+    };
 
 
      void HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnection conn, SteamNetworkingMessage_t* incomingMessage);

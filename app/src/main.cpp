@@ -86,12 +86,11 @@ private:
 
 void OnClientConnected(std::shared_ptr<Scene> scene, HSteamNetConnection conn)
 {
-    auto entity = scene->CreateNetworkedPrefab("plane");
+    auto& nc = Networking::Get();
+    auto* msg = new Messages::ConnectedMessage(conn);
+    nc.SendToClient(conn, msg, sizeof(*msg));
 
-    auto handle = static_cast<entt::entity>(entity);
-    PlaneFlightSystem::m_ConnToEntityMap[conn] = handle;
-    auto* msg = new Messages::PlayerSpawnedMessage(handle);
-    Networking::Get().SendToClient(conn, msg, sizeof(*msg));
+    
 }
 
 class Sandbox : public at::Application

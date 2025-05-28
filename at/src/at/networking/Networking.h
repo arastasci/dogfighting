@@ -71,6 +71,8 @@ namespace at
 		bool IsHost();
 		bool IsClient();
 		bool HostNotAlone() { return m_ConnectedClients.size() > 1; }
+		bool IsConnectionHost(HSteamNetConnection conn) { return conn == m_HostConnection; }
+		HSteamNetConnection GetHostConnection() { return m_HostConnection; }
 		bool IsConnectedToHost() { return m_ClientConnected; }
 		void SetConnected(bool b) { m_ClientConnected = b; }
 		template<typename T>
@@ -82,10 +84,12 @@ namespace at
 			}
 		}
 		void ReceiveMessages();
-
+		void SetSelfClientId(HSteamNetConnection conn);
+		HSteamNetConnection GetClientId() { return SelfClientID; }
 		entt::entity ToLocal(entt::entity);
 	private:
 		bool m_ClientConnected = false;
+		HSteamNetConnection SelfClientID;
 		HandleAppServerMessageCallback m_HandleServerAppMessageCallback;
 		HandleAppMessageCallback m_HandleClientAppMessageCallback;
 		ClientConnectedCallback m_ClientConnectedCallback;
@@ -103,6 +107,7 @@ namespace at
 		const int m_DefaultPort = 40002;
 		ISteamNetworkingSockets* m_Interface = nullptr;
 		HSteamNetConnection m_Connection = 0;
+		HSteamNetConnection m_HostConnection;
 		HSteamListenSocket m_ListenSocket;
 		HSteamNetPollGroup m_PollGroup = 0u;
 	};
