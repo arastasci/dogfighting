@@ -3,11 +3,11 @@ project(AtEngine CXX)
 
 
 
-option(USE_STEAM "Should use Steamworks SDK instead of GameNetworkingSockets" OFF)
+option(USE_STEAM "Should use Steamworks SDK instead of GameNetworkingSockets" ON)
 
 if(USE_STEAM)
     set(STEAM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/vendor/steam" CACHE PATH "Steamworks SDK root")
-
+    message("using steam..")
     # find_path(STEAM_INCLUDE_DIR steam/steam_api.h PATHS "${STEAM_ROOT}/public" REQUIRED)
     find_library(STEAM_LIB steam_api64 PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
     find_file(STEAM_DLL steam_api64.dll PATHS "${STEAM_ROOT}/redistributable_bin/win64" REQUIRED)
@@ -99,6 +99,7 @@ target_link_libraries(AtEngine PUBLIC
 
 if(USE_STEAM)
     target_link_libraries(AtEngine PUBLIC steam_api64)
+    target_compile_definitions(AtEngine PUBLIC USE_STEAM)
 else()
     target_link_libraries(AtEngine PUBLIC GameNetworkingSockets)
 endif()

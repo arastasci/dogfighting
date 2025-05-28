@@ -5,11 +5,13 @@
 #include "at/ecs/Scene.h"
 #include "at/core/EngineSubsystem.h"
 #include "steam/isteamnetworkingutils.h"
-#include "steam/steamnetworkingsockets.h"
-#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
+#ifdef USE_STEAM
 #include "steam/isteamuser.h"
 #include "steam/isteamclient.h"
 #include "steam/steam_api.h"
+#include "steam/isteammatchmaking.h"
+#else
+#include "steam/steamnetworkingsockets.h"
 #endif
 #include "Messages.h"
 
@@ -33,7 +35,10 @@ namespace at
 				assert(false);
 				return;
 			}
-			SteamUser()->GetSteamID();
+			AT_INFO("SteamID is: {}", SteamUser()->GetSteamID().ConvertToUint64());
+			m_selfSteamID = SteamUser()->GetSteamID();
+			m_Interface = SteamNetworkingSockets();
+			SteamNetworkingUtils()->InitRelayNetworkAccess();
 #else 
 			SteamDatagramErrMsg errMsg;
 			if (!GameNetworkingSockets_Init(nullptr, errMsg))
@@ -57,6 +62,9 @@ namespace at
 		void Update();
 		void Host();
 		void Connect();
+#ifdef USE_STEAM
+		void Connect(CSteamID id);
+#endif
 		void BindScene(SharedPtr<Scene> scene);
 		void SetHandleServerAppMessageCallback(HandleAppServerMessageCallback);
 		void SetHandleClientAppMessageCallback(HandleAppMessageCallback);
@@ -87,7 +95,14 @@ namespace at
 		void SetSelfClientId(HSteamNetConnection conn);
 		HSteamNetConnection GetClientId() { return SelfClientID; }
 		entt::entity ToLocal(entt::entity);
+#ifdef USE_STEAM
+		CSteamID GetSteamID() { return m_selfSteamID; };
+#endif
 	private:
+#ifdef USE_STEAM
+		CSteamID m_selfSteamID;
+#endif
+
 		bool m_ClientConnected = false;
 		HSteamNetConnection SelfClientID;
 		HandleAppServerMessageCallback m_HandleServerAppMessageCallback;

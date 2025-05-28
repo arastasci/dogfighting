@@ -51,11 +51,23 @@ namespace at {
 		if (c == 'h')
 		{
 			Networking::Get().Host();
+#ifdef USE_STEAM
+			Networking::Get().Connect(Networking::Get().GetSteamID());
+#else
 			Networking::Get().Connect();
+#endif
 		}
 		else
 		{
+#ifdef USE_STEAM
+			uint64 id_64;
+			AT_CORE_INFO("Enter the SteamID of your friend:");
+			std::cin >> id_64;
+
+			Networking::Get().Connect(CSteamID(id_64));
+#else
 			Networking::Get().Connect();
+#endif
 		}
 
 		m_activeScene->Init();

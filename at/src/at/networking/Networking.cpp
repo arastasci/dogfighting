@@ -45,9 +45,12 @@ namespace at
 		addr.m_port = m_DefaultPort;
 		SteamNetworkingConfigValue_t options;
 		options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackHost);
-		m_Interface->CreateListenSocketP2P(m_DefaultPort, 1, &options);
+
+#ifdef USE_STEAM
+		m_ListenSocket = m_Interface->CreateListenSocketP2P(0, 1, &options);
+#else
 		m_ListenSocket = m_Interface->CreateListenSocketIP(addr, 1, &options);
-		
+#endif	
 		if (m_ListenSocket != k_HSteamListenSocket_Invalid)
 		{
 			m_IsHost = true;
@@ -66,6 +69,26 @@ namespace at
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
 			m_Connection = m_Interface->ConnectByIPAddress(addr, 1, &options);
+
+			if (m_Connection != k_HSteamNetConnection_Invalid)
+			{
+				m_IsClient = true;
+			}
+			if (m_IsHost)
+			{
+				m_HostConnection = m_Connection;
+			}
+		}
+	}
+	void Networking::Connect(CSteamID id)
+	{
+		{
+			SteamNetworkingIdentity identity;
+			identity.SetSteamID(id);
+			SteamNetworkingConfigValue_t options;
+			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
+
+			m_Connection = m_Interface->ConnectP2P(identity, 0, 1, &options);
 
 			if (m_Connection != k_HSteamNetConnection_Invalid)
 			{
