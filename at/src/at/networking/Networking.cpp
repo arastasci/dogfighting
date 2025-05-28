@@ -45,8 +45,9 @@ namespace at
 		addr.m_port = m_DefaultPort;
 		SteamNetworkingConfigValue_t options;
 		options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackHost);
+		m_Interface->CreateListenSocketP2P(m_DefaultPort, 1, &options);
 		m_ListenSocket = m_Interface->CreateListenSocketIP(addr, 1, &options);
-
+		
 		if (m_ListenSocket != k_HSteamListenSocket_Invalid)
 		{
 			m_IsHost = true;

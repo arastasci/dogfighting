@@ -405,3 +405,4 @@ FodyWeavers.xsd
 
 !at/vendor/GameNetworkingSockets/bin
 !at/vendor/GameNetworkingSockets/bin/*
+!at/vendor/assimp/code/AssetLib/Obj
