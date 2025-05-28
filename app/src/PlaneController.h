@@ -7,7 +7,7 @@
 #include "RocketSystem.h"
 
 using namespace at; 
-struct PlaneController
+struct PlaneFlightBehaviour
 {
     float MaxThrust = 15000.0f;
     float MaxSpeed = 80.0f;
@@ -25,7 +25,67 @@ struct PlaneController
     float Cl = 0.2f;   
 };
 
-struct RocketPrefab : public Prefab<RocketPrefab>
+
+
+struct PlayerPlaneController
+{
+    float pitch;
+    float roll;
+    float thrust;
+    bool shooting;
+};
+
+namespace Messages
+{
+    struct PlaneInputMessage : public Message<PlayerInput>
+    {
+        PlaneInputMessage(entt::entity e_, const PlayerPlaneController& payload) : e(e_), inputPayload(payload) {}
+        entt::entity e;
+        PlayerPlaneController inputPayload;
+    };
+}
+
+
+class PlayerPlaneControllerSystem : public System
+{
+public:
+    void Update(float dt) override
+    {
+        m_AccTime += dt;
+    }
+
+    void FixedUpdate() override
+    {
+
+        auto& view = GetView<PlayerPlaneController>();
+        auto entity = view.front();
+        
+        if ( entity != entt::null)
+        {
+            auto& [controller]= view.get(entity);
+            controller.pitch = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
+                (Input::GetKeyPress(Key::S) ? -1.f : 0.f);
+
+            controller.roll = (Input::GetKeyPress(Key::D) ? -1.f : 0.f) +
+                (Input::GetKeyPress(Key::A) ? 1.f : 0.f);
+
+            controller.thrust = (Input::GetKeyPress(Key::Space) ? 1.f : 0.f) +
+                (Input::GetKeyPress(Key::LeftControl) ? -1.f : 0.f);
+
+            if (m_AccTime > 0.3f)
+            {
+                controller.shooting = Input::GetKeyPress(Key::F);
+                m_AccTime = 0;
+            }
+            auto* msg = new Messages::PlaneInputMessage(entity, controller);
+            Networking::Get().SendToHost(msg, sizeof(*msg));
+        }
+    }
+private:
+    float m_AccTime{};
+};
+
+struct RocketPrefab : public Prefab
 {
     void InitEntity(Entity e) override
     {
@@ -35,12 +95,12 @@ struct RocketPrefab : public Prefab<RocketPrefab>
     }
 };
 
-class PlaneControllerSystem : public System
+class PlaneFlightSystem : public System
 {
 public:
     void Start() override
     {
-        auto view = GetStartedView<PlaneController, Rigidbody>();
+        auto view = GetStartedView<PlaneFlightBehaviour, Rigidbody>();
         for (auto [e, pc, rb] : view.each())
         {
             rb.GetRigidbody()->setDamping(0.04f, 0.50f);
@@ -56,8 +116,8 @@ public:
         const float rho0 = 1.225f;      // sea‑level air density
         const float scaleHeight = 10000.0f;    // density fall‑off
 
-        auto view = GetView<PlaneController, Transform, Rigidbody>();
-        for (auto [e, pc, tr, rb] : view.each())
+        auto view = GetView<PlaneFlightBehaviour, PlayerPlaneController, Transform, Rigidbody>();
+        for (auto [e, planeFlight, controller, tr, rb] : view.each())
         {
             btRigidBody* body = rb.GetRigidbody().get();
             if (!body) continue;
@@ -65,31 +125,33 @@ public:
 
             btVector3 v = body->getLinearVelocity();
 
-            if (Input::GetMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT))
+            if (controller.shooting)
             {
                 ShootRocket(v, tr);
             }
 
-            if (Input::GetKeyPress(Key::Space))
-                pc.Throttle = glm::clamp(pc.Throttle + pc.ThrottleRate * dt, 0.f, 1.f);
-            if (Input::GetKeyPress(Key::LeftControl) || Input::GetKeyPress(Key::RightControl))
-                pc.Throttle = glm::clamp(pc.Throttle - pc.ThrottleRate * dt, 0.f, 1.f);
+            if (controller.thrust == 1)
+                planeFlight.Throttle = glm::clamp(planeFlight.Throttle + planeFlight.ThrottleRate * dt, 0.f, 1.f);
+            else if (controller.thrust == -1)
+                planeFlight.Throttle = glm::clamp(planeFlight.Throttle - planeFlight.ThrottleRate * dt, 0.f, 1.f);
 
             const btVector3 fwd =Math::toBt(glm::normalize(tr.Forward()));
             const btVector3 rgt =Math::toBt(glm::normalize(tr.Right()));
 
             float      speedFwd = v.dot(fwd);
-            float      target = pc.Throttle * pc.MaxSpeed;
+            float      target = planeFlight.Throttle * planeFlight.MaxSpeed;
             if (speedFwd < target - 0.5f)
-                body->applyCentralForce(fwd * (pc.MaxThrust * pc.Throttle));
+                body->applyCentralForce(fwd * (planeFlight.MaxThrust * planeFlight.Throttle));
 
-            float pitch = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
-                (Input::GetKeyPress(Key::S) ? -1.f : 0.f);
-            if (pitch) body->applyTorque(rgt * (-pitch * pc.PitchTorque));
+            /*float pitch = (Input::GetKeyPress(Key::W) ? 1.f : 0.f) +
+                (Input::GetKeyPress(Key::S) ? -1.f : 0.f);*/
+            float pitch = controller.pitch;
+            if (pitch) body->applyTorque(rgt * (-pitch * planeFlight.PitchTorque));
 
-            float roll = (Input::GetKeyPress(Key::D) ? -1.f : 0.f) +
-                (Input::GetKeyPress(Key::A) ? 1.f : 0.f);
-            if (roll)  body->applyTorque(fwd * (-roll * pc.RollTorque));
+            //float roll = (Input::GetKeyPress(Key::D) ? -1.f : 0.f) +
+            //    (Input::GetKeyPress(Key::A) ? 1.f : 0.f);
+            float roll = controller.roll;
+            if (roll)  body->applyTorque(fwd * (-roll * planeFlight.RollTorque));
 
 
             //Logger::GetClientLogger()->info("vel: {} | rate {}", v.length(), pc.Throttle);
@@ -104,23 +166,23 @@ public:
                     liftDir.normalize();
                     float altitude = body->getWorldTransform().getOrigin().getY();
                     float rho = rho0 * std::exp(-altitude / scaleHeight);
-                    float liftMag = 0.5f * rho * pc.Cl * pc.WingArea * v2;
+                    float liftMag = 0.5f * rho * planeFlight.Cl * planeFlight.WingArea * v2;
                     body->applyCentralForce(liftDir * liftMag);
                 }
 
-                btVector3 quadDrag = v.normalized() * (-0.5f * rho0 * pc.CdArea * v2);
+                btVector3 quadDrag = v.normalized() * (-0.5f * rho0 * planeFlight.CdArea * v2);
                 body->applyCentralForce(quadDrag);
             }
-            body->applyCentralForce(-v * pc.DragCoeff);
+            body->applyCentralForce(-v * planeFlight.DragCoeff);
 
             btVector3 torqueDrag = -body->getAngularVelocity() * m_RotDragConst[e];
             body->applyTorque(torqueDrag);
 
-            if (Networking::Get().IsHost() && m_Scene->GetRegistry().any_of<DirtyComponent>(e))
+           /* if (Networking::Get().IsHost() && m_Scene->GetRegistry().any_of<DirtyComponent>(e))
             {
                 auto& dc = m_Scene->GetRegistry().get<DirtyComponent>(e);
                 dc.SetDirty<Transform>();
-            }
+            }*/
         }
     }
 
@@ -163,7 +225,8 @@ private:
 
         m_AccTime = 0.0;
         auto& nc = Networking::Get();
-        nc.SendToHost(new Messages::RocketFiredMessage());
+        auto* msg = new Messages::RocketFiredMessage();
+        nc.SendToHost(msg, sizeof(*msg));
 
     }
 

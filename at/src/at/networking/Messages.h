@@ -25,9 +25,12 @@ namespace Messages
 
 	struct EntityCreatedMessage :  public Message<EntityCreated>
 	{
-		EntityCreatedMessage(entt::entity e_) : e(e_) {}
+		EntityCreatedMessage(entt::entity e_, uint32_t guid, const Transform& t) : e(e_), prefabId(guid), transform(t) {}
 		entt::entity e;
+		uint32_t prefabId;
+		Transform transform;
 	};
+
 
 	struct EntityDestroyedMessage : public Message<EntityDestroyed>
 	{

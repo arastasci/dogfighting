@@ -23,37 +23,13 @@ namespace at
 		Scene();
 		~Scene();
 		void Init();
-		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Prefab<T>, T>>>
-		Entity CreateNetworkedPrefab()
-		{
-			Transform t;
-			return CreateNetworkedPrefab<T>(t);
-		}
 
-		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Prefab<T>, T>>>
-		Entity CreateNetworkedPrefab(const Transform& t) 
-		{
-			auto e = CreateNetworkedEntity(t);
-			T prefab;
-			prefab.InitEntity(e);
-			return e;
-		}
+		Entity CreateNetworkedPrefab(const std::string& prefabName);
+		Entity CreateNetworkedPrefab(const std::string& prefabName, const Transform& t);
+		Entity CreatePrefab(const std::string& prefabName);
 
-		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Prefab<T>, T>>>
-		Entity CreatePrefab()
-		{
-			Transform t;
-			return CreatePrefab<T>(t);
-		}
-
-		template<typename T, typename = std::enable_if_t < std::is_base_of_v<Prefab<T>, T>>>
-		Entity CreatePrefab(const Transform& t)
-		{
-			auto e = CreateEntity(t);
-			T prefab;
-			prefab.InitEntity(e);
-			return e;
-		}
+		Entity CreatePrefab(const std::string& prefabName, const Transform& t);
+		
 		Entity CreateNetworkedEntity();
 		Entity CreateNetworkedEntity(const Transform& t);
 		Entity CreateEntity();

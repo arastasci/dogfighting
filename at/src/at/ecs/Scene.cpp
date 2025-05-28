@@ -46,8 +46,34 @@ namespace at
 			AT_CORE_WARN("A passive scene has been initialized");
 		}
 	}
+	Entity Scene::CreateNetworkedPrefab(const std::string& prefabName)
+	{
+		Transform t;
+		return CreateNetworkedPrefab(prefabName, t);
+	}
+	Entity Scene::CreateNetworkedPrefab(const std::string& prefabName, const Transform& t)
+	{
+		auto e = CreateEntity(t);
 
+		PrefabLibrary::Get().GetPrefab(prefabName)->InitEntity(e);
+		e.AddComponent<PrefabTag>(prefabName);
+		e.AddComponent<NetworkTag>();
 
+		return e;
+	}
+
+	Entity Scene::CreatePrefab(const std::string& prefabName)
+	{
+		Transform t;
+		return CreatePrefab(prefabName, t);
+	}
+
+	Entity Scene::CreatePrefab(const std::string& prefabName, const Transform& t)
+	{
+		auto e = CreateEntity(t);
+		PrefabLibrary::Get().GetPrefab(prefabName)->InitEntity(e);
+		return e;
+	}
 
 	Entity Scene::CreateNetworkedEntity()
 	{

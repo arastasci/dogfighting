@@ -50,6 +50,7 @@ namespace at
 		}
 
 		//void UpdateDirtyComponents();
+		using ClientConnectedCallback = std::function<void(SharedPtr<Scene>, HSteamNetConnection)>;
 		using HandleAppMessageCallback = std::function<void(SharedPtr<Scene>, SteamNetworkingMessage_t*)>;
 		using HandleAppServerMessageCallback = std::function<void(SharedPtr<Scene>, HSteamNetConnection, SteamNetworkingMessage_t*)>;
 		void HandleAppMessage(SteamNetworkingMessage_t* msg);
@@ -59,13 +60,14 @@ namespace at
 		void BindScene(SharedPtr<Scene> scene);
 		void SetHandleServerAppMessageCallback(HandleAppServerMessageCallback);
 		void SetHandleClientAppMessageCallback(HandleAppMessageCallback);
+		void SetClientConnectedCallback(ClientConnectedCallback);
 		static void OnNetworkedEntityDestroyedCallback(entt::registry& registry, entt::entity e);
 		void OnNetworkedEntityDestroyed(entt::registry& registry, entt::entity e);
 		static void OnNetworkedEntityCreatedCallback(entt::registry& registry, entt::entity e);
 		void OnNetworkedEntityCreated(entt::registry& registry, entt::entity e);
-		void SendToHost( void*);
-		void SendToAllClients(const void*);
-		void SendToClient(ClientID id, const void*);
+		void SendToHost( void*, size_t size);
+		void SendToAllClients(const void*, size_t size);
+		void SendToClient(ClientID id, const void*, size_t size);
 		bool IsHost();
 		bool IsClient();
 
@@ -83,6 +85,7 @@ namespace at
 	private:
 		HandleAppServerMessageCallback m_HandleServerAppMessageCallback;
 		HandleAppMessageCallback m_HandleClientAppMessageCallback;
+		ClientConnectedCallback m_ClientConnectedCallback;
 		void OnComponentCreated(entt::entity, size_t);
 		static void ConnectionStatusChangedCallbackHost(SteamNetConnectionStatusChangedCallback_t* info);
 		void OnConnectionStatusChangedHost(SteamNetConnectionStatusChangedCallback_t* info);

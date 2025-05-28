@@ -1,12 +1,12 @@
 #pragma once
 #include "PhysicsWorld.h"
 #include "Rigidbody.h"
-
+#include "at/networking/Networking.h"
 namespace at
 {
 	void PhysicsWorld::Update(float dt)
 	{
-		if (!m_isSimulated)
+		if (!m_isSimulated || !Networking::Get().IsHost())
 			return;
 		
 		m_World->stepSimulation(Constants::FIXED_TIMESTEP, 0, Constants::FIXED_TIMESTEP);

@@ -6,6 +6,8 @@ namespace Messages
     enum AppMessageType_Server
     {
         RocketFired = MessageType::CoreMessageCount + 1,
+        PlayerInput,
+        ServerMessageCount,
     };
 
 
@@ -17,7 +19,7 @@ namespace Messages
 
     enum AppMessageType_Client
     {
-        PlayerSpawned, // the client that this message sent to itself spawned, and the entity handle is the plane it owns
+        PlayerSpawned = ServerMessageCount + 1, // the client that this message sent to itself spawned, and the entity handle is the plane it owns
         PlayerDead,
     };
 
@@ -26,6 +28,8 @@ namespace Messages
         PlayerSpawnedMessage(entt::entity e_) : e(e_) {}
         entt::entity e;
     };
+
+    
 
 
      void HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnection conn, SteamNetworkingMessage_t* incomingMessage);

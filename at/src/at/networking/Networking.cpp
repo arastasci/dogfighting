@@ -101,6 +101,11 @@ namespace at
 		m_HandleClientAppMessageCallback = callback;
 	}
 
+	void Networking::SetClientConnectedCallback(ClientConnectedCallback callback)
+	{
+		m_ClientConnectedCallback = callback;
+	}
+
 	void Networking::OnNetworkedEntityDestroyedCallback(entt::registry& registry, entt::entity e)
 	{
 		Get().OnNetworkedEntityDestroyed(registry, e);
@@ -110,7 +115,10 @@ namespace at
 	{
 		if (IsHost())
 		{
-			SendToAllClients(new Messages::EntityDestroyedMessage(e));
+			AT_CORE_WARN("Entity with host handle {} destroyed.", static_cast<uint32_t>(e));
+
+			auto* msg = new Messages::EntityDestroyedMessage(e);
+			SendToAllClients(msg, sizeof(*msg));
 		}
 	}
 	void Networking::OnNetworkedEntityCreatedCallback(entt::registry& registry, entt::entity e)
@@ -121,37 +129,53 @@ namespace at
 	{
 		if (IsHost())
 		{
-			SendToAllClients(new Messages::EntityCreatedMessage(e));
+			AT_CORE_WARN("Entity with host handle {} created.", static_cast<uint32_t>(e));
+			std::string prefabName = "";
+			if(registry.any_of<PrefabTag>(e))
+				prefabName = registry.get<PrefabTag>(e).Name;
+			auto* msg = new Messages::EntityCreatedMessage(e, PrefabLibrary::Get().GetGUID(prefabName), registry.get<Transform>(e));
+			SendToAllClients(msg, sizeof(*msg));
 		}
 		else if(IsClient())
 		{
 
 		}
 	}
-	void Networking::SendToHost( void* data)
+	void Networking::SendToHost( void* data, size_t size)
 	{
 		if (IsHost())
 		{
 			auto* msg = new  SteamNetworkingMessage_t();
 			msg->m_conn = m_Connection;
-			msg->m_cbSize = sizeof(data);
+			msg->m_cbSize = size;
 			msg->m_pData = data;
 			m_HandleServerAppMessageCallback(m_Scene, *m_ConnectedClients.begin(), msg);
 		}
 		else
-		SendToClient(m_Connection, data);
+		SendToClient(m_Connection, data, size);
 	}
-	void Networking::SendToAllClients(const void* msg)
+	void Networking::SendToAllClients(const void* msg, size_t size)
 	{
-		for (auto it = ++m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
+		for (auto it = m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
 		{
-			SendToClient(*it, msg);
+			SendToClient(*it, msg, size);
 		}
 	}
-	void Networking::SendToClient(ClientID id, const void* data)
+	void Networking::SendToClient(ClientID id, const void* data, size_t size)
 	{
-		auto res = m_Interface->SendMessageToConnection(id, data, sizeof(data), 0, nullptr);
-		return;
+		if (m_ConnectedClients.size() >= 1 && id == *m_ConnectedClients.begin()) 
+		{
+			auto* msg = new  SteamNetworkingMessage_t();
+			msg->m_conn = m_Connection;
+			msg->m_cbSize = size;
+			msg->m_pData = const_cast<void*>(data);
+			m_HandleClientAppMessageCallback(m_Scene,  msg);
+		}
+		auto res = m_Interface->SendMessageToConnection(id, data, size, 0, nullptr);
+		if (res == k_EResultOK)
+		{
+			AT_CORE_INFO("Message sent to {}", id);
+		}
 	}
 
 
@@ -169,22 +193,29 @@ namespace at
 		if (IsHost())
 		{
 			SteamNetworkingMessage_t* incomingMessage = nullptr;
-			
-			int messageCount = m_Interface->ReceiveMessagesOnPollGroup(m_PollGroup, &incomingMessage, 1);
-			if (messageCount <= 0)
-			{
+			if (m_ConnectedClients.size() <= 1)
 				return;
-			}
-			auto itClient = m_ConnectedClients.find(incomingMessage->m_conn);
-			if (itClient == m_ConnectedClients.end())
+			for (auto it = ++m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
 			{
-				std::cout << "ERROR: Received data from unregistered client\n";
-				return;
+				int messageCount = m_Interface->ReceiveMessagesOnConnection(*it, &incomingMessage, 1);
+				
+				if (messageCount <= 0)
+				{
+					return;
+				}
+				auto itClient = m_ConnectedClients.find(incomingMessage->m_conn);
+				if (itClient == m_ConnectedClients.end())
+				{
+					std::cout << "ERROR: Received data from unregistered client\n";
+					return;
+				}
+				AT_CORE_WARN("Message coming from {}...", incomingMessage->m_conn);
+				m_HandleServerAppMessageCallback(m_Scene, *itClient, incomingMessage);
+				incomingMessage->Release();
 			}
-			m_HandleServerAppMessageCallback(m_Scene, *itClient, incomingMessage);
 			
 		}
-		else if(IsClient())
+		if(IsClient())
 		{
 			SteamNetworkingMessage_t* incomingMessage = nullptr;
 			int messageCount = m_Interface->ReceiveMessagesOnConnection(m_Connection, &incomingMessage, 1);
@@ -202,17 +233,24 @@ namespace at
 				{
 				case Messages::EntityCreated:
 				{
+					if (IsHost())
+						break;
 					auto msg = *static_cast<const Messages::EntityCreatedMessage*>((incomingMessage->GetData()));
-					AT_CORE_INFO("Entity created with handle {}", static_cast<uint32_t>(msg.e));
-					auto handle = static_cast<entt::entity>(m_Scene->CreateNetworkedEntity());
+					auto nativeEntity = m_Scene->CreateNetworkedEntity(msg.transform);
+					auto handle = static_cast<entt::entity>(nativeEntity);
+					AT_CORE_INFO("Entity created with remote handle {}, local handle {}", static_cast<uint32_t>(msg.e), static_cast<uint32_t>(handle));
 					m_RemoteToLocalMap[msg.e] = handle;
 					m_LocalToRemoteMap[handle] = msg.e;
+					if(msg.prefabId != 0)
+					PrefabLibrary::Get().GetPrefab(msg.prefabId)->InitEntity(nativeEntity);
 					break;
 				}
 				case Messages::EntityDestroyed:
 				{
+					if (IsHost())
+						break;
 					auto msg = *static_cast<const Messages::EntityDestroyedMessage*>((incomingMessage->GetData()));
-					AT_CORE_INFO("Entity destroyed with handle {}", static_cast<uint32_t>(msg.e));
+					AT_CORE_INFO("Entity destroyed with remote handle {}, local handle {}", static_cast<uint32_t>(msg.e), static_cast<uint32_t>(m_RemoteToLocalMap[msg.e]));
 					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
 					if (m_Scene->DestroyEntity(entity))
 					{
@@ -227,6 +265,8 @@ namespace at
 				}
 				case Messages::TransformUpdate:
 				{
+					if (IsHost())
+						break;
 					auto msg = *static_cast<const Messages::TransformUpdateMessage*>((incomingMessage->GetData()));
 					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
 					auto& t = m_Scene->GetRegistry().get<Transform>(entity);
@@ -246,6 +286,8 @@ namespace at
 	}
 	entt::entity Networking::ToLocal(entt::entity e)
 	{
+		if (IsHost())
+			return e;
 		return m_RemoteToLocalMap[e];
 	}
 	void Networking::OnComponentCreated(entt::entity e, size_t id)
@@ -332,8 +374,8 @@ namespace at
 			m_ConnectedClients.insert(status->m_hConn);
 		
 			//// User callback
-			//if (m_ClientConnectedCallback)
-			//	m_ClientConnectedCallback(client);
+			if (m_ClientConnectedCallback)
+				m_ClientConnectedCallback(m_Scene, status->m_hConn);
 
 			break;
 		}
@@ -341,7 +383,7 @@ namespace at
 		case k_ESteamNetworkingConnectionState_Connected:
 			// We will get a callback immediately after accepting the connection.
 			// Since we are the server, we can ignore this, it's not news to us.
-			Logger::GetCoreLogger()->warn("Connected!");
+			AT_CORE_WARN("Client {} connected!", status->m_hConn);
 			break;
 
 		default:
