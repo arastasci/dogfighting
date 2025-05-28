@@ -66,6 +66,7 @@ namespace at
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
 			m_Connection = m_Interface->ConnectByIPAddress(addr, 1, &options);
+
 			if (m_Connection != k_HSteamNetConnection_Invalid)
 			{
 				m_IsClient = true;
