@@ -12,22 +12,28 @@ void Messages::HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnect
     case RocketFired:
     {
         auto msg = *static_cast<const RocketFiredMessage*>((incomingMessage->GetData()));
-        auto planeHandle = PlaneFlightSystem::m_ConnToEntityMap[conn];
+        auto planeHandle = PlaneFlightSystem::m_ConnToEntityMap[incomingMessage->m_conn];
         auto& planeRb = reg.get<Rigidbody>(planeHandle);
         auto& t = reg.get<Transform>(planeHandle);
         auto handle = static_cast<entt::entity>(scene->CreateNetworkedPrefab("rocket", Transform(t.position - 2.25f * t.Up() + 5.25f * t.Forward(), PlaneFlightSystem::RotateRocket(t), vec3(0.01f))));
         auto& rocketBehaviour = scene->GetRegistry().get<RocketBehaviour>(handle);
         rocketBehaviour.initialVelocity = planeRb.GetRigidbody().get()->getLinearVelocity();
 
-        scene->GetRegistry().get<RocketBehaviour>(handle).owner = conn;
+        scene->GetRegistry().get<RocketBehaviour>(handle).owner = incomingMessage->m_conn;
         break;
     }
     case PlayerInput:
     {
         auto msg = *static_cast<const PlaneInputMessage*>((incomingMessage->GetData()));
+
         auto planeHandle = PlaneFlightSystem::m_ConnToEntityMap[conn];
         auto& controller = reg.get<PlayerPlaneController>(planeHandle);
         controller = msg.inputPayload;
+
+        //if (nc.IsConnectionHost(conn))
+        //{
+        //AT_INFO("pitch {}, roll {}, shooting {}", controller.pitch, controller.roll, controller.shooting);
+        //}
         break;
     }
     case ConnectionApproved:
@@ -42,9 +48,10 @@ void Messages::HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnect
             nc.SendToClient(nc.GetHostConnection(), msg, sizeof(*msg));
 
             auto clientEntity = scene->CreateNetworkedPrefab("plane", Transform(vec3(-20, 0, 60))); // client
-            handle = static_cast<entt::entity>(clientEntity);
-            PlaneFlightSystem::m_ConnToEntityMap[conn] = handle;
-            auto* clientMsg = new Messages::PlayerSpawnedMessage(handle);
+            auto clientHandle = static_cast<entt::entity>(clientEntity);
+            PlaneFlightSystem::m_ConnToEntityMap[conn] = clientHandle;
+            //AT_INFO("Conn {}, Handle {}", conn, handle);
+            auto* clientMsg = new Messages::PlayerSpawnedMessage(clientHandle);
             nc.SendToClient(conn, clientMsg, sizeof(*clientMsg));
 
         }

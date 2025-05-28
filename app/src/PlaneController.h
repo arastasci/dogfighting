@@ -36,6 +36,8 @@ struct PlayerPlaneController
     bool IsOwned = false;
     void Reset()
     {
+        if (Networking::Get().IsHost())
+            return;
         pitch = 0;
         roll = 0;
         thrust = 0;
@@ -79,10 +81,9 @@ public:
             controller.thrust = (Input::GetKeyPress(Key::Space) ? 1.f : 0.f) +
                 (Input::GetKeyPress(Key::LeftControl) ? -1.f : 0.f);
 
-            if (m_AccTime > 0.3f && Input::GetKeyPress(Key::F))
+            if (Input::GetKeyPress(Key::F))
             {
-                controller.shooting = true;
-                m_AccTime = 0;
+                ShootRocket();
             }
             auto* msg = new Messages::PlaneInputMessage(e, controller);
             Networking::Get().SendToHost(msg, sizeof(*msg));
@@ -91,6 +92,17 @@ public:
 
     }
 private:
+    void ShootRocket()
+    {
+        if (m_AccTime <= 0.3)
+            return;
+
+        m_AccTime = 0.0;
+        auto& nc = Networking::Get();
+        auto* msg = new Messages::RocketFiredMessage();
+        nc.SendToHost(msg, sizeof(*msg));
+
+    }
     float m_AccTime{};
 };
 
@@ -133,11 +145,12 @@ public:
             if (!body->isActive()) body->activate();
 
             btVector3 v = body->getLinearVelocity();
-
-            if (controller.shooting)
+            if (Networking::Get().IsConnectionHost(Networking::Get().GetClientId()) && m_ConnToEntityMap[Networking::Get().GetClientId()] == e)
             {
-                ShootRocket(v, tr);
+                AT_INFO("pitch {}, roll {}, shooting {}", controller.pitch, controller.roll, controller.shooting);
             }
+
+           
 
             if (controller.thrust == 1)
                 planeFlight.Throttle = glm::clamp(planeFlight.Throttle + planeFlight.ThrottleRate * dt, 0.f, 1.f);
@@ -227,17 +240,7 @@ private:
     
     entt::dense_map<entt::entity, float> m_RotDragConst;
 
-    void ShootRocket(const btVector3& velocity, const Transform& t)
-    {
-        if (m_AccTime <= 0.3)
-            return;
-
-        m_AccTime = 0.0;
-        auto& nc = Networking::Get();
-        auto* msg = new Messages::RocketFiredMessage();
-        nc.SendToHost(msg, sizeof(*msg));
-
-    }
+    
 
    
     double m_AccTime = 0.0;

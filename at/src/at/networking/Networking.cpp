@@ -147,10 +147,10 @@ namespace at
 		if (IsHost())
 		{
 			auto* msg = new  SteamNetworkingMessage_t();
-			msg->m_conn = m_Connection;
+			msg->m_conn = m_HostConnection;
 			msg->m_cbSize = size;
 			msg->m_pData = data;
-			m_HandleServerAppMessageCallback(m_Scene, m_HostConnection, msg);
+			m_HandleServerAppMessageCallback(m_Scene, SelfClientID, msg);
 		}
 		else
 		SendToClient(m_Connection, data, size);

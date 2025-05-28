@@ -83,7 +83,6 @@ namespace at
 		void UpdateCameraProperties()
 		{
 			auto view = GetView<CameraComponent, Transform>();
-			AT_CORE_WARN("We have {} cam instances", view.storage<CameraComponent>()->size());
 			int size = view.storage<CameraComponent>()->size();
 			if (size <= 0)
 				return;
