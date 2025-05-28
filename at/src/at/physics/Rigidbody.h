@@ -42,7 +42,7 @@ namespace at
         void SetGravity(vec3 acceleration);
         entt::entity GetOwner();
         SharedPtr<btRigidBody> GetRigidbody() { return m_Rigidbody; }
-
+        bool IsStatic() { return m_isStatic; };
     private:
         void Detach();
 

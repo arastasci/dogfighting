@@ -88,7 +88,8 @@ namespace at {
 			m_activeScene->PreUpdate();
 			const auto accTime = m_activeScene->FixedUpdate(m_DeltaTime);
 			m_activeScene->Update(m_DeltaTime);
-			m_activeScene->InterpolatePhysicsTransforms(accTime / Constants::FIXED_TIMESTEP);
+			if(Networking::Get().IsHost())
+				m_activeScene->InterpolatePhysicsTransforms(accTime / Constants::FIXED_TIMESTEP);
 			m_activeScene->LateUpdate(m_DeltaTime);
 			m_activeScene->OnDestroy();
 			m_activeScene->Render();

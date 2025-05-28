@@ -43,6 +43,7 @@ void Messages::HandleAppMessages_Client(SharedPtr<Scene> scene, SteamNetworkingM
     {
     case PlayerSpawned:
     {
+        Networking::Get().SetConnected(true);
         auto msg = *static_cast<const PlayerSpawnedMessage*>((incomingMessage->GetData()));
         auto localHandle = nc.ToLocal(msg.e);
         Entity entity{ localHandle, scene };

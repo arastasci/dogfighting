@@ -33,10 +33,7 @@ namespace at
 	//}
 	void Networking::Update()
 	{
-		/*if (IsHost())
-		{
-			UpdateDirtyComponents();
-		}*/
+		
 		ReceiveMessages();
 		m_Interface->RunCallbacks();
 	}
@@ -174,7 +171,7 @@ namespace at
 		auto res = m_Interface->SendMessageToConnection(id, data, size, 0, nullptr);
 		if (res == k_EResultOK)
 		{
-			AT_CORE_INFO("Message sent to {}", id);
+			//AT_CORE_INFO("Message sent to {}", id);
 		}
 	}
 
@@ -189,101 +186,83 @@ namespace at
 	}
 	void Networking::ReceiveMessages()
 	{
-
 		if (IsHost())
 		{
-			SteamNetworkingMessage_t* incomingMessage = nullptr;
+			SteamNetworkingMessage_t* msg = nullptr;
 			if (m_ConnectedClients.size() <= 1)
 				return;
-			for (auto it = ++m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
+			for (auto connIt = ++m_ConnectedClients.begin(); connIt != m_ConnectedClients.end(); ++connIt)
 			{
-				int messageCount = m_Interface->ReceiveMessagesOnConnection(*it, &incomingMessage, 1);
-				
-				if (messageCount <= 0)
+				int num = m_Interface->ReceiveMessagesOnConnection(*connIt, &msg, 1);
+				while (num > 0)
 				{
-					return;
+					auto clientIt = m_ConnectedClients.find(msg->m_conn);
+					if (clientIt == m_ConnectedClients.end())
+						break;
+					m_HandleServerAppMessageCallback(m_Scene, *clientIt, msg);
+					msg->Release();
+					num = m_Interface->ReceiveMessagesOnConnection(*connIt, &msg, 1);
 				}
-				auto itClient = m_ConnectedClients.find(incomingMessage->m_conn);
-				if (itClient == m_ConnectedClients.end())
-				{
-					std::cout << "ERROR: Received data from unregistered client\n";
-					return;
-				}
-				AT_CORE_WARN("Message coming from {}...", incomingMessage->m_conn);
-				m_HandleServerAppMessageCallback(m_Scene, *itClient, incomingMessage);
-				incomingMessage->Release();
 			}
-			
 		}
-		if(IsClient())
+
+		if (IsClient())
 		{
-			SteamNetworkingMessage_t* incomingMessage = nullptr;
-			int messageCount = m_Interface->ReceiveMessagesOnConnection(m_Connection, &incomingMessage, 1);
-			if (messageCount == 0)
+			SteamNetworkingMessage_t* msg = nullptr;
+			int num = m_Interface->ReceiveMessagesOnConnection(m_Connection, &msg, 1);
+			while (num > 0)
 			{
-				return;
-			}
-
-			if (incomingMessage->m_cbSize)
-			{
-				AT_CORE_INFO("We got a message");
-				Messages::MessageType e = *(static_cast<const Messages::MessageType*>((incomingMessage->GetData())));
-
-				switch (e)
+				if (msg->m_cbSize)
 				{
-				case Messages::EntityCreated:
-				{
-					if (IsHost())
-						break;
-					auto msg = *static_cast<const Messages::EntityCreatedMessage*>((incomingMessage->GetData()));
-					auto nativeEntity = m_Scene->CreateNetworkedEntity(msg.transform);
-					auto handle = static_cast<entt::entity>(nativeEntity);
-					AT_CORE_INFO("Entity created with remote handle {}, local handle {}", static_cast<uint32_t>(msg.e), static_cast<uint32_t>(handle));
-					m_RemoteToLocalMap[msg.e] = handle;
-					m_LocalToRemoteMap[handle] = msg.e;
-					if(msg.prefabId != 0)
-					PrefabLibrary::Get().GetPrefab(msg.prefabId)->InitEntity(nativeEntity);
-					break;
-				}
-				case Messages::EntityDestroyed:
-				{
-					if (IsHost())
-						break;
-					auto msg = *static_cast<const Messages::EntityDestroyedMessage*>((incomingMessage->GetData()));
-					AT_CORE_INFO("Entity destroyed with remote handle {}, local handle {}", static_cast<uint32_t>(msg.e), static_cast<uint32_t>(m_RemoteToLocalMap[msg.e]));
-					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
-					if (m_Scene->DestroyEntity(entity))
+					auto type = *static_cast<const Messages::MessageType*>(msg->GetData());
+					switch (type)
 					{
-						m_RemoteToLocalMap.erase(msg.e);
-						m_LocalToRemoteMap.erase(entity);
-					}
-					else
+					case Messages::EntityCreated:
 					{
-						assert(false);
-					}
-					break;
-				}
-				case Messages::TransformUpdate:
-				{
-					if (IsHost())
+						if (IsHost()) break;
+						auto m = *static_cast<const Messages::EntityCreatedMessage*>(msg->GetData());
+						auto n = m_Scene->CreateNetworkedEntity(m.transform);
+						auto h = static_cast<entt::entity>(n);
+						AT_CORE_INFO("Entity created with remote handle {}, local handle {}", (uint32_t)m.e, (uint32_t)h);
+						m_RemoteToLocalMap[m.e] = h;
+						m_LocalToRemoteMap[h] = m.e;
+						if (m.prefabId) PrefabLibrary::Get().GetPrefab(m.prefabId)->InitEntity(n);
 						break;
-					auto msg = *static_cast<const Messages::TransformUpdateMessage*>((incomingMessage->GetData()));
-					auto entity = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[msg.e]));
-					auto& t = m_Scene->GetRegistry().get<Transform>(entity);
-					t = msg.transform;
-					break;
+					}
+					case Messages::EntityDestroyed:
+					{
+						if (IsHost()) break;
+						auto m = *static_cast<const Messages::EntityDestroyedMessage*>(msg->GetData());
+						auto h = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[m.e]));
+						if (m_Scene->DestroyEntity(h))
+						{
+							m_RemoteToLocalMap.erase(m.e);
+							m_LocalToRemoteMap.erase(h);
+						}
+						else
+							assert(false);
+						break;
+					}
+					case Messages::TransformUpdate:
+					{
+						if (IsHost()) break;
+						auto m = *static_cast<const Messages::TransformUpdateMessage*>(msg->GetData());
+						auto h = static_cast<entt::entity>(m_Scene->GetEntity(m_RemoteToLocalMap[m.e]));
+						m_Scene->GetRegistry().get<Transform>(h) = m.transform;
+						break;
+					}
+					default:
+						m_HandleClientAppMessageCallback(m_Scene, msg);
+						break;
+					}
 				}
-				default:
-				{
-					m_HandleClientAppMessageCallback(m_Scene, incomingMessage);
-					break;
-				}
-				}
-
+				msg->Release();
+				num = m_Interface->ReceiveMessagesOnConnection(m_Connection, &msg, 1);
 			}
-
 		}
 	}
+
+
 	entt::entity Networking::ToLocal(entt::entity e)
 	{
 		if (IsHost())

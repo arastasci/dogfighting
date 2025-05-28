@@ -12,6 +12,8 @@ namespace at
 	public:
 		virtual void Start() override
 		{
+			if (!Networking::Get().IsHost())
+				return;
 			auto view = GetStartedView<Rigidbody>();
 			for (auto [e, rb] : view.each())
 			{
@@ -21,6 +23,9 @@ namespace at
 				
 			}
 		}
+
+		
+
 		void InterpolateTransforms(float dt) 
 		{
 			auto view = GetView<Rigidbody, Transform>();

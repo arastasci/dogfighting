@@ -10,6 +10,7 @@
 #include "at/renderer/MeshRendererSystem.h"
 #include "at/physics/PhysicsSystem.h"
 #include <at/networking/DirtyComponent.h>
+#include <at/networking/NetworkSyncSystem.h>
 namespace at
 {
 	std::shared_ptr<Scene> Scene::m_activeScene;
@@ -40,6 +41,8 @@ namespace at
 			m_PhysicsSystem->SetScene(shared_from_this());
 			m_RendererSystem = std::make_unique<MeshRendererSystem>();
 			m_RendererSystem->SetScene(shared_from_this());
+			m_SyncSystem = std::make_unique<NetworkSyncSystem>();
+			m_SyncSystem->SetScene(shared_from_this());
 		}
 		else
 		{
@@ -164,8 +167,12 @@ namespace at
 		m_AccTimestep += dt;
 		m_TotalTime = glfwGetTime();
 
-		if(m_AccTimestep >= Constants::FIXED_TIMESTEP)
+		bool willSimulate = false;
+		if (m_AccTimestep >= Constants::FIXED_TIMESTEP)
+		{
 			m_PhysicsWorld->UpdateLastTransforms();
+			willSimulate = true;
+		}
 		
 		while (m_AccTimestep >= Constants::FIXED_TIMESTEP)
 		{
@@ -173,6 +180,10 @@ namespace at
 			m_SystemScheduler->FixedUpdate(dt);
 
 			m_AccTimestep -= Constants::FIXED_TIMESTEP;
+		}
+		if (willSimulate)
+		{
+			m_SyncSystem->FixedUpdate();
 		}
 		return m_AccTimestep;
 	}

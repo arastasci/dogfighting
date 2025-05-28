@@ -119,12 +119,24 @@ public:
         if (Networking::Get().IsHost())
         {
             m_activeScene->AddSystem<RocketSystem>();
+            m_activeScene->AddSystem<PlaneFlightSystem>();  
+            m_activeScene->AddSystem<SpawnerSystem>();
         }
         m_activeScene->AddSystem<PlayerPlaneControllerSystem>();
         m_activeScene->AddSystem<FollowCameraSystem>();
         m_activeScene->AddSystem<CollisionSystem>();
-        m_activeScene->AddSystem<PlaneFlightSystem>();
-        m_activeScene->AddSystem<SpawnerSystem>();
+
+        auto& nc = Networking::Get();
+        if(nc.IsHost())
+            while (!nc.HostNotAlone())
+            {
+                nc.Update();
+            }
+        else
+        {
+            while (!nc.IsConnectedToHost())
+                nc.Update();
+        }
 		auto e = m_activeScene->CreateEntity(Transform(vec3(0, 0, 0)));
 
 
@@ -144,11 +156,11 @@ public:
         rocket.AddComponent<MeshRenderer>("rocket", "defaultMaterial");
         rocket.AddComponent<Rigidbody>(false, true);
 
-     /*   auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(-2.5f, 2.5f, -6.0f), quat(), vec3(1.0f)));
+        /*auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(-2.5f, 2.5f, -6.0f), quat(), vec3(1.0f)));
 
 		camera.AddComponent<CameraComponent>(camera.GetComponent<Transform>().position, Vector3::forward, Vector3::up, 45.0f, 1280.f / 720.f);
-        camera.AddComponent<FreeCamera>();
-        */
+        camera.AddComponent<FreeCamera>();*/
+        
         
 
 	}

@@ -70,7 +70,9 @@ namespace at
 		void SendToClient(ClientID id, const void*, size_t size);
 		bool IsHost();
 		bool IsClient();
-
+		bool HostNotAlone() { return m_ConnectedClients.size() > 1; }
+		bool IsConnectedToHost() { return m_ClientConnected; }
+		void SetConnected(bool b) { m_ClientConnected = b; }
 		template<typename T>
 		void OnComponentCreated(entt::entity e)
 		{
@@ -83,6 +85,7 @@ namespace at
 
 		entt::entity ToLocal(entt::entity);
 	private:
+		bool m_ClientConnected = false;
 		HandleAppServerMessageCallback m_HandleServerAppMessageCallback;
 		HandleAppMessageCallback m_HandleClientAppMessageCallback;
 		ClientConnectedCallback m_ClientConnectedCallback;

@@ -14,6 +14,7 @@ namespace at
 	class CameraComponent;
 	class MeshRendererSystem;
 	class PhysicsSystem;
+	class NetworkSyncSystem;
 	class AT_API Scene : public std::enable_shared_from_this<Scene>
 	{
 	public:
@@ -97,6 +98,7 @@ namespace at
 		SharedPtr<PhysicsWorld> m_PhysicsWorld;
 		std::unique_ptr<PhysicsSystem> m_PhysicsSystem;
 		std::unique_ptr<MeshRendererSystem> m_RendererSystem;
+		std::unique_ptr<NetworkSyncSystem> m_SyncSystem;
 		entt::registry m_registry;
 
 		friend class Entity;
