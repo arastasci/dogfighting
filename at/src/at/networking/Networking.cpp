@@ -91,16 +91,21 @@ namespace at
 			{
 				AT_CORE_INFO("The identity {} is invalid!", identity.m_steamID64);
 			}
-			while (true)
-			{
-				SteamRelayNetworkStatus_t status;
-				SteamNetworkingUtils()->GetRelayNetworkStatus(&status);
-				if (status.m_eAvail == k_ESteamNetworkingAvailability_Current)
-				{
-					AT_CORE_WARN("Connected to the relay network.");
-					break;
-				}
-			}
+			//while (true)
+			//{
+			//	SteamRelayNetworkStatus_t status;
+			//	SteamNetworkingUtils()->GetRelayNetworkStatus(&status);
+			//	if (status.m_eAvail == k_ESteamNetworkingAvailability_Current)
+			//	{
+			//		AT_CORE_WARN("Connected to the relay network.");
+			//		break;
+			//	}
+			//	else
+			//	{
+			//		AT_CORE_INFO("{}", status.m_debugMsg);
+			//		//SteamNetworkingUtils()->InitRelayNetworkAccess();
+			//	}
+			//}
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
 

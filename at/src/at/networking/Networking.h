@@ -38,7 +38,7 @@ namespace at
 			AT_INFO("SteamID is: {}", SteamUser()->GetSteamID().ConvertToUint64());
 			m_selfSteamID = SteamUser()->GetSteamID();
 			m_Interface = SteamNetworkingSockets();
-			SteamNetworkingUtils()->InitRelayNetworkAccess();
+			//SteamNetworkingUtils()->InitRelayNetworkAccess();
 #else 
 			SteamDatagramErrMsg errMsg;
 			if (!GameNetworkingSockets_Init(nullptr, errMsg))
