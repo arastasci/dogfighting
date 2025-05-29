@@ -36,7 +36,7 @@ namespace at
 		
 		ReceiveMessages();
 #if USE_STEAM
-		SteamAPI_RunCallbacks();
+		//SteamAPI_RunCallbacks();
 #else
 #endif
 		m_Interface->RunCallbacks();
