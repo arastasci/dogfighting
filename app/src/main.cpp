@@ -149,11 +149,7 @@ public:
         auto terrainEntity = m_activeScene->CreateEntity(Transform(vec3(0, -60, 0), quat(), vec3(10, 5, 10)));
         terrainEntity.AddComponent<MeshRenderer>("terrain", "defaultMaterial");
         terrainEntity.AddComponent<Rigidbody>(true);
-		
 
-        auto rocket = m_activeScene->CreateEntity(Transform(vec3(0, 30, 0), quat(), vec3(0.1f)));
-        rocket.AddComponent<MeshRenderer>("rocket", "defaultMaterial");
-        rocket.AddComponent<Rigidbody>(false, true);
 
         /*auto camera = m_activeScene->CreateEntity(Transform(&e.GetComponent<Transform>(), vec3(-2.5f, 2.5f, -6.0f), quat(), vec3(1.0f)));
 
