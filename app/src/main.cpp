@@ -88,6 +88,8 @@ void OnClientConnected(std::shared_ptr<Scene> scene, HSteamNetConnection conn)
 {
     auto& nc = Networking::Get();
     auto* msg = new Messages::ConnectedMessage(conn);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     nc.SendToClient(conn, msg, sizeof(*msg), true);
 }
 

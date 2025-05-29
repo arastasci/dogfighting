@@ -33,12 +33,12 @@ namespace at
 	//}
 	void Networking::Update()
 	{
-		ReceiveMessages();
 #if USE_STEAM
 		SteamAPI_RunCallbacks();
 #else
 #endif
 		m_Interface->RunCallbacks();
+		ReceiveMessages();
 
 	}
 
