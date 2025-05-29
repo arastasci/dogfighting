@@ -38,8 +38,8 @@ namespace at
 #if USE_STEAM
 		SteamAPI_RunCallbacks();
 #else
-		m_Interface->RunCallbacks();
 #endif
+		m_Interface->RunCallbacks();
 	}
 
 	void Networking::Host()
