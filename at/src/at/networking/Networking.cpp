@@ -218,7 +218,7 @@ namespace at
 
 		}
 	}
-	void Networking::SendToHost( void* data, size_t size)
+	void Networking::SendToHost( void* data, size_t size,  bool isReliable)
 	{
 		if (IsHost())
 		{
@@ -229,16 +229,16 @@ namespace at
 			m_HandleServerAppMessageCallback(m_Scene, SelfClientID, msg);
 		}
 		else
-		SendToClient(m_Connection, data, size);
+		SendToClient(m_Connection, data, size, isReliable);
 	}
-	void Networking::SendToAllClients(const void* msg, size_t size)
+	void Networking::SendToAllClients(const void* msg, size_t size,  bool isReliable)
 	{
 		for (auto it = m_ConnectedClients.begin(); it != m_ConnectedClients.end(); it++)
 		{
-			SendToClient(*it, msg, size);
+			SendToClient(*it, msg, size, isReliable);
 		}
 	}
-	void Networking::SendToClient(ClientID id, const void* data, size_t size)
+	void Networking::SendToClient(ClientID id, const void* data, size_t size,  bool isReliable)
 	{
 		if (id == m_HostConnection) 
 		{
@@ -250,7 +250,7 @@ namespace at
 		}
 		else
 		{
-			auto res = m_Interface->SendMessageToConnection(id, data, size, 0, nullptr);
+			auto res = m_Interface->SendMessageToConnection(id, data, size, isReliable ? k_EP2PSendReliable : 0, nullptr);
 			if (res == k_EResultOK)
 			{
 				//AT_CORE_INFO("Message sent to {}", id);

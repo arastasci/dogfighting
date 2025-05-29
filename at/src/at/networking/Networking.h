@@ -81,9 +81,9 @@ namespace at
 		void OnNetworkedEntityDestroyed(entt::registry& registry, entt::entity e);
 		static void OnNetworkedEntityCreatedCallback(entt::registry& registry, entt::entity e);
 		void OnNetworkedEntityCreated(entt::registry& registry, entt::entity e);
-		void SendToHost( void*, size_t size);
-		void SendToAllClients(const void*, size_t size);
-		void SendToClient(ClientID id, const void*, size_t size);
+		void SendToHost( void*, size_t size,  bool isReliable = false);
+		void SendToAllClients(const void*, size_t size,  bool isReliable = false);
+		void SendToClient(ClientID id, const void*, size_t size,  bool isReliable = false);
 		bool IsHost();
 		bool IsClient();
 		bool HostNotAlone() { return m_ConnectedClients.size() > 1; }

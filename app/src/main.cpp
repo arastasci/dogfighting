@@ -88,7 +88,7 @@ void OnClientConnected(std::shared_ptr<Scene> scene, HSteamNetConnection conn)
 {
     auto& nc = Networking::Get();
     auto* msg = new Messages::ConnectedMessage(conn);
-    nc.SendToClient(conn, msg, sizeof(*msg));
+    nc.SendToClient(conn, msg, sizeof(*msg), true);
 }
 
 class Sandbox : public at::Application

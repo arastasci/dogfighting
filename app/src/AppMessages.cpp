@@ -52,7 +52,7 @@ void Messages::HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnect
             PlaneFlightSystem::m_ConnToEntityMap[conn] = clientHandle;
             //AT_INFO("Conn {}, Handle {}", conn, handle);
             auto* clientMsg = new Messages::PlayerSpawnedMessage(clientHandle);
-            nc.SendToClient(conn, clientMsg, sizeof(*clientMsg));
+            nc.SendToClient(conn, clientMsg, sizeof(*clientMsg), true);
 
         }
         break;
@@ -88,7 +88,7 @@ void Messages::HandleAppMessages_Client(SharedPtr<Scene> scene, SteamNetworkingM
         auto msg = *static_cast<const ConnectedMessage*>((incomingMessage->GetData()));
         nc.SetSelfClientId(msg.conn);
         auto* approvedMsg = new ConnectionApprovedMessage();
-        nc.SendToHost(approvedMsg, sizeof(*approvedMsg));
+        nc.SendToHost(approvedMsg, sizeof(*approvedMsg), true);
         break;
     }
     }
