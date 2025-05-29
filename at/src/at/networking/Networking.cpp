@@ -106,6 +106,11 @@ namespace at
 					break;
 				}
 			}
+			if (m_selfSteamID.ConvertToUint64() == id)
+			{
+				identity.SetSteamID64(id);
+				bFoundFriend = true;
+			}
 			while (true)
 			{
 				SteamRelayNetworkStatus_t status;
@@ -125,6 +130,11 @@ namespace at
 					std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
 				}
+			}
+			if (!bFoundFriend)
+			{
+				AT_CORE_WARN("Couldn't find friend, not connecting.");
+				return;
 			}
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
