@@ -45,7 +45,7 @@ void Messages::HandleAppMessages_Server(SharedPtr<Scene> scene, HSteamNetConnect
             auto handle = static_cast<entt::entity>(entity);
             PlaneFlightSystem::m_ConnToEntityMap[nc.GetHostConnection()] = handle;
             auto* msg = new Messages::PlayerSpawnedMessage(handle);
-            nc.SendToClient(nc.GetHostConnection(), msg, sizeof(*msg));
+            nc.SendToClient(nc.GetHostConnection(), msg, sizeof(*msg), true);
 
             auto clientEntity = scene->CreateNetworkedPrefab("plane", Transform(vec3(-20, 0, 60))); // client
             auto clientHandle = static_cast<entt::entity>(clientEntity);
