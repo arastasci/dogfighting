@@ -35,7 +35,11 @@ namespace at
 	{
 		
 		ReceiveMessages();
+#if USE_STEAM
+		SteamAPI_RunCallbacks();
+#else
 		m_Interface->RunCallbacks();
+#endif
 	}
 
 	void Networking::Host()
@@ -86,26 +90,42 @@ namespace at
 			SteamNetworkingIdentity identity;
 			identity.Clear();
 			identity.m_eType = k_ESteamNetworkingIdentityType_SteamID;
-			identity.SetSteamID64(id);
-			if (identity.IsInvalid())
+			
+			auto m_pFriends = SteamFriends();
+			auto m_pInterface = SteamNetworkingSockets();
+			bool bFoundFriend = false;
+			int nFriendCount = m_pFriends->GetFriendCount(k_EFriendFlagImmediate | k_EFriendFlagFriendshipRequested | k_EFriendFlagRequestingFriendship);
+			for (int nIndex = 0; nIndex < nFriendCount; ++nIndex)
 			{
-				AT_CORE_INFO("The identity {} is invalid!", identity.m_steamID64);
+				CSteamID csFriendId = m_pFriends->GetFriendByIndex(nIndex, k_EFriendFlagImmediate | k_EFriendFlagFriendshipRequested  | k_EFriendFlagRequestingFriendship);
+				std::cout << m_pFriends->GetFriendPersonaName(csFriendId) << std::endl;
+				if (csFriendId.ConvertToUint64() == id)
+				{
+					identity.SetSteamID(csFriendId);
+					bFoundFriend = true;
+					break;
+				}
 			}
-			//while (true)
-			//{
-			//	SteamRelayNetworkStatus_t status;
-			//	SteamNetworkingUtils()->GetRelayNetworkStatus(&status);
-			//	if (status.m_eAvail == k_ESteamNetworkingAvailability_Current)
-			//	{
-			//		AT_CORE_WARN("Connected to the relay network.");
-			//		break;
-			//	}
-			//	else
-			//	{
-			//		AT_CORE_INFO("{}", status.m_debugMsg);
-			//		//SteamNetworkingUtils()->InitRelayNetworkAccess();
-			//	}
-			//}
+			while (true)
+			{
+				SteamRelayNetworkStatus_t status;
+				SteamNetworkingUtils()->GetRelayNetworkStatus(&status);
+				if (status.m_eAvail == k_ESteamNetworkingAvailability_Current)
+				{
+					AT_CORE_WARN("Connected to the relay network.");
+					break;
+				}
+				else
+				{
+					AT_CORE_INFO("Any relay at all?: {}, {} ", static_cast<int>(status.m_eAvailAnyRelay), static_cast<int>(status.m_eAvailNetworkConfig));
+					AT_CORE_INFO("{}", status.m_debugMsg);
+					SteamAPI_RunCallbacks();
+
+					SteamNetworkingUtils()->InitRelayNetworkAccess();
+					std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+				}
+			}
 			SteamNetworkingConfigValue_t options;
 			options.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ConnectionStatusChangedCallbackClient);
 

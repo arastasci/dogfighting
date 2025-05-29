@@ -25,7 +25,7 @@ namespace at
 		{
 #ifdef USE_STEAM
 			SteamErrMsg errMsg = { 0 };
-			if (SteamAPI_InitEx(&errMsg) != k_ESteamAPIInitResult_OK)
+			if (!SteamAPI_Init())
 			{
 				AT_CORE_WARN("SteamAPI_Init() failed: ");
 				AT_CORE_WARN(errMsg);
@@ -38,7 +38,15 @@ namespace at
 			AT_INFO("SteamID is: {}", SteamUser()->GetSteamID().ConvertToUint64());
 			m_selfSteamID = SteamUser()->GetSteamID();
 			m_Interface = SteamNetworkingSockets();
-			//SteamNetworkingUtils()->InitRelayNetworkAccess();
+			auto utils = SteamNetworkingUtils();
+			utils->InitRelayNetworkAccess();
+			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+			ESteamNetworkingAvailability eAvailable = utils->GetRelayNetworkStatus(nullptr);
+			SteamAPI_RunCallbacks();
+			if (k_ESteamNetworkingAvailability_Current == eAvailable)
+			{
+				AT_CORE_INFO("Relay network is available.");
+			}
 #else 
 			SteamDatagramErrMsg errMsg;
 			if (!GameNetworkingSockets_Init(nullptr, errMsg))
