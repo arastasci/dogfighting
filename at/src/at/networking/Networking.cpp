@@ -33,13 +33,15 @@ namespace at
 	//}
 	void Networking::Update()
 	{
-		
+		float a = glfwGetTime();
 		ReceiveMessages();
 #if USE_STEAM
-		//SteamAPI_RunCallbacks();
+		SteamAPI_RunCallbacks();
 #else
 #endif
 		m_Interface->RunCallbacks();
+		AT_CORE_INFO("Took {} secs.", glfwGetTime() - a);
+
 	}
 
 	void Networking::Host()
