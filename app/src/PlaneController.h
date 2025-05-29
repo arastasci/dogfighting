@@ -100,7 +100,7 @@ private:
         m_AccTime = 0.0;
         auto& nc = Networking::Get();
         auto* msg = new Messages::RocketFiredMessage();
-        nc.SendToHost(msg, sizeof(*msg));
+        nc.SendToHost(msg, sizeof(*msg), true);
 
     }
     float m_AccTime{};
