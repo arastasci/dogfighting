@@ -44,6 +44,7 @@ namespace at
 
 	void Networking::Host()
 	{
+
 		SteamNetworkingIPAddr addr;
 		addr.Clear();
 		addr.m_port = m_DefaultPort;
@@ -64,6 +65,7 @@ namespace at
 	void Networking::Connect()
 	{
 		{
+			
 			SteamNetworkingIPAddr addr;
 			if (!addr.ParseString("127.0.0.1"))
 			{
@@ -87,6 +89,8 @@ namespace at
 	void Networking::Connect(uint64 id)
 	{
 		{
+			SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLoss_Send, 40.0f);
+			SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLoss_Recv, 40.0f);
 			SteamNetworkingIdentity identity;
 			identity.Clear();
 			identity.m_eType = k_ESteamNetworkingIdentityType_SteamID;
@@ -195,7 +199,7 @@ namespace at
 			AT_CORE_WARN("Entity with host handle {} destroyed.", static_cast<uint32_t>(e));
 
 			auto* msg = new Messages::EntityDestroyedMessage(e);
-			SendToAllClients(msg, sizeof(*msg));
+			SendToAllClients(msg, sizeof(*msg), true);
 		}
 	}
 	void Networking::OnNetworkedEntityCreatedCallback(entt::registry& registry, entt::entity e)
@@ -211,7 +215,7 @@ namespace at
 			if(registry.any_of<PrefabTag>(e))
 				prefabName = registry.get<PrefabTag>(e).Name;
 			auto* msg = new Messages::EntityCreatedMessage(e, PrefabLibrary::Get().GetGUID(prefabName), registry.get<Transform>(e));
-			SendToAllClients(msg, sizeof(*msg));
+			SendToAllClients(msg, sizeof(*msg), true);
 		}
 		else if(IsClient())
 		{
