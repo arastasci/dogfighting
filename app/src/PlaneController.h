@@ -145,12 +145,6 @@ public:
             if (!body->isActive()) body->activate();
 
             btVector3 v = body->getLinearVelocity();
-            if (Networking::Get().IsConnectionHost(Networking::Get().GetClientId()) && m_ConnToEntityMap[Networking::Get().GetClientId()] == e)
-            {
-                AT_INFO("pitch {}, roll {}, shooting {}", controller.pitch, controller.roll, controller.shooting);
-            }
-
-           
 
             if (controller.thrust == 1)
                 planeFlight.Throttle = glm::clamp(planeFlight.Throttle + planeFlight.ThrottleRate * dt, 0.f, 1.f);
