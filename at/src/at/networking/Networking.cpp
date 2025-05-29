@@ -89,8 +89,8 @@ namespace at
 	void Networking::Connect(uint64 id)
 	{
 		{
-			SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLag_Send, 130.0f);
-			SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLag_Recv, 130.0f);
+			//SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLag_Send, 130.0f);
+			//SteamNetworkingUtils()->SetGlobalConfigValueFloat(k_ESteamNetworkingConfig_FakePacketLag_Recv, 130.0f);
 			SteamNetworkingIdentity identity;
 			identity.Clear();
 			identity.m_eType = k_ESteamNetworkingIdentityType_SteamID;

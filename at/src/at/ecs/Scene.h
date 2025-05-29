@@ -42,7 +42,6 @@ namespace at
 		template<typename T>
 		void OnComponentCreated(entt::entity e)
 		{
-			m_OnComponentCreatedCallback(e, StaticComponentID<T>::value);
 		}
 		void PreUpdate();
 		void Start();

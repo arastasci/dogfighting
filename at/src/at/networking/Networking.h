@@ -94,10 +94,6 @@ namespace at
 		template<typename T>
 		void OnComponentCreated(entt::entity e)
 		{
-			if (IsHost())
-			{
-				SendToAllClients(new Messages::ComponentCreatedMessage(e, StaticComponentID<T>::value));
-			}
 		}
 		void ReceiveMessages();
 		void SetSelfClientId(HSteamNetConnection conn);
