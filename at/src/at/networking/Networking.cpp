@@ -33,14 +33,12 @@ namespace at
 	//}
 	void Networking::Update()
 	{
-		float a = glfwGetTime();
 		ReceiveMessages();
 #if USE_STEAM
 		SteamAPI_RunCallbacks();
 #else
 #endif
 		m_Interface->RunCallbacks();
-		AT_CORE_INFO("Took {} secs.", glfwGetTime() - a);
 
 	}
 
@@ -440,12 +438,7 @@ namespace at
 			SteamNetConnectionInfo_t connectionInfo;
 			m_Interface->GetConnectionInfo(status->m_hConn, &connectionInfo);
 
-			// Register connected client
-			m_ConnectedClients.insert(status->m_hConn);
-		
-			//// User callback
-			if (m_ClientConnectedCallback)
-				m_ClientConnectedCallback(m_Scene, status->m_hConn);
+			
 
 			break;
 		}
@@ -454,6 +447,12 @@ namespace at
 			// We will get a callback immediately after accepting the connection.
 			// Since we are the server, we can ignore this, it's not news to us.
 			AT_CORE_WARN("Client {} connected!", status->m_hConn);
+			// Register connected client
+			m_ConnectedClients.insert(status->m_hConn);
+
+			//// User callback
+			if (m_ClientConnectedCallback)
+				m_ClientConnectedCallback(m_Scene, status->m_hConn);
 			break;
 
 		default:
